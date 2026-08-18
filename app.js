@@ -12,7 +12,7 @@ let timerStartedAt = null;
 let matchElapsedSeconds = 0;
 
 const $ = (id) => document.getElementById(id);
-const homeView = $('homeView'), matchSetupView = $('matchSetupView'), liveMatchView = $('liveMatchView');
+const homeView = $('homeView'), settingsView = $('settingsView'), matchSetupView = $('matchSetupView'), liveMatchView = $('liveMatchView');
 const playerDialog = $('playerDialog'), playerForm = $('playerForm');
 const playerName = $('playerName'), playerNumber = $('playerNumber'), playerPosition = $('playerPosition');
 
@@ -28,7 +28,7 @@ function saveMatches(v) { saveJson(MATCH_STORAGE_KEY, v); }
 function escapeHtml(v) { return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
 function playerLabel(p) { return `${p.number ? `#${p.number} ` : ''}${p.name}${p.position ? ` · ${p.position}` : ''}`; }
 const matchReportView = $('matchReportView');
-function showView(view) { [homeView, matchSetupView, liveMatchView, matchReportView].forEach(v => v.classList.add('hidden')); view.classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); }
+function showView(view) { [homeView, settingsView, matchSetupView, liveMatchView, matchReportView].forEach(v => v.classList.add('hidden')); view.classList.remove('hidden'); if(view===homeView){ renderMatchHistory(); renderSeasonStatistics(); } if(view===settingsView){ renderSettings(); renderPlayers(); } window.scrollTo({top:0,behavior:'smooth'}); }
 
 function renderSettings() { const s=loadSettings(); $('matchFormat').value=String(s.matchFormat); $('squadSize').value=s.squadSize; $('playersOnPitch').value=s.playersOnPitch; }
 function renderPlayers() {
@@ -104,12 +104,40 @@ $('deleteMatchBtn').onclick=()=>{
   currentMatchReport=null; showView(homeView); renderMatchHistory();
 };
 
-renderSettings();renderPlayers();renderMatchHistory();$('settingsSaved').textContent='Saved';setTimeout(()=>$('settingsSaved').textContent='',1500);};
+renderSettings();renderPlayers();renderMatchHistory();renderSeasonStatistics();renderMatchHistory();$('settingsSaved').textContent='Saved';setTimeout(()=>$('settingsSaved').textContent='',1500);};
 $('matchFormat').onchange=()=>{$('playersOnPitch').value=$('matchFormat').value;};
 
 function openMatchSetup(){const players=loadPlayers(),s=loadSettings();if(players.length<s.playersOnPitch){alert(`You need at least ${s.playersOnPitch} players in the squad first.`);return;}availableIds=new Set(players.map(p=>p.id));starterIds=new Set(players.slice(0,s.playersOnPitch).map(p=>p.id));$('matchDate').value=new Date().toISOString().slice(0,10);$('opponentName').value='';$('matchSetupError').textContent='';renderMatchSelection();showView(matchSetupView);}
 function renderMatchSelection(){const players=loadPlayers(),s=loadSettings();$('startingTeamHeading').textContent=`Starting ${s.playersOnPitch}`;$('availableCount').textContent=`${availableIds.size} available`;$('starterCount').textContent=`${starterIds.size} / ${s.playersOnPitch}`;$('availabilityList').innerHTML=players.map(p=>`<label class="selection-row"><input class="availability-check" type="checkbox" data-id="${p.id}" ${availableIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');$('starterList').innerHTML=players.filter(p=>availableIds.has(p.id)).map(p=>`<label class="selection-row ${starterIds.has(p.id)?'selected':''}"><input class="starter-check" type="checkbox" data-id="${p.id}" ${starterIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');const subs=players.filter(p=>availableIds.has(p.id)&&!starterIds.has(p.id));$('substituteList').innerHTML=subs.length?subs.map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join(''):'<p class="muted">No substitutes selected.</p>';document.querySelectorAll('.availability-check').forEach(c=>c.onchange=()=>{if(c.checked)availableIds.add(c.dataset.id);else{availableIds.delete(c.dataset.id);starterIds.delete(c.dataset.id);}renderMatchSelection();});document.querySelectorAll('.starter-check').forEach(c=>c.onchange=()=>{if(c.checked){if(starterIds.size>=s.playersOnPitch){$('matchSetupError').textContent=`You can only select ${s.playersOnPitch} starters.`;return;}starterIds.add(c.dataset.id);}else starterIds.delete(c.dataset.id);$('matchSetupError').textContent='';renderMatchSelection();});}
-$('newMatchBtn').onclick=openMatchSetup; $('cancelMatchSetupBtn').onclick=()=>showView(homeView);
+$('newMatchBtn').onclick=openMatchSetup;
+$('settingsBtn').onclick=()=>showView(settingsView);
+$('settingsBackBtn').onclick=()=>{showView(homeView);};
+
+function renderSeasonStatistics(){
+  const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime);
+  const players=loadPlayers();
+  const stats={};
+  players.forEach(p=>stats[p.id]={id:p.id,name:p.name,number:p.number||'',position:p.position||'',apps:0,starts:0,subApps:0,goals:0});
+  let wins=0,draws=0,losses=0,goalsFor=0,goalsAgainst=0;
+  matches.forEach(match=>{
+    goalsFor+=Number(match.ourScore)||0;
+    goalsAgainst+=Number(match.theirScore)||0;
+    if(match.ourScore>match.theirScore)wins++; else if(match.ourScore<match.theirScore)losses++; else draws++;
+    const starters=new Set(match.starterPlayerIds||[]);
+    const participants=new Set(starters);
+    const events=match.events||[];
+    events.filter(e=>e.type==='substitution'&&e.onId).forEach(e=>participants.add(e.onId));
+    participants.forEach(id=>{ if(!stats[id])return; stats[id].apps++; if(starters.has(id))stats[id].starts++; else stats[id].subApps++; });
+    events.filter(e=>e.type==='our_goal'&&e.playerId).forEach(e=>{
+      if(!stats[e.playerId])return; stats[e.playerId].goals++;
+    });
+  });
+  $('seasonSummary').innerHTML=`<div class="stat-card"><strong>${matches.length}</strong><span>Played</span></div><div class="stat-card"><strong>${wins}</strong><span>Won</span></div><div class="stat-card"><strong>${draws}</strong><span>Drawn</span></div><div class="stat-card"><strong>${goalsFor}</strong><span>Goals</span></div><div class="stat-card"><strong>${goalsAgainst}</strong><span>Against</span></div>`;
+  const rows=Object.values(stats).sort((a,b)=>b.goals-a.goals||b.apps-a.apps||(Number(a.number)||999)-(Number(b.number)||999));
+  if(!matches.length){$('playerStatsTable').innerHTML='<p class="muted stats-empty">Complete a match and player statistics will appear here.</p>';return;}
+  $('playerStatsTable').innerHTML=`<table class="stats-table"><thead><tr><th>Player</th><th class="num">Apps</th><th class="num">Starts</th><th class="num">Subs</th><th class="num">Goals</th></tr></thead><tbody>${rows.map(p=>`<tr><td class="player-stat-name">${escapeHtml(p.number?`#${p.number} ${p.name}`:p.name)}</td><td class="num">${p.apps}</td><td class="num">${p.starts}</td><td class="num">${p.subApps}</td><td class="num">${p.goals}</td></tr>`).join('')}</tbody></table>`;
+}
+ $('cancelMatchSetupBtn').onclick=()=>showView(homeView);
 $('matchSetupForm').onsubmit=e=>{e.preventDefault();const s=loadSettings(),opponent=$('opponentName').value.trim();if(!opponent){$('matchSetupError').textContent='Enter the opponent name.';return;}if(availableIds.size<s.playersOnPitch){$('matchSetupError').textContent=`You need at least ${s.playersOnPitch} available players.`;return;}if(starterIds.size!==s.playersOnPitch){$('matchSetupError').textContent=`Select exactly ${s.playersOnPitch} starters.`;return;}const match={id:makeId(),opponent,date:$('matchDate').value,venue:document.querySelector('input[name="venue"]:checked').value,availablePlayerIds:[...availableIds],starterPlayerIds:[...starterIds],substitutePlayerIds:[...availableIds].filter(id=>!starterIds.has(id)),currentOnPitch:[...starterIds],currentSubs:[...availableIds].filter(id=>!starterIds.has(id)),status:'live',period:1,halfTime:false,fullTime:false,ourScore:0,theirScore:0,events:[],periodElapsedSeconds:0,periodStartedAt:null,createdAt:new Date().toISOString()};const matches=loadMatches();matches.push(match);saveMatches(matches);startLiveMatch(match.id);};
 
 function currentMatch(){return loadMatches().find(m=>m.id===activeMatchId)||null;}
@@ -230,4 +258,38 @@ $('deleteMatchBtn').onclick=()=>{
 };
 
 renderSettings();renderPlayers();
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=9').catch(()=>{}));
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=15').catch(()=>{}));
+
+function refreshHomeData() {
+  if (document.hidden) return;
+  const home = $('homeView');
+  if (!home || !home.classList.contains('hidden')) {
+    renderMatchHistory();
+    renderSeasonStatistics();
+  }
+}
+window.addEventListener('load', () => {
+  refreshHomeData();
+  setTimeout(refreshHomeData, 100);
+  setTimeout(refreshHomeData, 500);
+});
+window.addEventListener('pageshow', refreshHomeData);
+document.addEventListener('visibilitychange', refreshHomeData);
+
+function refreshHomeDataV15() {
+  try {
+    renderMatchHistory();
+    renderSeasonStatistics();
+  } catch (error) {
+    console.error('Could not refresh home data', error);
+  }
+}
+window.addEventListener('load', () => {
+  refreshHomeDataV15();
+  setTimeout(refreshHomeDataV15, 250);
+  setTimeout(refreshHomeDataV15, 1000);
+});
+window.addEventListener('pageshow', refreshHomeDataV15);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) refreshHomeDataV15();
+});
