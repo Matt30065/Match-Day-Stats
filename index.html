@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f172a" />
   <title>Grassroots Match Tracker</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=14" />
 </head>
 <body>
   <main class="app-shell">
@@ -20,53 +20,24 @@
 
     <div id="homeView">
       <section class="card hero-card">
-        <p class="muted">Prototype v7</p>
-        <h2>Match-day tracker</h2>
-        <p>Manage your squad, set up a match and record the game live.</p>
-        <button id="newMatchBtn" class="primary-btn">New Match</button>
+        <p class="muted">Match day</p>
+        <h2>Your football tracker</h2>
+        <p>Start a match, check the season numbers or manage your team.</p>
+        <div class="hero-actions">
+          <button id="newMatchBtn" class="primary-btn">New Match</button>
+          <button id="settingsBtn" class="secondary-btn">⚙ Settings</button>
+        </div>
       </section>
 
       <section class="card">
         <div class="section-heading">
           <div>
-            <h2>Team settings</h2>
-            <p class="muted compact">These can change as the team moves from 5v5 towards 11v11.</p>
+            <h2>Season Statistics</h2>
+            <p class="muted compact">Calculated automatically from completed matches. Goals include penalties.</p>
           </div>
         </div>
-        <form id="settingsForm" class="settings-grid">
-          <label>Match format
-            <select id="matchFormat">
-              <option value="5">5-a-side</option>
-              <option value="7">7-a-side</option>
-              <option value="9">9-a-side</option>
-              <option value="11">11-a-side</option>
-            </select>
-          </label>
-          <label>Squad size
-            <input id="squadSize" type="number" min="5" max="40" value="12" />
-          </label>
-          <label>Players on pitch
-            <input id="playersOnPitch" type="number" min="1" max="11" value="5" />
-          </label>
-          <div class="settings-action">
-            <button type="submit" class="secondary-btn">Save settings</button>
-            <span id="settingsSaved" class="saved-message"></span>
-          </div>
-        </form>
-      </section>
-
-      <section class="card">
-        <div class="section-heading">
-          <div>
-            <h2>Squad</h2>
-            <p id="squadCount" class="muted compact"></p>
-          </div>
-          <div class="button-row">
-            <button class="secondary-btn" id="fillTestPlayersBtn">Add test squad</button>
-            <button class="secondary-btn" id="addPlayerBtn">Add player</button>
-          </div>
-        </div>
-        <div id="playerList" class="player-list"></div>
+        <div id="seasonSummary" class="stat-cards"></div>
+        <div id="playerStatsTable" class="stats-table-wrap"></div>
       </section>
 
       <section class="card">
@@ -74,6 +45,57 @@
           <div><h2>Match History</h2><p class="muted compact">All completed matches are saved here on this device. Tap a match to open its report.</p></div>
         </div>
         <div id="matchHistoryList" class="history-list"></div>
+      </section>
+    </div>
+
+    <div id="settingsView" class="hidden">
+      <section class="card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">SETTINGS</p>
+            <h2>Team & Squad</h2>
+            <p class="muted compact">Manage your match format and player list here.</p>
+          </div>
+          <button id="settingsBackBtn" class="secondary-btn">Back to Home</button>
+        </div>
+
+        <div class="setup-section first-section">
+          <h3>Team settings</h3>
+          <form id="settingsForm" class="settings-grid">
+            <label>Match format
+              <select id="matchFormat">
+                <option value="5">5-a-side</option>
+                <option value="7">7-a-side</option>
+                <option value="9">9-a-side</option>
+                <option value="11">11-a-side</option>
+              </select>
+            </label>
+            <label>Squad size
+              <input id="squadSize" type="number" min="5" max="40" value="12" />
+            </label>
+            <label>Players on pitch
+              <input id="playersOnPitch" type="number" min="1" max="11" value="5" />
+            </label>
+            <div class="settings-action">
+              <button type="submit" class="secondary-btn">Save settings</button>
+              <span id="settingsSaved" class="saved-message"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="setup-section">
+          <div class="section-heading">
+            <div>
+              <h3>Squad</h3>
+              <p id="squadCount" class="muted compact"></p>
+            </div>
+            <div class="button-row">
+              <button class="secondary-btn" id="fillTestPlayersBtn">Add test squad</button>
+              <button class="secondary-btn" id="addPlayerBtn">Add player</button>
+            </div>
+          </div>
+          <div id="playerList" class="player-list"></div>
+        </div>
       </section>
     </div>
 
@@ -209,6 +231,6 @@
 
   <dialog id="subDialog"><form id="subForm" class="dialog-card"><h2>Substitution</h2><label>Player off<select id="subOff"></select></label><label>Player on<select id="subOn"></select></label><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelSubBtn">Cancel</button><button type="submit" class="primary-btn">Make substitution</button></div></form></dialog>
 
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>

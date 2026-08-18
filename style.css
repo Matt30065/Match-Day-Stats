@@ -9,3 +9,57 @@
 .period-status{display:flex;justify-content:center;align-items:center;gap:10px;margin:8px 0 14px;font-weight:700}.period-status span:first-child{padding:6px 10px;border-radius:999px;background:#e2e8f0}.period-controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.period-controls button{flex:1}.checkline{display:flex;align-items:center;gap:8px;margin:12px 0;padding:10px 12px;border-radius:10px;background:#f8fafc}.checkline input{width:auto}.action-btn:disabled,.timer-btn:disabled{opacity:.5;cursor:not-allowed}
 
 .history-list{display:grid;gap:10px}.history-card{display:flex;align-items:center;gap:14px;width:100%;border:0;border-radius:14px;background:#f8fafc;padding:14px;text-align:left;color:#0f172a}.history-card:hover{background:#f1f5f9}.history-date{font-size:12px;color:#64748b;min-width:86px}.history-main{flex:1}.history-opponent{font-weight:700}.history-result{font-size:13px;color:#64748b}.result-win{color:#15803d}.result-draw{color:#a16207}.result-loss{color:#b91c1c}.report-score{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.report-score>div{background:#f8fafc;border-radius:14px;padding:16px;text-align:center}.report-score span{display:block;color:#64748b;font-size:13px;font-weight:700}.report-score strong{display:block;font-size:32px;margin-top:4px}.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.report-actions{display:flex;align-items:center;gap:10px;margin-top:24px}.event-list{display:grid;gap:8px}.event-row{display:grid;grid-template-columns:58px 1fr;gap:8px;padding:10px 12px;border-radius:10px;background:#f8fafc}.event-minute{font-weight:700;color:#64748b}@media(max-width:620px){.report-grid{grid-template-columns:1fr}.history-card{align-items:flex-start}.history-date{min-width:72px}}
+
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.hero-actions button{flex:1;min-width:140px}
+.first-section{margin-top:8px;padding-top:0;border-top:0}.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 18px}.stat-card{padding:14px;border-radius:12px;background:#f8fafc}.stat-card strong{display:block;font-size:28px;line-height:1.1}.stat-card span{display:block;color:#64748b;font-size:12px;font-weight:700;margin-top:4px}.stats-table-wrap{overflow-x:auto}.stats-table{width:100%;border-collapse:collapse;min-width:620px}.stats-table th,.stats-table td{text-align:left;padding:10px 8px;border-bottom:1px solid #e2e8f0}.stats-table th{font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}.stats-table td.num,.stats-table th.num{text-align:center}.player-stat-name{font-weight:700}.stats-empty{padding:12px 0}.settings-view{}
+@media(max-width:620px){.stat-cards{grid-template-columns:repeat(2,1fr)}.hero-actions{flex-direction:column}.hero-actions button{width:100%}}
+
+/* v14: improve Season Statistics summary layout */
+#seasonSummary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+#seasonSummary .stat-card {
+  min-width: 0;
+  min-height: 108px;
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#seasonSummary .stat-card strong {
+  font-size: 30px;
+  line-height: 1;
+}
+
+#seasonSummary .stat-card span {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+@media (max-width: 760px) {
+  #seasonSummary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  #seasonSummary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #seasonSummary .stat-card {
+    min-height: 96px;
+  }
+
+  #seasonSummary .stat-card strong {
+    font-size: 28px;
+  }
+}
