@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Grassroots Match Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">GRASSROOTS FOOTBALL</p>
+        <h1>Match Tracker</h1>
+      </div>
+      <span class="status-dot" title="Local app"></span>
+    </header>
+
+    <div id="homeView">
+      <section class="card hero-card">
+        <p class="muted">Prototype v7</p>
+        <h2>Match-day tracker</h2>
+        <p>Manage your squad, set up a match and record the game live.</p>
+        <button id="newMatchBtn" class="primary-btn">New Match</button>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <div>
+            <h2>Team settings</h2>
+            <p class="muted compact">These can change as the team moves from 5v5 towards 11v11.</p>
+          </div>
+        </div>
+        <form id="settingsForm" class="settings-grid">
+          <label>Match format
+            <select id="matchFormat">
+              <option value="5">5-a-side</option>
+              <option value="7">7-a-side</option>
+              <option value="9">9-a-side</option>
+              <option value="11">11-a-side</option>
+            </select>
+          </label>
+          <label>Squad size
+            <input id="squadSize" type="number" min="5" max="40" value="12" />
+          </label>
+          <label>Players on pitch
+            <input id="playersOnPitch" type="number" min="1" max="11" value="5" />
+          </label>
+          <div class="settings-action">
+            <button type="submit" class="secondary-btn">Save settings</button>
+            <span id="settingsSaved" class="saved-message"></span>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <div>
+            <h2>Squad</h2>
+            <p id="squadCount" class="muted compact"></p>
+          </div>
+          <div class="button-row">
+            <button class="secondary-btn" id="fillTestPlayersBtn">Add test squad</button>
+            <button class="secondary-btn" id="addPlayerBtn">Add player</button>
+          </div>
+        </div>
+        <div id="playerList" class="player-list"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <div><h2>Match History</h2><p class="muted compact">All completed matches are saved here on this device. Tap a match to open its report.</p></div>
+        </div>
+        <div id="matchHistoryList" class="history-list"></div>
+      </section>
+    </div>
+
+    <div id="matchSetupView" class="hidden">
+      <section class="card">
+        <div class="section-heading">
+          <div><p class="eyebrow">MATCH SETUP</p><h2>New Match</h2></div>
+          <button id="cancelMatchSetupBtn" class="secondary-btn">Back</button>
+        </div>
+        <form id="matchSetupForm">
+          <div class="match-details-grid">
+            <label>Opponent<input id="opponentName" type="text" placeholder="e.g. Riverside FC" required /></label>
+            <label>Date<input id="matchDate" type="date" required /></label>
+          </div>
+          <fieldset>
+            <legend>Venue</legend>
+            <div class="choice-row">
+              <label class="choice-pill"><input type="radio" name="venue" value="home" checked /> Home</label>
+              <label class="choice-pill"><input type="radio" name="venue" value="away" /> Away</label>
+            </div>
+          </fieldset>
+          <div class="setup-section">
+            <div class="section-heading"><div><h3>Match squad</h3><p class="muted compact">Untick anyone who is unavailable.</p></div><span id="availableCount" class="count-badge"></span></div>
+            <div id="availabilityList" class="selection-list"></div>
+          </div>
+          <div class="setup-section">
+            <div class="section-heading"><div><h3 id="startingTeamHeading">Starting 5</h3><p class="muted compact">Choose who starts on the pitch.</p></div><span id="starterCount" class="count-badge"></span></div>
+            <div id="starterList" class="selection-list"></div>
+          </div>
+          <div class="setup-section"><h3>Substitutes</h3><p class="muted">Available players who are not selected to start will appear automatically.</p><div id="substituteList" class="summary-list"></div></div>
+          <p id="matchSetupError" class="error-message" aria-live="polite"></p>
+          <button type="submit" class="primary-btn full-width">Start Match</button>
+        </form>
+      </section>
+    </div>
+
+    <div id="liveMatchView" class="hidden">
+      <section class="card live-card">
+        <div class="section-heading">
+          <div><p class="eyebrow">LIVE MATCH</p><h2 id="liveOpponent"></h2><p id="liveMeta" class="muted compact"></p></div>
+          <button id="exitLiveMatchBtn" class="secondary-btn">Exit</button>
+        </div>
+
+        <div class="match-clock-card">
+          <div id="matchClock" class="match-clock">00:00</div>
+          <div id="clockStatus" class="clock-status">Paused</div>
+          <div id="matchPeriod" class="period-label">1st half</div>
+          <button id="timerBtn" class="primary-btn timer-btn">Start</button>
+        </div>
+
+        <div class="period-status">
+          <span id="periodLabel">1st Half</span>
+          <span id="periodMessage"></span>
+        </div>
+
+        <div class="scoreboard">
+          <div><span class="score-team">Us</span><strong id="ourScore">0</strong></div>
+          <span class="score-divider">-</span>
+          <div><span class="score-team" id="opponentScoreName">Opponent</span><strong id="theirScore">0</strong></div>
+        </div>
+
+        <div class="period-controls">
+          <button id="halfTimeBtn" class="secondary-btn">Half Time</button>
+          <button id="startSecondHalfBtn" class="primary-btn hidden">Start 2nd Half</button>
+          <button id="fullTimeBtn" class="danger-btn hidden">Full Time</button>
+        </div>
+
+        <div class="live-actions">
+          <button id="ourGoalBtn" class="action-btn goal-btn">⚽ Our Goal</button>
+          <button id="subBtn" class="action-btn">🔄 Substitution</button>
+          <button id="theirGoalBtn" class="action-btn">⚽ Opponent Goal</button>
+          <button id="undoBtn" class="action-btn">↩ Undo Last</button>
+        </div>
+
+        <div class="live-columns">
+          <div><h3>On pitch</h3><div id="liveStarters" class="summary-list"></div></div>
+          <div><h3>Substitutes</h3><div id="liveSubs" class="summary-list"></div></div>
+        </div>
+
+        <div class="setup-section"><h3>Match events</h3><div id="eventTimeline" class="event-list"></div></div>
+      </section>
+    </div>
+
+    <div id="matchReportView" class="hidden">
+      <section class="card">
+        <div class="section-heading">
+          <div><p class="eyebrow">MATCH REPORT</p><h2 id="reportOpponent"></h2><p id="reportMeta" class="muted compact"></p></div>
+          <button id="reportBackBtn" class="secondary-btn">Back to Home</button>
+        </div>
+
+        <div class="report-score">
+          <div><span>Final</span><strong id="reportFinalScore"></strong></div>
+          <div><span>Half Time</span><strong id="reportHalfScore"></strong></div>
+        </div>
+
+        <div class="report-grid">
+          <div class="setup-section"><h3>Goals</h3><div id="reportGoals" class="event-list"></div></div>
+          <div class="setup-section"><h3>Substitutions</h3><div id="reportSubs" class="event-list"></div></div>
+        </div>
+
+        <div class="report-grid">
+          <div class="setup-section"><h3>Starting 5</h3><div id="reportStarters" class="summary-list"></div></div>
+          <div class="setup-section"><h3>Substitutes</h3><div id="reportSubstitutes" class="summary-list"></div></div>
+        </div>
+
+        <div class="report-actions">
+          <button id="deleteMatchBtn" class="danger-btn">Delete Match</button>
+          <span class="dialog-spacer"></span>
+          <button id="reportHomeBtn" class="primary-btn">Save & Return Home</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="playerDialog"><form id="playerForm" class="dialog-card"><h2 id="playerDialogTitle">Add player</h2><label>Name<input id="playerName" type="text" required /></label><label>Shirt number<input id="playerNumber" type="number" min="0" max="99" /></label><label>Position<select id="playerPosition"><option value="">Not set</option><option value="GK">Goalkeeper</option><option value="DEF">Defender</option><option value="MID">Midfielder</option><option value="FWD">Forward</option></select></label><div class="dialog-actions"><button type="button" class="danger-btn hidden" id="deletePlayerBtn">Delete</button><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPlayerBtn">Cancel</button><button type="submit" class="primary-btn">Save player</button></div></form></dialog>
+
+  <dialog id="goalDialog">
+    <form class="dialog-card" onsubmit="return false;">
+      <h2 id="goalDialogTitle">Goal</h2>
+      <div id="goalPlayerSection">
+        <label>Scorer
+          <select id="goalScorer"></select>
+        </label>
+      </div>
+      <label class="checkline"><input id="goalPenalty" type="checkbox" /><span>Penalty</span></label>
+      <div class="dialog-actions">
+        <span class="dialog-spacer"></span>
+        <button type="button" class="secondary-btn" id="cancelGoalBtn">Cancel</button>
+        <button type="button" class="primary-btn" id="saveGoalBtn">Record goal</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="subDialog"><form id="subForm" class="dialog-card"><h2>Substitution</h2><label>Player off<select id="subOff"></select></label><label>Player on<select id="subOn"></select></label><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelSubBtn">Cancel</button><button type="submit" class="primary-btn">Make substitution</button></div></form></dialog>
+
+  <script src="app.js?v=10"></script>
+</body>
+</html>
