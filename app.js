@@ -160,7 +160,32 @@ function renderSeasonStatistics(){
   $('seasonSummary').innerHTML=`<div class="stat-card"><strong>${matches.length}</strong><span>Played</span></div><div class="stat-card"><strong>${wins}</strong><span>Won</span></div><div class="stat-card"><strong>${draws}</strong><span>Drawn</span></div><div class="stat-card"><strong>${goalsFor}</strong><span>Goals</span></div><div class="stat-card"><strong>${goalsAgainst}</strong><span>Against</span></div>`;
   const rows=Object.values(stats).sort((a,b)=>b.goals-a.goals||b.apps-a.apps||(Number(a.number)||999)-(Number(b.number)||999));
   if(!matches.length){$('playerStatsTable').innerHTML='<p class="muted stats-empty">Complete a match and player statistics will appear here.</p>';return;}
-  $('playerStatsTable').innerHTML=`<div class="player-stats-list">${rows.map(p=>`<article class="player-stat-card"><div class="player-stat-head"><div class="player-stat-shirt">${escapeHtml(p.number||'–')}</div><div class="player-stat-identity"><strong>${escapeHtml(p.name)}</strong>${p.position?`<span>${escapeHtml(p.position)}</span>`:''}</div><div class="player-stat-feature"><strong>${p.goals}</strong><span>Goals</span></div></div><div class="player-stat-grid"><div><strong>${p.apps}</strong><span>Apps</span></div><div><strong>${p.starts}</strong><span>Starts</span></div><div><strong>${p.subApps}</strong><span>Subs</span></div><div class="stat-accent-goal"><strong>${p.goals}</strong><span>Goals</span></div><div class="stat-accent-assist"><strong>${p.assists}</strong><span>Assists</span></div><div class="stat-accent-pp"><strong>${p.powerPlayApps}</strong><span>PP Apps</span></div></div></article>`).join('')}</div>`;
+  $('playerStatsTable').innerHTML=`<div class="player-stats-list">${rows.map(p=>`<article class="player-stat-card">
+    <button class="player-stat-head player-stat-toggle" type="button" aria-expanded="false">
+      <div class="player-stat-shirt">${escapeHtml(p.number||'–')}</div>
+      <div class="player-stat-identity"><strong>${escapeHtml(p.name)}</strong>${p.position?`<span>${escapeHtml(p.position)}</span>`:''}</div>
+      <div class="player-stat-mini"><span><strong>${p.apps}</strong> Apps</span><span><strong>${p.starts}</strong> Starts</span><span class="mini-goal"><strong>${p.goals}</strong> Goals</span><span class="mini-assist"><strong>${p.assists}</strong> Assists</span></div>
+      <span class="player-stat-chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div class="player-stat-details" hidden>
+      <div class="player-stat-grid">
+        <div><strong>${p.apps}</strong><span>Apps</span></div>
+        <div><strong>${p.starts}</strong><span>Starts</span></div>
+        <div><strong>${p.subApps}</strong><span>Subs</span></div>
+        <div class="stat-accent-goal"><strong>${p.goals}</strong><span>Goals</span></div>
+        <div class="stat-accent-assist"><strong>${p.assists}</strong><span>Assists</span></div>
+        <div class="stat-accent-pp"><strong>${p.powerPlayApps}</strong><span>PP Apps</span></div>
+      </div>
+    </div>
+  </article>`).join('')}</div>`;
+  document.querySelectorAll('.player-stat-toggle').forEach(btn=>btn.addEventListener('click',()=>{
+    const card=btn.closest('.player-stat-card');
+    const details=card.querySelector('.player-stat-details');
+    const expanded=btn.getAttribute('aria-expanded')==='true';
+    btn.setAttribute('aria-expanded',String(!expanded));
+    details.hidden=expanded;
+    card.classList.toggle('is-expanded',!expanded);
+  }));
 }
  $('cancelMatchSetupBtn').onclick=()=>showView(homeView);
 $('matchSetupForm').onsubmit=e=>{e.preventDefault();const s=loadSettings(),opponent=$('opponentName').value.trim(),opponentAbbr=cleanAbbr($('opponentAbbr').value,derivedAbbr(opponent,'OPP'));if(!opponent){$('matchSetupError').textContent='Enter the opponent name.';return;}if(availableIds.size<s.playersOnPitch){$('matchSetupError').textContent=`You need at least ${s.playersOnPitch} available players.`;return;}if(starterIds.size!==s.playersOnPitch){$('matchSetupError').textContent=`Select exactly ${s.playersOnPitch} starters.`;return;}const team=teamDisplaySettings();const match={id:makeId(),teamName:team.name,teamAbbr:team.abbr,opponent,opponentAbbr,date:$('matchDate').value,venue:document.querySelector('input[name="venue"]:checked').value,availablePlayerIds:[...availableIds],starterPlayerIds:[...starterIds],substitutePlayerIds:[...availableIds].filter(id=>!starterIds.has(id)),currentOnPitch:[...starterIds],currentSubs:[...availableIds].filter(id=>!starterIds.has(id)),status:'live',period:1,halfTime:false,fullTime:false,ourScore:0,theirScore:0,events:[],powerPlayPlayers:[],powerPlayAllowance:0,powerPlayRuleVersion:3,periodElapsedSeconds:0,periodStartedAt:null,createdAt:new Date().toISOString()};const matches=loadMatches();matches.push(match);saveMatches(matches);startLiveMatch(match.id);};
