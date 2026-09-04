@@ -57,8 +57,24 @@ function closeFirstUseSetup() {
   $('firstUseContinue')?.classList.add('hidden');
 }
 function refreshFirstUseContinue() {
+  const wrap = $('firstUseContinue');
+  const btn = $('continueToMatchBtn');
+  const hint = $('firstUseContinueHint');
+  if (!wrap || !btn) return;
   if ($('firstUseBanner')?.classList.contains('hidden')) return;
-  $('firstUseContinue')?.classList.remove('hidden');
+  wrap.classList.remove('hidden');
+  const s = loadSettings();
+  const players = loadPlayers();
+  const teamReady = !!(String(s.teamName || '').trim() && String(s.teamAbbr || '').trim() && Number(s.playersOnPitch) > 0);
+  const squadReady = players.length >= Number(s.playersOnPitch || 0);
+  btn.disabled = !(teamReady && squadReady);
+  if (!teamReady) {
+    hint.textContent = 'Complete your team name and 3-letter abbreviation above.';
+  } else if (!squadReady) {
+    hint.textContent = `Add at least ${s.playersOnPitch} players to your squad before continuing.`;
+  } else {
+    hint.textContent = 'Team setup complete. Continue to set up your match.';
+  }
 }
 function loadMatches() { return loadJson(MATCH_STORAGE_KEY, []); }
 function saveMatches(v) { saveJson(MATCH_STORAGE_KEY, v); }

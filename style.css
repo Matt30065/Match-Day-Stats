@@ -594,3 +594,10 @@ dialog{border-radius:22px!important}dialog h2{font-size:23px!important;margin-bo
 .first-use-banner p{margin:0}
 .first-use-continue{margin-top:4px;grid-column:1/-1}
 .first-use-continue .primary-btn{width:100%}
+
+/* v19.6.1 first-use continuation
+   The primary next-step action sits directly beneath the squad it depends on. */
+.first-use-continue{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);text-align:center}
+.first-use-continue .primary-btn{width:100%}
+.first-use-continue .primary-btn:disabled{opacity:.45;filter:saturate(.35);cursor:not-allowed}
+.first-use-continue p{margin:8px 0 0}
