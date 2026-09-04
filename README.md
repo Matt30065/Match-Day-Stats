@@ -1,18 +1,22 @@
-# Grassroots Match Tracker v19.3
+# Grassroots Match Tracker v19.4
 
-Coordinated polish pass based on real-device screenshots of v19.2.
+Polish release built on v19.3.
 
-## Visual changes
-- Stronger club identity on Home, Settings and Match Setup
-- Live CSS crest previews for team and opponent abbreviations
-- Tighter broadcast-style Match Centre composition
-- Power Play state echoed beside the on-pitch count
-- More compact Match Setup player selection on larger screens
-- Clearer typography and information hierarchy
-- More polished season stats, history and full-time report presentation
-- Goal/substitution/Power Play dialogs retain the same functional flow with refined hierarchy
+## Player statistics fix
+Player statistics are now presented as responsive player cards so every tracked metric is visible without horizontal scrolling:
+- Apps
+- Starts
+- Subs
+- Goals
+- Assists
+- Power Play Apps
 
-## Functionality
-No intentional football-rule changes. Assists, substitutions, timer, undo, Power Play 4/6/5/3 rules, mandatory withdrawal, history, player statistics and local storage are retained.
+Goals, assists and Power Play appearances are visually accented while appearance data remains easy to scan.
+
+## Polish
+- Preserves the v19.3 match-centre, crest and Power Play design.
+- Improves mobile readability of player statistics.
+- Small interaction polish on match-history cards.
+- No intentional changes to match logic, Power Play rules, substitutions, timer, history or local-storage data.
 
 Designed & developed by Matt Ashby.
