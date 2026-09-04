@@ -1,27 +1,26 @@
-# Grassroots Match Tracker v16.3
+# Grassroots Match Tracker v18
 
-Adds assists and your team's Power Play tracking while preserving existing match history, local storage and match-day flow.
+Professional visual redesign built on the tested v17/v16.3 functionality.
 
-- Our goals can record a scorer and assist.
-- Player statistics include Assists and Power Play Apps.
-- Power Play follows the supplied Mini Soccer rule: at a 4-goal deficit, one extra player may be added; at a 6-goal deficit, a second extra player may be added.
-- When the deficit falls to 5 after the second Power Play player has been used, one player must be withdrawn; when it falls to 3 after a Power Play player has been used, one player must be withdrawn.
-- Power Play entries and withdrawals are recorded in the match event history.
-- Normal substitutions preserve any active Power Play slot when a Power Play player is substituted off.
-- Existing matches remain compatible; older matches simply show zero assists/Power Play Apps unless new events exist.
+## Visual changes
+- Dark professional football-app theme
+- Premium match-centre scoreboard and clock
+- High-contrast touch-friendly buttons
+- Redesigned cards, player rows, statistics, event timeline and match history
+- Power Play given its own visual treatment
+- Improved dialogs and form controls
+- Mobile-first spacing and typography
+- Retains the Matt Ashby branded splash screen
 
-Replace the current app.js, index.html, style.css and service-worker.js with the v16 files.
+## Functionality
+No intentional match-logic changes in this release. Existing assists, Power Play rules,
+substitutions, undo, reports, season statistics, local storage and match-history behaviour
+are retained.
 
+Power Play remains:
+- 4-goal deficit: optional first additional player
+- 6-goal deficit: optional second additional player
+- reduced to 5: withdraw one if the second was used
+- reduced to 3: withdraw the remaining additional player
 
-### v16.1 fix
-- Power Play player-count display now shows our players vs the opponent's fixed match-format count (for example 5v5, 6v5, 7v5).
-
-
-## v16.2 fix
-- Required Power Play withdrawal can select any player currently on the pitch, not only the player(s) originally added for Power Play.
-- The Power Play allowance is reduced correctly while preserving the actual on-pitch players.
-
-## v16.3 fix
-- Corrected Power Play thresholds to the supplied rule: add at 4 goals behind, add a second at 6 goals behind, reduce to one at 5 goals behind, and remove the final additional player at 3 goals behind.
-- Power Play allowance now follows threshold crossings rather than the current score alone, including when the score moves back towards level.
-- Existing v16 matches are migrated by replaying their recorded goal history to determine the correct allowance.
+Designed & developed by Matt Ashby.

@@ -3,12 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#06131a" />
   <title>Grassroots Match Tracker</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=16.1" />
+  <link rel="stylesheet" href="style.css?v=18.0" />
 </head>
 <body>
+
+  <div id="splashScreen" class="splash-screen" aria-label="Grassroots Match Tracker loading">
+    <div class="splash-stadium-glow"></div>
+    <div class="splash-content">
+      <img class="splash-logo" src="app-logo.svg" alt="Grassroots Match Tracker logo" width="180" height="180" />
+      <p class="splash-eyebrow">GRASSROOTS FOOTBALL</p>
+      <h2 class="splash-title"><span>Grassroots</span> <em>Match Tracker</em></h2>
+      <div class="splash-rule"></div>
+      <p class="splash-tagline">Grassroots football.<br />Tracked better.</p>
+      <div class="splash-credit">
+        <span>Designed &amp; developed by</span>
+        <strong>Matt Ashby</strong>
+      </div>
+      <div class="splash-progress" aria-hidden="true"><span></span></div>
+    </div>
+  </div>
   <main class="app-shell">
     <header class="app-header">
       <div>
@@ -252,6 +268,14 @@
 
   <dialog id="powerPlayOffDialog"><form class="dialog-card" onsubmit="return false;"><h2>Withdraw Power Play Player</h2><p id="powerPlayOffRequired" class="error-message"></p><p class="muted compact">Under the Power Play rule, the player withdrawn does not have to be the player who originally came on.</p><label>Player<select id="powerPlayOffPlayer"></select></label><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPowerPlayOffBtn">Cancel</button><button type="button" class="primary-btn" id="savePowerPlayOffBtn">Withdraw Player</button></div></form></dialog>
 
-  <script src="app.js?v=16.3"></script>
+  <script>
+    window.addEventListener('load', () => {
+      const splash = document.getElementById('splashScreen');
+      if (!splash) return;
+      splash.classList.add('splash-exit');
+      setTimeout(() => splash.remove(), 500);
+    });
+  </script>
+  <script src="app.js?v=18.0"></script>
 </body>
 </html>
