@@ -1,8 +1,8 @@
-# Grassroots Match Tracker v18.3
+# Grassroots Match Tracker v18.4
 
 Professional football UI redesign with a fully branded splash experience.
 
-## v18.3 fixes
+## v18.4 fixes
 - Corrected dark-theme text contrast across the app
 - Main app stays hidden behind the splash until the splash has fully finished
 - Splash is displayed for about 3 seconds before a short fade

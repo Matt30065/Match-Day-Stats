@@ -1,5 +1,70 @@
-const CACHE_NAME = 'grassroots-tracker-v18-3';
-const ASSETS = ['./','./index.html','./style.css?v=18.3','./app.js?v=18.3','./manifest.json'];
-self.addEventListener('install', event => { self.skipWaiting(); event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))); });
-self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
-self.addEventListener('fetch', event => { event.respondWith(fetch(event.request).then(response => { const copy=response.clone(); caches.open(CACHE_NAME).then(cache=>cache.put(event.request,copy)); return response; }).catch(()=>caches.match(event.request))); });
+const CACHE_NAME = 'grassroots-tracker-v18-4';
+const CORE_ASSETS = [
+  './',
+  './index.html',
+  './style.css?v=18.4',
+  './app.js?v=18.4',
+  './manifest.json',
+  './app-logo.svg'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(CORE_ASSETS))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  // Always try to get the HTML/navigation fresh so a new GitHub Pages
+  // deployment cannot be hidden behind the previous cached index.
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(
+      fetch(request, { cache: 'no-store' })
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy)).catch(() => {});
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Versioned app assets: fetch fresh when possible, then update the cache.
+  const isAppAsset = /(?:style\.css|app\.js|manifest\.json|app-logo\.svg)(?:\?|$)/.test(new URL(request.url).pathname + new URL(request.url).search);
+  if (isAppAsset) {
+    event.respondWith(
+      fetch(request, { cache: 'no-store' })
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy)).catch(() => {});
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  event.respondWith(
+    fetch(request)
+      .then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(request, copy)).catch(() => {});
+        return response;
+      })
+      .catch(() => caches.match(request))
+  );
+});

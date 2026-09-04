@@ -124,7 +124,7 @@ main.app-shell .position-badge,
 main.app-shell .count-badge{color:#cce9d8!important}
 main.app-shell .stats-empty{color:#b6c4cc!important}
 
-/* v18.3: slightly longer, fully readable splash */
+/* v18.4: cache-safe splash and authoritative dark UI */
 .splash-screen{background:
   radial-gradient(circle at 50% 24%,rgba(57,229,125,.18),transparent 23%),
   radial-gradient(circle at 50% 80%,rgba(0,183,255,.09),transparent 31%),
@@ -132,3 +132,22 @@ main.app-shell .stats-empty{color:#b6c4cc!important}
 .splash-content{padding-bottom:34px}
 .splash-logo{animation-duration:.85s}
 .splash-exit{animation:splash-out .55s ease-in forwards}
+
+
+/* v18.4: authoritative base surface/text rules */
+html,body{background:#06131c!important;color:#f8fafc!important}
+body{min-height:100vh}
+body.app-starting{background:#04121b!important;overflow:hidden!important}
+body.app-starting .app-shell{visibility:hidden!important;opacity:0!important}
+.app-shell{color:#f8fafc!important}
+.app-shell .card,.app-shell .live-card,.app-shell .match-clock-card,.app-shell .power-play-panel,.app-shell .stats-table-wrap,.app-shell .history-list,.app-shell .player-list{color:#f8fafc}
+.app-shell h1,.app-shell h2,.app-shell h3,.app-shell p,.app-shell label,.app-shell legend,.app-shell td,.app-shell th,.app-shell span,.app-shell div{color:inherit}
+.app-shell .muted,.app-shell .compact,.app-shell .history-date,.app-shell .history-result,.app-shell .event-minute,.app-shell .clock-status,.app-shell .report-score span,.app-shell .stats-table th,.app-shell .edit-label{color:#9fb1bd!important}
+.app-shell input,.app-shell select,.app-shell textarea{color:#f8fafc!important;background:#091923!important;border-color:rgba(148,163,184,.26)!important}
+.app-shell input::placeholder{color:#8397a3!important}
+.app-shell .secondary-btn,.app-shell .action-btn{color:#eef6f9!important}
+.app-shell .primary-btn{color:#03170c!important}
+.app-shell .danger-btn{color:#fff!important}
+.app-shell a{color:#6fe89a!important}
+.splash-screen{position:fixed!important;inset:0!important;z-index:2147483647!important}
+.splash-screen.splash-exit{opacity:0!important;visibility:visible!important;transition:opacity .55s ease!important}
