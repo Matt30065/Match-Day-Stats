@@ -231,7 +231,9 @@ function renderLiveUI(){
   ensurePowerPlayFields(match);
   const ppLimit=powerPlayLimit(match),ppActive=match.powerPlayPlayers.length,ppDiff=powerPlayDifference(match);
   const needsWithdrawal=ppActive>ppLimit;
-  $('powerPlayStatus').textContent=ppLimit?`Eligible: ${powerPlayLabel(ppLimit)}`:'Not active';
+  $('powerPlayPanel').classList.toggle('is-active', ppActive>0);
+  $('powerPlayPanel').classList.toggle('is-warning', needsWithdrawal);
+  $('powerPlayStatus').textContent=ppActive>0?`ACTIVE — +${ppActive} player${ppActive===1?'':'s'}`:(ppLimit?`Eligible: ${powerPlayLabel(ppLimit)}`:'Not active');
   $('powerPlayCount').textContent=`${normalPlayerCount(match)+ppActive}v${normalPlayerCount(match)}`;
   $('powerPlayAddBtn').disabled=match.halfTime||match.fullTime||ppActive>=ppLimit||!match.currentSubs.length||ppLimit===0;
   $('powerPlayAddBtn').classList.toggle('hidden',ppLimit===0||ppActive>=ppLimit);
@@ -381,7 +383,7 @@ $('deleteMatchBtn').onclick=()=>{
 };
 
 renderSettings();renderPlayers();
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=19.0').catch(()=>{}));
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=19.2').catch(()=>{}));
 
 function refreshHomeData() {
   if (document.hidden) return;
