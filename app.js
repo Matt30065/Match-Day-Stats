@@ -32,6 +32,7 @@ function derivedAbbr(name, fallback='OPP') {
   return cleanAbbr(initials.length >= 3 ? initials : compact, fallback);
 }
 function teamDisplaySettings() { const s=loadSettings(); return { name:String(s.teamName||'Your Team'), abbr:cleanAbbr(s.teamAbbr,'YTM') }; }
+function refreshIdentityPreviews(){ const t=teamDisplaySettings(); const hc=$('homeTeamCrest'),hn=$('homeTeamName'),sc=$('settingsTeamCrest'),sn=$('settingsTeamPreviewName'),oc=$('setupOpponentCrest'),on=$('setupOpponentPreviewName'); if(hc)hc.textContent=t.abbr;if(hn)hn.textContent=t.name;if(sc)sc.textContent=cleanAbbr($('teamAbbr')?.value,t.abbr);if(sn)sn.textContent=$('teamName')?.value.trim()||t.name;const opp=$('opponentName')?.value.trim()||'';if(oc)oc.textContent=cleanAbbr($('opponentAbbr')?.value,derivedAbbr(opp,'OPP'));if(on)on.textContent=opp||'Add opponent details'; }
 
 function loadPlayers() { return loadJson(PLAYER_STORAGE_KEY, []); }
 function savePlayers(v) { saveJson(PLAYER_STORAGE_KEY, v); }
@@ -42,9 +43,9 @@ function saveMatches(v) { saveJson(MATCH_STORAGE_KEY, v); }
 function escapeHtml(v) { return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
 function playerLabel(p) { return `${p.number ? `#${p.number} ` : ''}${p.name}${p.position ? ` · ${p.position}` : ''}`; }
 const matchReportView = $('matchReportView');
-function showView(view) { [homeView, settingsView, matchSetupView, liveMatchView, matchReportView].forEach(v => v.classList.add('hidden')); view.classList.remove('hidden'); if(view===homeView){ renderMatchHistory(); renderSeasonStatistics(); } if(view===settingsView){ renderSettings(); renderPlayers(); } window.scrollTo({top:0,behavior:'smooth'}); }
+function showView(view) { [homeView, settingsView, matchSetupView, liveMatchView, matchReportView].forEach(v => v.classList.add('hidden')); view.classList.remove('hidden'); if(view===homeView){ renderMatchHistory(); renderSeasonStatistics(); refreshIdentityPreviews(); } if(view===settingsView){ renderSettings(); renderPlayers(); refreshIdentityPreviews(); } window.scrollTo({top:0,behavior:'smooth'}); }
 
-function renderSettings() { const s=loadSettings(); $('teamName').value=s.teamName||'Your Team'; $('teamAbbr').value=cleanAbbr(s.teamAbbr,'YTM'); $('matchFormat').value=String(s.matchFormat); $('squadSize').value=s.squadSize; $('playersOnPitch').value=s.playersOnPitch; }
+function renderSettings() { const s=loadSettings(); $('teamName').value=s.teamName||'Your Team'; $('teamAbbr').value=cleanAbbr(s.teamAbbr,'YTM'); $('matchFormat').value=String(s.matchFormat); $('squadSize').value=s.squadSize; $('playersOnPitch').value=s.playersOnPitch; refreshIdentityPreviews(); }
 function renderPlayers() {
   const players=loadPlayers(), s=loadSettings();
   $('squadCount').textContent=`${players.length} of ${s.squadSize} squad places filled`;
@@ -108,10 +109,10 @@ function renderMatchHistory(){
   const list=$('matchHistoryList'); if(!list)return;
   const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>(b.completedAt||b.createdAt||'').localeCompare(a.completedAt||a.createdAt||''));
   if(!matches.length){list.innerHTML='<p class="muted">No completed matches yet.</p>';return;}
-  list.innerHTML=matches.map(m=>`<button class="history-card" type="button" data-match-id="${m.id}">
+  list.innerHTML=matches.map(m=>{const ta=cleanAbbr(m.teamAbbr,teamDisplaySettings().abbr),oa=cleanAbbr(m.opponentAbbr,derivedAbbr(m.opponent,'OPP'));return `<button class="history-card" type="button" data-match-id="${m.id}">
     <span class="history-date">${formatDateDisplay(m.date)}</span>
-    <span class="history-main"><span class="history-opponent">${escapeHtml(m.opponent)}</span><br><span class="history-result ${resultClass(m)}">${resultText(m)} ${m.ourScore} - ${m.theirScore} · HT ${m.halfTimeScore?`${m.halfTimeScore.our}-${m.halfTimeScore.their}`:'—'}</span></span>
-    <span>›</span></button>`).join('');
+    <span class="history-main"><span class="history-opponent">${escapeHtml(ta)} ${m.ourScore} - ${m.theirScore} ${escapeHtml(oa)}</span><br><span class="history-result ${resultClass(m)}">${resultText(m)} · ${escapeHtml(m.opponent)} · HT ${m.halfTimeScore?`${m.halfTimeScore.our}-${m.halfTimeScore.their}`:'—'}</span></span>
+    <span>›</span></button>`}).join('');
   document.querySelectorAll('.history-card').forEach(b=>b.onclick=()=>openMatchReport(b.dataset.matchId));
 }
 $('reportBackBtn').onclick=()=>{currentMatchReport=null;showView(homeView);renderMatchHistory();};
@@ -126,8 +127,9 @@ $('deleteMatchBtn').onclick=()=>{
 renderSettings();renderPlayers();renderMatchHistory();renderSeasonStatistics();renderMatchHistory();$('settingsSaved').textContent='Saved';setTimeout(()=>$('settingsSaved').textContent='',1500);};
 $('matchFormat').onchange=()=>{$('playersOnPitch').value=$('matchFormat').value;};
 
-function openMatchSetup(){const players=loadPlayers(),s=loadSettings();if(players.length<s.playersOnPitch){alert(`You need at least ${s.playersOnPitch} players in the squad first.`);return;}availableIds=new Set(players.map(p=>p.id));starterIds=new Set(players.slice(0,s.playersOnPitch).map(p=>p.id));$('matchDate').value=new Date().toISOString().slice(0,10);$('opponentName').value='';$('opponentAbbr').value='';$('matchSetupError').textContent='';renderMatchSelection();showView(matchSetupView);}
+function openMatchSetup(){const players=loadPlayers(),s=loadSettings();if(players.length<s.playersOnPitch){alert(`You need at least ${s.playersOnPitch} players in the squad first.`);return;}availableIds=new Set(players.map(p=>p.id));starterIds=new Set(players.slice(0,s.playersOnPitch).map(p=>p.id));$('matchDate').value=new Date().toISOString().slice(0,10);$('opponentName').value='';$('opponentAbbr').value='';$('matchSetupError').textContent='';renderMatchSelection();showView(matchSetupView);refreshIdentityPreviews();}
 function renderMatchSelection(){const players=loadPlayers(),s=loadSettings();$('startingTeamHeading').textContent=`Starting ${s.playersOnPitch}`;$('availableCount').textContent=`${availableIds.size} available`;$('starterCount').textContent=`${starterIds.size} / ${s.playersOnPitch}`;$('availabilityList').innerHTML=players.map(p=>`<label class="selection-row"><input class="availability-check" type="checkbox" data-id="${p.id}" ${availableIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');$('starterList').innerHTML=players.filter(p=>availableIds.has(p.id)).map(p=>`<label class="selection-row ${starterIds.has(p.id)?'selected':''}"><input class="starter-check" type="checkbox" data-id="${p.id}" ${starterIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');const subs=players.filter(p=>availableIds.has(p.id)&&!starterIds.has(p.id));$('substituteList').innerHTML=subs.length?subs.map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join(''):'<p class="muted">No substitutes selected.</p>';document.querySelectorAll('.availability-check').forEach(c=>c.onchange=()=>{if(c.checked)availableIds.add(c.dataset.id);else{availableIds.delete(c.dataset.id);starterIds.delete(c.dataset.id);}renderMatchSelection();});document.querySelectorAll('.starter-check').forEach(c=>c.onchange=()=>{if(c.checked){if(starterIds.size>=s.playersOnPitch){$('matchSetupError').textContent=`You can only select ${s.playersOnPitch} starters.`;return;}starterIds.add(c.dataset.id);}else starterIds.delete(c.dataset.id);$('matchSetupError').textContent='';renderMatchSelection();});}
+$('teamName').addEventListener('input',refreshIdentityPreviews);$('teamAbbr').addEventListener('input',refreshIdentityPreviews);$('opponentName').addEventListener('input',refreshIdentityPreviews);$('opponentAbbr').addEventListener('input',refreshIdentityPreviews);
 $('newMatchBtn').onclick=openMatchSetup;
 $('settingsBtn').onclick=()=>showView(settingsView);
 $('settingsBackBtn').onclick=()=>{showView(homeView);};
@@ -231,7 +233,7 @@ function renderLiveUI(){
   ensurePowerPlayFields(match);
   const ppLimit=powerPlayLimit(match),ppActive=match.powerPlayPlayers.length,ppDiff=powerPlayDifference(match);
   const needsWithdrawal=ppActive>ppLimit;
-  $('powerPlayPanel').classList.toggle('is-active', ppActive>0);
+  $('powerPlayPanel').classList.toggle('is-active', ppActive>0); $('liveMatchView').querySelector('.live-card')?.classList.toggle('pp-score-active',ppActive>0);
   $('powerPlayPanel').classList.toggle('is-warning', needsWithdrawal);
   $('powerPlayStatus').textContent=ppActive>0?`ACTIVE — +${ppActive} player${ppActive===1?'':'s'}`:(ppLimit?`Eligible: ${powerPlayLabel(ppLimit)}`:'Not active');
   $('powerPlayCount').textContent=`${normalPlayerCount(match)+ppActive}v${normalPlayerCount(match)}`;
@@ -367,10 +369,10 @@ function renderMatchHistory(){
   const list=$('matchHistoryList'); if(!list)return;
   const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>(b.completedAt||b.createdAt||'').localeCompare(a.completedAt||a.createdAt||''));
   if(!matches.length){list.innerHTML='<p class="muted">No completed matches yet.</p>';return;}
-  list.innerHTML=matches.map(m=>`<button class="history-card" type="button" data-match-id="${m.id}">
+  list.innerHTML=matches.map(m=>{const ta=cleanAbbr(m.teamAbbr,teamDisplaySettings().abbr),oa=cleanAbbr(m.opponentAbbr,derivedAbbr(m.opponent,'OPP'));return `<button class="history-card" type="button" data-match-id="${m.id}">
     <span class="history-date">${formatDateDisplay(m.date)}</span>
-    <span class="history-main"><span class="history-opponent">${escapeHtml(m.opponent)}</span><br><span class="history-result ${resultClass(m)}">${resultText(m)} ${m.ourScore} - ${m.theirScore} · HT ${m.halfTimeScore?`${m.halfTimeScore.our}-${m.halfTimeScore.their}`:'—'}</span></span>
-    <span>›</span></button>`).join('');
+    <span class="history-main"><span class="history-opponent">${escapeHtml(ta)} ${m.ourScore} - ${m.theirScore} ${escapeHtml(oa)}</span><br><span class="history-result ${resultClass(m)}">${resultText(m)} · ${escapeHtml(m.opponent)} · HT ${m.halfTimeScore?`${m.halfTimeScore.our}-${m.halfTimeScore.their}`:'—'}</span></span>
+    <span>›</span></button>`}).join('');
   document.querySelectorAll('.history-card').forEach(b=>b.onclick=()=>openMatchReport(b.dataset.matchId));
 }
 $('reportBackBtn').onclick=()=>{currentMatchReport=null;showView(homeView);renderMatchHistory();};
@@ -418,3 +420,5 @@ window.addEventListener('pageshow', refreshHomeDataV15);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) refreshHomeDataV15();
 });
+
+refreshIdentityPreviews();

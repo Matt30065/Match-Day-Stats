@@ -493,3 +493,51 @@ input,select{background:#06151e!important;color:#f4fbfd!important;border:1px sol
   .live-card .event-row:before{left:-15px!important}
   .setup-section:has(#eventTimeline)>h3{padding-left:12px!important}
 }
+
+/* =========================================================
+   v19.3 coordinated polish pass
+   Based on real-device screenshots: stronger identity,
+   tighter match-centre composition and clearer hierarchy.
+   ========================================================= */
+:root{--v193-panel:#0b2633;--v193-panel2:#102f3e;--v193-soft:#9bb5c2;--v193-green:#25df72}
+body{font-weight:500}.app-header h1{font-weight:800;letter-spacing:-.045em}.eyebrow,.power-play-kicker{letter-spacing:.16em}
+.card{box-shadow:0 16px 42px rgba(0,0,0,.18)}
+
+/* Home / club identity */
+.hero-card{min-height:210px!important;justify-content:center!important;padding:25px!important}
+.home-team-lockup{display:flex;align-items:center;gap:18px;margin:3px 0 8px}.home-crest{width:72px!important;height:84px!important;font-size:19px!important;flex:0 0 auto}.home-crest:after{width:14px!important;height:14px!important;transform:translateY(25px)!important}
+.home-team-label{margin:0 0 4px;color:#70f0a4;font-size:10px;font-weight:900;letter-spacing:.17em}.home-team-lockup h2{margin:0;font-size:27px}.hero-card>p:not(.muted){margin-left:90px;margin-top:0}.hero-actions{margin-left:90px}
+.stat-card{min-height:100px!important;padding:16px!important}.stat-card strong{font-size:31px!important}.stat-card span{font-size:11px!important;text-transform:uppercase;letter-spacing:.08em}
+.stats-table-wrap{margin-top:16px;border:1px solid rgba(148,177,190,.13);border-radius:16px;overflow:hidden}.stats-table{margin-top:0!important}.stats-table th{background:rgba(255,255,255,.035);font-size:10px!important;letter-spacing:.09em}.stats-table td{padding-top:12px!important;padding-bottom:12px!important}.player-stat-name{font-weight:750}
+.history-card{grid-template-columns:84px 1fr auto!important;padding:16px!important;border-radius:15px!important}.history-opponent{font-size:14px;font-weight:800}.history-result{display:inline-block;margin-top:5px;font-size:12px}
+
+/* Settings identity preview */
+.identity-preview,.opponent-preview{display:flex;align-items:center;gap:18px;padding:16px;margin:13px 0 18px;border-radius:18px;background:linear-gradient(135deg,rgba(37,223,114,.09),rgba(255,255,255,.025));border:1px solid rgba(37,223,114,.18)}
+.settings-crest,.setup-crest{width:78px!important;height:91px!important;font-size:20px!important;flex:0 0 auto}.settings-crest:after,.setup-crest:after{width:14px!important;height:14px!important;transform:translateY(27px)!important}.identity-preview-copy,.opponent-preview>div:last-child{display:grid;gap:3px}.identity-preview span,.opponent-preview span{font-size:9px;color:#70f0a4;font-weight:900;letter-spacing:.15em}.identity-preview strong,.opponent-preview strong{font-size:17px}.identity-preview small,.opponent-preview small{color:var(--muted);line-height:1.35}
+.settings-grid,.team-identity-grid,.match-details-grid{gap:14px!important}.player-row{min-height:52px!important;border-radius:13px!important}.player-number{font-size:16px;font-weight:900}.player-name{font-weight:700}
+
+/* Match setup: reduce the feeling of three enormous repeated lists */
+#matchSetupView .card{max-width:760px;margin-inline:auto}#matchSetupView .setup-section{padding-top:18px!important}#matchSetupView .selection-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#matchSetupView .selection-row{margin:0!important;min-height:47px!important;padding:10px 12px!important}#matchSetupView .summary-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#matchSetupView .summary-row{margin:0!important}
+
+/* Broadcast-style live match centre */
+.live-card{overflow:hidden!important}.live-topbar{padding:17px 20px!important}.scoreboard-hero{min-height:350px!important;padding:27px 22px 24px!important;grid-template-columns:minmax(125px,1fr) minmax(210px,1.1fr) minmax(125px,1fr)!important;align-items:center!important;background:radial-gradient(circle at 13% 20%,rgba(230,248,255,.20),transparent 12%),radial-gradient(circle at 87% 20%,rgba(230,248,255,.20),transparent 12%),linear-gradient(180deg,rgba(2,33,41,.16),rgba(1,19,25,.34)),repeating-linear-gradient(90deg,rgba(20,121,78,.11) 0 13%,rgba(10,83,61,.08) 13% 26%)!important}
+.team-panel{align-self:center!important;gap:12px!important}.team-crest{width:105px!important;height:123px!important;font-size:28px!important}.team-crest:after{width:19px!important;height:19px!important;transform:translateY(36px)!important}.team-name{font-size:14px!important;line-height:1.15!important;max-width:165px!important;min-height:34px;display:flex;align-items:flex-start;justify-content:center}
+.score-centre{align-self:center!important;transform:none!important}.match-stage{margin-bottom:5px}.scoreline strong{font-size:80px!important;line-height:.95}.scoreline .score-divider{font-size:39px!important}.match-clock-pill{margin:13px 0 9px!important}.match-clock-pill span{font-size:35px!important}.period-status{margin-top:0!important}.scoreboard-hero .timer-btn{margin-top:7px!important}
+.score-meta-line{min-height:54px!important}.score-meta-line strong{padding:5px 10px;border-radius:999px;background:rgba(37,223,114,.10)}
+.live-card.pp-score-active .score-meta-line strong{color:#ff8a84;background:rgba(255,78,76,.12);box-shadow:0 0 0 1px rgba(255,92,88,.25)}.live-card.pp-score-active .score-meta-line:after{content:'POWER PLAY';color:#ff7c77;font-size:9px;font-weight:900;letter-spacing:.13em}
+.period-controls{justify-content:flex-end!important}.period-controls .secondary-btn{max-width:180px!important;opacity:.68}.period-controls .primary-btn,.period-controls .danger-btn{max-width:220px!important}
+.live-actions{grid-template-columns:1.15fr 1fr!important}.action-btn{font-size:15px!important}.goal-btn{font-size:17px!important}.power-play-panel{box-shadow:inset 0 1px rgba(255,255,255,.04)}.power-play-panel.is-active{box-shadow:0 0 0 1px rgba(255,87,82,.32),0 0 30px rgba(255,68,68,.18),inset 0 1px rgba(255,255,255,.05)!important}
+.live-columns>div{min-height:250px}.live-columns .summary-row{min-height:43px!important;display:flex;align-items:center}.setup-section:has(#eventTimeline){background:rgba(0,0,0,.10)}
+
+/* Reports: make them feel like a match result rather than a form */
+#matchReportView>.card{background:linear-gradient(180deg,#0d2a38,#071d27)!important}.report-team-head{justify-content:center!important;gap:20px!important;margin:10px 0}.report-team-head h2{font-size:22px!important;text-align:center}.mini-crest{width:67px!important;height:78px!important;font-size:17px!important}.mini-crest:after{width:12px!important;height:12px!important;transform:translateY(23px)!important}.report-score{max-width:560px;margin:18px auto 26px!important}.report-score>div{padding:22px!important}.report-score strong{font-size:32px!important}.report-grid{gap:16px!important}.report-grid .setup-section{background:rgba(255,255,255,.025);border:1px solid rgba(148,177,190,.12);border-radius:17px;padding:16px!important}
+
+/* Dialog hierarchy */
+dialog{border-radius:22px!important}dialog h2{font-size:23px!important;margin-bottom:17px!important}.dialog-card{padding:22px!important}.dialog-actions{padding-top:4px}.dialog-card label{font-size:12px;font-weight:800}.dialog-card select{min-height:50px}.dialog-card .primary-btn{min-height:50px}
+
+@media(max-width:700px){
+  .home-team-lockup{gap:12px}.home-crest{width:59px!important;height:69px!important;font-size:16px!important}.home-crest:after{width:12px!important;height:12px!important;transform:translateY(20px)!important}.home-team-lockup h2{font-size:23px}.hero-card>p:not(.muted),.hero-actions{margin-left:0}.hero-card>p:not(.muted){margin-top:9px}
+  #matchSetupView .selection-list,#matchSetupView .summary-list{grid-template-columns:1fr}
+  .identity-preview,.opponent-preview{padding:13px;gap:13px}.settings-crest,.setup-crest{width:63px!important;height:74px!important;font-size:17px!important}.settings-crest:after,.setup-crest:after{width:12px!important;height:12px!important;transform:translateY(21px)!important}
+  .scoreboard-hero{min-height:305px!important;padding:22px 7px 20px!important;grid-template-columns:1fr 1.35fr 1fr!important}.team-crest{width:74px!important;height:87px!important;font-size:20px!important}.team-crest:after{width:15px!important;height:15px!important;transform:translateY(26px)!important}.team-name{font-size:12px!important;max-width:108px!important}.scoreline strong{font-size:58px!important}.scoreline .score-divider{font-size:30px!important}.match-clock-pill span{font-size:27px!important}.match-clock-pill{padding:8px 13px!important}.live-actions{grid-template-columns:1fr 1fr!important}.action-btn{font-size:13px!important}.goal-btn{font-size:14px!important}.period-controls .secondary-btn{max-width:150px!important}.live-columns>div{min-height:0}.report-team-head{gap:10px!important}.mini-crest{width:54px!important;height:63px!important;font-size:14px!important}
+}
