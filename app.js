@@ -2,7 +2,7 @@ const PLAYER_STORAGE_KEY = 'grassroots-football-tracker.players';
 const SETTINGS_STORAGE_KEY = 'grassroots-football-tracker.settings';
 const MATCH_STORAGE_KEY = 'grassroots-football-tracker.matches';
 
-const defaultSettings = { matchFormat: 5, squadSize: 12, playersOnPitch: 5 };
+const defaultSettings = { matchFormat: 5, squadSize: 12, playersOnPitch: 5, teamName: 'Your Team', teamAbbr: 'YTM' };
 let editingPlayerId = null;
 let availableIds = new Set();
 let starterIds = new Set();
@@ -19,6 +19,20 @@ const playerName = $('playerName'), playerNumber = $('playerNumber'), playerPosi
 function makeId() { return crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(16).slice(2)}`; }
 function loadJson(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
 function saveJson(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+function cleanAbbr(value, fallback='TEAM') {
+  const letters = String(value || '').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  return (letters || fallback).slice(0,3);
+}
+function derivedAbbr(name, fallback='OPP') {
+  const words = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return fallback;
+  const compact = words.join('').replace(/[^A-Za-z0-9]/g,'');
+  if (compact.length <= 3) return compact.toUpperCase();
+  const initials = words.map(w => w[0]).join('').replace(/[^A-Za-z0-9]/g,'');
+  return cleanAbbr(initials.length >= 3 ? initials : compact, fallback);
+}
+function teamDisplaySettings() { const s=loadSettings(); return { name:String(s.teamName||'Your Team'), abbr:cleanAbbr(s.teamAbbr,'YTM') }; }
+
 function loadPlayers() { return loadJson(PLAYER_STORAGE_KEY, []); }
 function savePlayers(v) { saveJson(PLAYER_STORAGE_KEY, v); }
 function loadSettings() { return { ...defaultSettings, ...loadJson(SETTINGS_STORAGE_KEY, {}) }; }
@@ -30,7 +44,7 @@ function playerLabel(p) { return `${p.number ? `#${p.number} ` : ''}${p.name}${p
 const matchReportView = $('matchReportView');
 function showView(view) { [homeView, settingsView, matchSetupView, liveMatchView, matchReportView].forEach(v => v.classList.add('hidden')); view.classList.remove('hidden'); if(view===homeView){ renderMatchHistory(); renderSeasonStatistics(); } if(view===settingsView){ renderSettings(); renderPlayers(); } window.scrollTo({top:0,behavior:'smooth'}); }
 
-function renderSettings() { const s=loadSettings(); $('matchFormat').value=String(s.matchFormat); $('squadSize').value=s.squadSize; $('playersOnPitch').value=s.playersOnPitch; }
+function renderSettings() { const s=loadSettings(); $('teamName').value=s.teamName||'Your Team'; $('teamAbbr').value=cleanAbbr(s.teamAbbr,'YTM'); $('matchFormat').value=String(s.matchFormat); $('squadSize').value=s.squadSize; $('playersOnPitch').value=s.playersOnPitch; }
 function renderPlayers() {
   const players=loadPlayers(), s=loadSettings();
   $('squadCount').textContent=`${players.length} of ${s.squadSize} squad places filled`;
@@ -44,7 +58,7 @@ $('addPlayerBtn').onclick=openAddPlayer; $('cancelPlayerBtn').onclick=()=>player
 playerForm.onsubmit=e=>{e.preventDefault();const players=loadPlayers(),data={name:playerName.value.trim(),number:playerNumber.value.trim(),position:playerPosition.value};if(!data.name)return;if(editingPlayerId)Object.assign(players.find(p=>p.id===editingPlayerId),data);else players.push({id:makeId(),...data});savePlayers(players);renderPlayers();playerDialog.close();};
 $('deletePlayerBtn').onclick=()=>{const p=loadPlayers().find(x=>x.id===editingPlayerId);if(!p||!confirm(`Delete ${p.name}?`))return;savePlayers(loadPlayers().filter(x=>x.id!==editingPlayerId));playerDialog.close();renderPlayers();};
 $('fillTestPlayersBtn').onclick=()=>{const s=loadSettings(),players=loadPlayers();if(players.length&&!confirm('Add test players to the existing squad?'))return;const names=new Set(players.map(p=>p.name.toLowerCase()));for(let i=1;i<=s.squadSize;i++){const name=`Player ${i}`;if(!names.has(name.toLowerCase()))players.push({id:makeId(),name,number:String(i),position:''});}savePlayers(players);renderPlayers();};
-$('settingsForm').onsubmit=e=>{e.preventDefault();const s={matchFormat:Number($('matchFormat').value),squadSize:Math.max(5,Number($('squadSize').value)||12),playersOnPitch:Math.max(1,Number($('playersOnPitch').value)||5)};saveSettings(s);
+$('settingsForm').onsubmit=e=>{e.preventDefault();const current=loadSettings();const s={...current,teamName:$('teamName').value.trim()||'Your Team',teamAbbr:cleanAbbr($('teamAbbr').value,'YTM'),matchFormat:Number($('matchFormat').value),squadSize:Math.max(5,Number($('squadSize').value)||12),playersOnPitch:Math.max(1,Number($('playersOnPitch').value)||5)};saveSettings(s);
 function formatDateDisplay(value){
   if(!value)return 'Unknown date';
   const d=new Date(`${value}T00:00:00`);
@@ -64,6 +78,9 @@ function openMatchReport(id){
   const match=loadMatches().find(m=>m.id===id); if(!match)return;
   currentMatchReport=match;
   $('reportOpponent').textContent=match.opponent;
+  const repTeam=teamDisplaySettings();
+  $('reportOurCrest').textContent=cleanAbbr(match.teamAbbr,repTeam.abbr);
+  $('reportOpponentCrest').textContent=cleanAbbr(match.opponentAbbr,derivedAbbr(match.opponent,'OPP'));
   $('reportMeta').textContent=`${match.venue==='home'?'Home':'Away'} · ${formatDateDisplay(match.date)}`;
   $('reportFinalScore').textContent=`${match.ourScore} - ${match.theirScore}`;
   const ht=match.halfTimeScore||{our:0,their:0}; $('reportHalfScore').textContent=`${ht.our} - ${ht.their}`;
@@ -109,7 +126,7 @@ $('deleteMatchBtn').onclick=()=>{
 renderSettings();renderPlayers();renderMatchHistory();renderSeasonStatistics();renderMatchHistory();$('settingsSaved').textContent='Saved';setTimeout(()=>$('settingsSaved').textContent='',1500);};
 $('matchFormat').onchange=()=>{$('playersOnPitch').value=$('matchFormat').value;};
 
-function openMatchSetup(){const players=loadPlayers(),s=loadSettings();if(players.length<s.playersOnPitch){alert(`You need at least ${s.playersOnPitch} players in the squad first.`);return;}availableIds=new Set(players.map(p=>p.id));starterIds=new Set(players.slice(0,s.playersOnPitch).map(p=>p.id));$('matchDate').value=new Date().toISOString().slice(0,10);$('opponentName').value='';$('matchSetupError').textContent='';renderMatchSelection();showView(matchSetupView);}
+function openMatchSetup(){const players=loadPlayers(),s=loadSettings();if(players.length<s.playersOnPitch){alert(`You need at least ${s.playersOnPitch} players in the squad first.`);return;}availableIds=new Set(players.map(p=>p.id));starterIds=new Set(players.slice(0,s.playersOnPitch).map(p=>p.id));$('matchDate').value=new Date().toISOString().slice(0,10);$('opponentName').value='';$('opponentAbbr').value='';$('matchSetupError').textContent='';renderMatchSelection();showView(matchSetupView);}
 function renderMatchSelection(){const players=loadPlayers(),s=loadSettings();$('startingTeamHeading').textContent=`Starting ${s.playersOnPitch}`;$('availableCount').textContent=`${availableIds.size} available`;$('starterCount').textContent=`${starterIds.size} / ${s.playersOnPitch}`;$('availabilityList').innerHTML=players.map(p=>`<label class="selection-row"><input class="availability-check" type="checkbox" data-id="${p.id}" ${availableIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');$('starterList').innerHTML=players.filter(p=>availableIds.has(p.id)).map(p=>`<label class="selection-row ${starterIds.has(p.id)?'selected':''}"><input class="starter-check" type="checkbox" data-id="${p.id}" ${starterIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');const subs=players.filter(p=>availableIds.has(p.id)&&!starterIds.has(p.id));$('substituteList').innerHTML=subs.length?subs.map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join(''):'<p class="muted">No substitutes selected.</p>';document.querySelectorAll('.availability-check').forEach(c=>c.onchange=()=>{if(c.checked)availableIds.add(c.dataset.id);else{availableIds.delete(c.dataset.id);starterIds.delete(c.dataset.id);}renderMatchSelection();});document.querySelectorAll('.starter-check').forEach(c=>c.onchange=()=>{if(c.checked){if(starterIds.size>=s.playersOnPitch){$('matchSetupError').textContent=`You can only select ${s.playersOnPitch} starters.`;return;}starterIds.add(c.dataset.id);}else starterIds.delete(c.dataset.id);$('matchSetupError').textContent='';renderMatchSelection();});}
 $('newMatchBtn').onclick=openMatchSetup;
 $('settingsBtn').onclick=()=>showView(settingsView);
@@ -144,7 +161,7 @@ function renderSeasonStatistics(){
   $('playerStatsTable').innerHTML=`<table class="stats-table"><thead><tr><th>Player</th><th class="num">Apps</th><th class="num">Starts</th><th class="num">Subs</th><th class="num">Goals</th><th class="num">Assists</th><th class="num">PP Apps</th></tr></thead><tbody>${rows.map(p=>`<tr><td class="player-stat-name">${escapeHtml(p.number?`#${p.number} ${p.name}`:p.name)}</td><td class="num">${p.apps}</td><td class="num">${p.starts}</td><td class="num">${p.subApps}</td><td class="num">${p.goals}</td><td class="num">${p.assists}</td><td class="num">${p.powerPlayApps}</td></tr>`).join('')}</tbody></table>`;
 }
  $('cancelMatchSetupBtn').onclick=()=>showView(homeView);
-$('matchSetupForm').onsubmit=e=>{e.preventDefault();const s=loadSettings(),opponent=$('opponentName').value.trim();if(!opponent){$('matchSetupError').textContent='Enter the opponent name.';return;}if(availableIds.size<s.playersOnPitch){$('matchSetupError').textContent=`You need at least ${s.playersOnPitch} available players.`;return;}if(starterIds.size!==s.playersOnPitch){$('matchSetupError').textContent=`Select exactly ${s.playersOnPitch} starters.`;return;}const match={id:makeId(),opponent,date:$('matchDate').value,venue:document.querySelector('input[name="venue"]:checked').value,availablePlayerIds:[...availableIds],starterPlayerIds:[...starterIds],substitutePlayerIds:[...availableIds].filter(id=>!starterIds.has(id)),currentOnPitch:[...starterIds],currentSubs:[...availableIds].filter(id=>!starterIds.has(id)),status:'live',period:1,halfTime:false,fullTime:false,ourScore:0,theirScore:0,events:[],powerPlayPlayers:[],powerPlayAllowance:0,powerPlayRuleVersion:3,periodElapsedSeconds:0,periodStartedAt:null,createdAt:new Date().toISOString()};const matches=loadMatches();matches.push(match);saveMatches(matches);startLiveMatch(match.id);};
+$('matchSetupForm').onsubmit=e=>{e.preventDefault();const s=loadSettings(),opponent=$('opponentName').value.trim(),opponentAbbr=cleanAbbr($('opponentAbbr').value,derivedAbbr(opponent,'OPP'));if(!opponent){$('matchSetupError').textContent='Enter the opponent name.';return;}if(availableIds.size<s.playersOnPitch){$('matchSetupError').textContent=`You need at least ${s.playersOnPitch} available players.`;return;}if(starterIds.size!==s.playersOnPitch){$('matchSetupError').textContent=`Select exactly ${s.playersOnPitch} starters.`;return;}const team=teamDisplaySettings();const match={id:makeId(),teamName:team.name,teamAbbr:team.abbr,opponent,opponentAbbr,date:$('matchDate').value,venue:document.querySelector('input[name="venue"]:checked').value,availablePlayerIds:[...availableIds],starterPlayerIds:[...starterIds],substitutePlayerIds:[...availableIds].filter(id=>!starterIds.has(id)),currentOnPitch:[...starterIds],currentSubs:[...availableIds].filter(id=>!starterIds.has(id)),status:'live',period:1,halfTime:false,fullTime:false,ourScore:0,theirScore:0,events:[],powerPlayPlayers:[],powerPlayAllowance:0,powerPlayRuleVersion:3,periodElapsedSeconds:0,periodStartedAt:null,createdAt:new Date().toISOString()};const matches=loadMatches();matches.push(match);saveMatches(matches);startLiveMatch(match.id);};
 
 function currentMatch(){return loadMatches().find(m=>m.id===activeMatchId)||null;}
 function saveCurrentMatch(match){const matches=loadMatches();const i=matches.findIndex(m=>m.id===match.id);if(i>=0){matches[i]=match;saveMatches(matches);}}
@@ -223,7 +240,7 @@ function renderLiveUI(){
   $('powerPlayRemoveBtn').classList.toggle('hidden',!needsWithdrawal);
   $('powerPlayRequired').textContent=needsWithdrawal?`Required: withdraw ${ppActive-ppLimit} Power Play player${ppActive-ppLimit===1?'':'s'} now.`:'';
   $('powerPlayRequired').classList.toggle('hidden',!needsWithdrawal);
-  $('ourScore').textContent=match.ourScore; $('theirScore').textContent=match.theirScore; $('liveOpponent').textContent=match.opponent; $('opponentScoreName').textContent=match.opponent; $('liveMeta').textContent=`${match.venue==='home'?'Home':'Away'} · ${match.date}`;
+  const teamName=match.teamName||teamDisplaySettings().name,teamAbbr=cleanAbbr(match.teamAbbr,teamDisplaySettings().abbr),oppAbbr=cleanAbbr(match.opponentAbbr,derivedAbbr(match.opponent,'OPP')); $('ourScore').textContent=match.ourScore; $('theirScore').textContent=match.theirScore; $('ourTeamName').textContent=teamName; $('ourTeamCrest').textContent=teamAbbr; $('opponentScoreName').textContent=match.opponent; $('opponentTeamCrest').textContent=oppAbbr; $('liveMeta').textContent=`${match.opponent} · ${match.venue==='home'?'Home':'Away'} · ${match.date}`; $('livePlayerCount').textContent=`${normalPlayerCount(match)+ppActive}v${normalPlayerCount(match)}`;
   const periodText=match.period===1?'1st half':'2nd half'; $('matchPeriod').textContent=periodText; $('periodLabel').textContent=match.fullTime?'Full Time':(match.halfTime?'Half Time':periodText); $('periodMessage').textContent=match.fullTime?'Match finished':(match.halfTime?'Half time':(match.periodStartedAt?'':'Paused'));
   $('timerBtn').textContent=match.periodStartedAt?'Pause':'Start'; $('timerBtn').classList.toggle('active',!!match.periodStartedAt); $('timerBtn').disabled=match.fullTime||match.halfTime;
   $('halfTimeBtn').classList.toggle('hidden',match.period!==1||match.halfTime||match.fullTime);
@@ -364,7 +381,7 @@ $('deleteMatchBtn').onclick=()=>{
 };
 
 renderSettings();renderPlayers();
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=18.4').catch(()=>{}));
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=19.0').catch(()=>{}));
 
 function refreshHomeData() {
   if (document.hidden) return;

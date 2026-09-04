@@ -1,11 +1,16 @@
-# Grassroots Match Tracker v18.5
+# Grassroots Match Tracker v19
 
-Professional football UI redesign with a fully branded splash experience.
+Professional football match-centre redesign built on the tested v18.5 functionality.
 
-## v18.5 fixes
-- Corrected dark-theme text contrast across the app
-- Main app stays hidden behind the splash until the splash has fully finished
-- Splash is displayed for about 3 seconds before a short fade
-- Existing match logic, assists, Power Play, statistics, history, local storage and PWA behaviour are retained
+## v19
+- Standard CSS football crest for every team
+- Editable 3-letter abbreviation for your team and opponent
+- Stadium/floodlight-inspired live match presentation
+- Large score and live clock hierarchy
+- Strong Power Play visual treatment
+- Consistent professional dark UI across all screens
+- Mobile-first touch-friendly controls and high-contrast forms
+
+Existing assists, corrected Power Play rules, substitutions, undo, timer, reports, statistics, history, local storage and PWA behaviour are retained.
 
 Designed & developed by Matt Ashby.

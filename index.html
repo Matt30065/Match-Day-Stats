@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#06131a" />
   <title>Grassroots Match Tracker</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=18.4" />
+  <link rel="stylesheet" href="style.css?v=19.0" />
 
   <style id="critical-ui">
     html,body{margin:0;min-height:100%;background:#06131c;color:#f8fafc;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -84,7 +84,16 @@
         </div>
 
         <div class="setup-section first-section">
-          <h3>Team settings</h3>
+          <h3>Team identity</h3>
+          <div class="team-identity-grid">
+            <label>Team name
+              <input id="teamName" type="text" maxlength="40" placeholder="e.g. Kewford Eagles Girls U9 North" />
+            </label>
+            <label>3-letter abbreviation
+              <input id="teamAbbr" type="text" maxlength="3" minlength="1" placeholder="KEG" />
+            </label>
+          </div>
+          <p class="muted compact">The abbreviation appears inside your standard team crest.</p>
           <form id="settingsForm" class="settings-grid">
             <label>Match format
               <select id="matchFormat">
@@ -131,7 +140,8 @@
         </div>
         <form id="matchSetupForm">
           <div class="match-details-grid">
-            <label>Opponent<input id="opponentName" type="text" placeholder="e.g. Riverside FC" required /></label>
+            <label>Opponent<input id="opponentName" type="text" placeholder="e.g. Liverpool Girls U9 North" required /></label>
+            <label>Opponent 3-letter abbreviation<input id="opponentAbbr" type="text" maxlength="3" minlength="1" placeholder="LIV" required /></label>
             <label>Date<input id="matchDate" type="date" required /></label>
           </div>
           <fieldset>
@@ -158,28 +168,30 @@
 
     <div id="liveMatchView" class="hidden">
       <section class="card live-card">
-        <div class="section-heading">
-          <div><p class="eyebrow">LIVE MATCH</p><h2 id="liveOpponent"></h2><p id="liveMeta" class="muted compact"></p></div>
-          <button id="exitLiveMatchBtn" class="secondary-btn">Exit</button>
+        <div class="live-topbar">
+          <div><p class="eyebrow">LIVE MATCH</p><p id="liveMeta" class="muted compact"></p></div>
+          <button id="exitLiveMatchBtn" class="secondary-btn icon-btn" aria-label="Exit match">✕</button>
         </div>
 
-        <div class="match-clock-card">
-          <div id="matchClock" class="match-clock">00:00</div>
-          <div id="clockStatus" class="clock-status">Paused</div>
-          <div id="matchPeriod" class="period-label">1st half</div>
-          <button id="timerBtn" class="primary-btn timer-btn">Start</button>
+        <div class="scoreboard-hero">
+          <div class="team-panel team-panel-ours">
+            <div class="team-crest" id="ourTeamCrest" aria-label="Our team">KEG</div>
+            <div class="team-name" id="ourTeamName">Our Team</div>
+          </div>
+          <div class="score-centre">
+            <div class="match-stage">MATCH DAY</div>
+            <div class="scoreline"><strong id="ourScore">0</strong><span class="score-divider">-</span><strong id="theirScore">0</strong></div>
+            <div class="match-clock-pill"><span id="matchClock">00:00</span><small id="matchPeriod">1st half</small></div>
+            <div class="period-status"><span id="periodLabel">1st Half</span><span id="periodMessage"></span></div>
+            <button id="timerBtn" class="primary-btn timer-btn">Start</button>
+          </div>
+          <div class="team-panel team-panel-opponent">
+            <div class="team-crest opponent-crest" id="opponentTeamCrest" aria-label="Opponent">OPP</div>
+            <div class="team-name" id="opponentScoreName">Opponent</div>
+          </div>
         </div>
 
-        <div class="period-status">
-          <span id="periodLabel">1st Half</span>
-          <span id="periodMessage"></span>
-        </div>
-
-        <div class="scoreboard">
-          <div><span class="score-team">Us</span><strong id="ourScore">0</strong></div>
-          <span class="score-divider">-</span>
-          <div><span class="score-team" id="opponentScoreName">Opponent</span><strong id="theirScore">0</strong></div>
-        </div>
+        <div class="score-meta-line"><span>ON PITCH</span><strong id="livePlayerCount">5v5</strong><span id="clockStatus">Paused</span></div>
 
         <div class="period-controls">
           <button id="halfTimeBtn" class="secondary-btn">Half Time</button>
@@ -196,7 +208,7 @@
 
         <div class="power-play-panel" id="powerPlayPanel">
           <div>
-            <div class="power-play-title">⚡ Power Play</div>
+            <div class="power-play-kicker">MATCH RULE</div><div class="power-play-title">⚡ Power Play</div>
             <div id="powerPlayStatus" class="power-play-status">Not active</div>
             <div id="powerPlayAddHint" class="muted compact">Reach a 4-goal deficit to unlock Power Play.</div>
             <div id="powerPlayRequired" class="error-message hidden" aria-live="polite"></div>
@@ -220,7 +232,7 @@
     <div id="matchReportView" class="hidden">
       <section class="card">
         <div class="section-heading">
-          <div><p class="eyebrow">MATCH REPORT</p><h2 id="reportOpponent"></h2><p id="reportMeta" class="muted compact"></p></div>
+          <div><p class="eyebrow">MATCH REPORT</p><div class="report-team-head"><span class="team-crest mini-crest" id="reportOurCrest">KEG</span><h2 id="reportOpponent"></h2><span class="team-crest mini-crest opponent-crest" id="reportOpponentCrest">OPP</span></div><p id="reportMeta" class="muted compact"></p></div>
           <button id="reportBackBtn" class="secondary-btn">Back to Home</button>
         </div>
 
