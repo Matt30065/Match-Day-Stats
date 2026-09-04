@@ -144,7 +144,7 @@ function renderSeasonStatistics(){
   $('playerStatsTable').innerHTML=`<table class="stats-table"><thead><tr><th>Player</th><th class="num">Apps</th><th class="num">Starts</th><th class="num">Subs</th><th class="num">Goals</th><th class="num">Assists</th><th class="num">PP Apps</th></tr></thead><tbody>${rows.map(p=>`<tr><td class="player-stat-name">${escapeHtml(p.number?`#${p.number} ${p.name}`:p.name)}</td><td class="num">${p.apps}</td><td class="num">${p.starts}</td><td class="num">${p.subApps}</td><td class="num">${p.goals}</td><td class="num">${p.assists}</td><td class="num">${p.powerPlayApps}</td></tr>`).join('')}</tbody></table>`;
 }
  $('cancelMatchSetupBtn').onclick=()=>showView(homeView);
-$('matchSetupForm').onsubmit=e=>{e.preventDefault();const s=loadSettings(),opponent=$('opponentName').value.trim();if(!opponent){$('matchSetupError').textContent='Enter the opponent name.';return;}if(availableIds.size<s.playersOnPitch){$('matchSetupError').textContent=`You need at least ${s.playersOnPitch} available players.`;return;}if(starterIds.size!==s.playersOnPitch){$('matchSetupError').textContent=`Select exactly ${s.playersOnPitch} starters.`;return;}const match={id:makeId(),opponent,date:$('matchDate').value,venue:document.querySelector('input[name="venue"]:checked').value,availablePlayerIds:[...availableIds],starterPlayerIds:[...starterIds],substitutePlayerIds:[...availableIds].filter(id=>!starterIds.has(id)),currentOnPitch:[...starterIds],currentSubs:[...availableIds].filter(id=>!starterIds.has(id)),status:'live',period:1,halfTime:false,fullTime:false,ourScore:0,theirScore:0,events:[],powerPlayPlayers:[],periodElapsedSeconds:0,periodStartedAt:null,createdAt:new Date().toISOString()};const matches=loadMatches();matches.push(match);saveMatches(matches);startLiveMatch(match.id);};
+$('matchSetupForm').onsubmit=e=>{e.preventDefault();const s=loadSettings(),opponent=$('opponentName').value.trim();if(!opponent){$('matchSetupError').textContent='Enter the opponent name.';return;}if(availableIds.size<s.playersOnPitch){$('matchSetupError').textContent=`You need at least ${s.playersOnPitch} available players.`;return;}if(starterIds.size!==s.playersOnPitch){$('matchSetupError').textContent=`Select exactly ${s.playersOnPitch} starters.`;return;}const match={id:makeId(),opponent,date:$('matchDate').value,venue:document.querySelector('input[name="venue"]:checked').value,availablePlayerIds:[...availableIds],starterPlayerIds:[...starterIds],substitutePlayerIds:[...availableIds].filter(id=>!starterIds.has(id)),currentOnPitch:[...starterIds],currentSubs:[...availableIds].filter(id=>!starterIds.has(id)),status:'live',period:1,halfTime:false,fullTime:false,ourScore:0,theirScore:0,events:[],powerPlayPlayers:[],powerPlayAllowance:0,powerPlayRuleVersion:3,periodElapsedSeconds:0,periodStartedAt:null,createdAt:new Date().toISOString()};const matches=loadMatches();matches.push(match);saveMatches(matches);startLiveMatch(match.id);};
 
 function currentMatch(){return loadMatches().find(m=>m.id===activeMatchId)||null;}
 function saveCurrentMatch(match){const matches=loadMatches();const i=matches.findIndex(m=>m.id===match.id);if(i>=0){matches[i]=match;saveMatches(matches);}}
@@ -160,11 +160,32 @@ function powerPlayLimit(match){return Math.max(0,Math.min(2,Number(match.powerPl
 function powerPlayDifference(match){return Math.max(0,Number(match.theirScore||0)-Number(match.ourScore||0));}
 function powerPlayLabel(limit){return limit===2?'+2 players':limit===1?'+1 player':'None';}
 function normalPlayerCount(match){return loadSettings().playersOnPitch;}
+function replayPowerPlayAllowance(match){
+  let allowance=0;
+  let ourScore=0;
+  let theirScore=0;
+  const goals=(match.events||[]).filter(e=>e.type==='our_goal'||e.type==='their_goal');
+  for(const e of goals){
+    const previousDifference=Math.max(0,theirScore-ourScore);
+    if(e.type==='our_goal')ourScore++; else theirScore++;
+    const currentDifference=Math.max(0,theirScore-ourScore);
+    if(currentDifference>previousDifference){
+      if(previousDifference<4&&currentDifference>=4)allowance=1;
+      if(previousDifference<6&&currentDifference>=6)allowance=2;
+    }else if(currentDifference<previousDifference){
+      if(previousDifference>5&&currentDifference<=5)allowance=Math.min(allowance,1);
+      if(previousDifference>3&&currentDifference<=3)allowance=0;
+    }
+  }
+  return allowance;
+}
 function ensurePowerPlayFields(match){
   if(!Array.isArray(match.powerPlayPlayers))match.powerPlayPlayers=[];
-  if(typeof match.powerPlayAllowance!=='number'){
-    const diff=powerPlayDifference(match);
-    match.powerPlayAllowance=diff>=5?2:(diff>=4?1:0);
+  if(typeof match.powerPlayRuleVersion!=='number'||match.powerPlayRuleVersion!==3){
+    match.powerPlayAllowance=replayPowerPlayAllowance(match);
+    match.powerPlayRuleVersion=3;
+  }else if(typeof match.powerPlayAllowance!=='number'){
+    match.powerPlayAllowance=0;
   }
   match.powerPlayPlayers=match.powerPlayPlayers.filter(id=>(match.currentOnPitch||[]).includes(id));
   return match;
@@ -233,10 +254,11 @@ function updatePowerPlayAllowance(match,previousDifference){
   ensurePowerPlayFields(match);
   const currentDifference=powerPlayDifference(match);
   if(currentDifference>previousDifference){
-    match.powerPlayAllowance=currentDifference>=5?2:(currentDifference>=4?1:0);
+    if(previousDifference<4&&currentDifference>=4)match.powerPlayAllowance=1;
+    if(previousDifference<6&&currentDifference>=6)match.powerPlayAllowance=2;
   }else if(currentDifference<previousDifference){
     if(previousDifference>5&&currentDifference<=5)match.powerPlayAllowance=Math.min(match.powerPlayAllowance,1);
-    if(previousDifference>=4&&currentDifference<=3)match.powerPlayAllowance=0;
+    if(previousDifference>3&&currentDifference<=3)match.powerPlayAllowance=0;
   }
 }
 function processPowerPlayAfterScore(match,previousDifference){
