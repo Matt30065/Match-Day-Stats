@@ -3,28 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#06131a" />
+  <meta name="theme-color" content="#0f172a" />
   <title>Grassroots Match Tracker</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=18.3" />
+  <link rel="stylesheet" href="style.css?v=15" />
 </head>
-<body class="app-starting">
-
-  <div id="splashScreen" class="splash-screen" aria-label="Grassroots Match Tracker loading">
-    <div class="splash-stadium-glow"></div>
-    <div class="splash-content">
-      <img class="splash-logo" src="app-logo.svg" alt="Grassroots Match Tracker logo" width="180" height="180" />
-      <p class="splash-eyebrow">GRASSROOTS FOOTBALL</p>
-      <h2 class="splash-title"><span>Grassroots</span> <em>Match Tracker</em></h2>
-      <div class="splash-rule"></div>
-      <p class="splash-tagline">Grassroots football.<br />Tracked better.</p>
-      <div class="splash-credit">
-        <span>Designed &amp; developed by</span>
-        <strong>Matt Ashby</strong>
-      </div>
-      <div class="splash-progress" aria-hidden="true"><span></span></div>
-    </div>
-  </div>
+<body>
   <main class="app-shell">
     <header class="app-header">
       <div>
@@ -186,20 +170,6 @@
           <button id="undoBtn" class="action-btn">↩ Undo Last</button>
         </div>
 
-        <div class="power-play-panel" id="powerPlayPanel">
-          <div>
-            <div class="power-play-title">⚡ Power Play</div>
-            <div id="powerPlayStatus" class="power-play-status">Not active</div>
-            <div id="powerPlayAddHint" class="muted compact">Reach a 4-goal deficit to unlock Power Play.</div>
-            <div id="powerPlayRequired" class="error-message hidden" aria-live="polite"></div>
-          </div>
-          <div class="power-play-actions">
-            <span id="powerPlayCount" class="count-badge">On pitch</span>
-            <button id="powerPlayAddBtn" class="secondary-btn hidden" type="button">Add Power Play Player</button>
-            <button id="powerPlayRemoveBtn" class="danger-btn hidden" type="button">Withdraw Power Play Player</button>
-          </div>
-        </div>
-
         <div class="live-columns">
           <div><h3>On pitch</h3><div id="liveStarters" class="summary-list"></div></div>
           <div><h3>Substitutes</h3><div id="liveSubs" class="summary-list"></div></div>
@@ -249,9 +219,6 @@
         <label>Scorer
           <select id="goalScorer"></select>
         </label>
-        <label>Assist
-          <select id="goalAssist"><option value="">No assist</option></select>
-        </label>
       </div>
       <label class="checkline"><input id="goalPenalty" type="checkbox" /><span>Penalty</span></label>
       <div class="dialog-actions">
@@ -264,30 +231,6 @@
 
   <dialog id="subDialog"><form id="subForm" class="dialog-card"><h2>Substitution</h2><label>Player off<select id="subOff"></select></label><label>Player on<select id="subOn"></select></label><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelSubBtn">Cancel</button><button type="submit" class="primary-btn">Make substitution</button></div></form></dialog>
 
-  <dialog id="powerPlayOnDialog"><form class="dialog-card" onsubmit="return false;"><h2>Add Power Play Player</h2><label>Player<select id="powerPlayOnPlayer"></select></label><p class="muted compact">This player will be recorded as a Power Play appearance.</p><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPowerPlayOnBtn">Cancel</button><button type="button" class="primary-btn" id="savePowerPlayOnBtn">Add Player</button></div></form></dialog>
-
-  <dialog id="powerPlayOffDialog"><form class="dialog-card" onsubmit="return false;"><h2>Withdraw Power Play Player</h2><p id="powerPlayOffRequired" class="error-message"></p><p class="muted compact">Under the Power Play rule, the player withdrawn does not have to be the player who originally came on.</p><label>Player<select id="powerPlayOffPlayer"></select></label><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPowerPlayOffBtn">Cancel</button><button type="button" class="primary-btn" id="savePowerPlayOffBtn">Withdraw Player</button></div></form></dialog>
-
-  <script>
-    window.addEventListener('load', () => {
-      const splash = document.getElementById('splashScreen');
-      if (!splash) {
-        document.body.classList.remove('app-starting');
-        return;
-      }
-      // Keep the branded splash visible long enough to read.
-      // Keep the main app hidden until the splash has fully faded.
-      const DISPLAY_MS = 3000;
-      const FADE_MS = 550;
-      window.setTimeout(() => {
-        splash.classList.add('splash-exit');
-        window.setTimeout(() => {
-          splash.remove();
-          document.body.classList.remove('app-starting');
-        }, FADE_MS);
-      }, DISPLAY_MS);
-    });
-  </script>
-  <script src="app.js?v=18.3"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>
