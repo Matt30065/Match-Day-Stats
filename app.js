@@ -38,6 +38,28 @@ function loadPlayers() { return loadJson(PLAYER_STORAGE_KEY, []); }
 function savePlayers(v) { saveJson(PLAYER_STORAGE_KEY, v); }
 function loadSettings() { return { ...defaultSettings, ...loadJson(SETTINGS_STORAGE_KEY, {}) }; }
 function saveSettings(v) { saveJson(SETTINGS_STORAGE_KEY, v); }
+function hasCompletedFirstUseSetup() {
+  const raw = loadJson(SETTINGS_STORAGE_KEY, null);
+  const s = loadSettings();
+  const players = loadPlayers();
+  return !!(raw && String(s.teamName || '').trim() && /^[A-Z0-9]{1,3}$/.test(String(s.teamAbbr || '').toUpperCase()) && Number(s.matchFormat) && Number(s.squadSize) >= Number(s.playersOnPitch) && Number(s.playersOnPitch) > 0 && players.length >= Number(s.playersOnPitch));
+}
+function openFirstUseSetup() {
+  renderSettings();
+  renderPlayers();
+  $('firstUseBanner')?.classList.remove('hidden');
+  $('firstUseContinue')?.classList.remove('hidden');
+  showView(settingsView);
+  window.setTimeout(() => $('teamName')?.focus(), 80);
+}
+function closeFirstUseSetup() {
+  $('firstUseBanner')?.classList.add('hidden');
+  $('firstUseContinue')?.classList.add('hidden');
+}
+function refreshFirstUseContinue() {
+  if ($('firstUseBanner')?.classList.contains('hidden')) return;
+  $('firstUseContinue')?.classList.remove('hidden');
+}
 function loadMatches() { return loadJson(MATCH_STORAGE_KEY, []); }
 function saveMatches(v) { saveJson(MATCH_STORAGE_KEY, v); }
 function escapeHtml(v) { return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
@@ -56,9 +78,9 @@ function renderPlayers() {
 function openAddPlayer(){editingPlayerId=null;playerForm.reset();$('playerDialogTitle').textContent='Add player';$('deletePlayerBtn').classList.add('hidden');playerDialog.showModal();playerName.focus();}
 function openEditPlayer(id){const p=loadPlayers().find(x=>x.id===id);if(!p)return;editingPlayerId=id;$('playerDialogTitle').textContent='Edit player';playerName.value=p.name;playerNumber.value=p.number||'';playerPosition.value=p.position||'';$('deletePlayerBtn').classList.remove('hidden');playerDialog.showModal();}
 $('addPlayerBtn').onclick=openAddPlayer; $('cancelPlayerBtn').onclick=()=>playerDialog.close();
-playerForm.onsubmit=e=>{e.preventDefault();const players=loadPlayers(),data={name:playerName.value.trim(),number:playerNumber.value.trim(),position:playerPosition.value};if(!data.name)return;if(editingPlayerId)Object.assign(players.find(p=>p.id===editingPlayerId),data);else players.push({id:makeId(),...data});savePlayers(players);renderPlayers();playerDialog.close();};
+playerForm.onsubmit=e=>{e.preventDefault();const players=loadPlayers(),data={name:playerName.value.trim(),number:playerNumber.value.trim(),position:playerPosition.value};if(!data.name)return;if(editingPlayerId)Object.assign(players.find(p=>p.id===editingPlayerId),data);else players.push({id:makeId(),...data});savePlayers(players);renderPlayers();refreshFirstUseContinue();playerDialog.close();};
 $('deletePlayerBtn').onclick=()=>{const p=loadPlayers().find(x=>x.id===editingPlayerId);if(!p||!confirm(`Delete ${p.name}?`))return;savePlayers(loadPlayers().filter(x=>x.id!==editingPlayerId));playerDialog.close();renderPlayers();};
-$('fillTestPlayersBtn').onclick=()=>{const s=loadSettings(),players=loadPlayers();if(players.length&&!confirm('Add test players to the existing squad?'))return;const names=new Set(players.map(p=>p.name.toLowerCase()));for(let i=1;i<=s.squadSize;i++){const name=`Player ${i}`;if(!names.has(name.toLowerCase()))players.push({id:makeId(),name,number:String(i),position:''});}savePlayers(players);renderPlayers();};
+$('fillTestPlayersBtn').onclick=()=>{const s=loadSettings(),players=loadPlayers();if(players.length&&!confirm('Add test players to the existing squad?'))return;const names=new Set(players.map(p=>p.name.toLowerCase()));for(let i=1;i<=s.squadSize;i++){const name=`Player ${i}`;if(!names.has(name.toLowerCase()))players.push({id:makeId(),name,number:String(i),position:''});}savePlayers(players);renderPlayers();refreshFirstUseContinue();};
 $('settingsForm').onsubmit=e=>{e.preventDefault();const current=loadSettings();const s={...current,teamName:$('teamName').value.trim()||'Your Team',teamAbbr:cleanAbbr($('teamAbbr').value,'YTM'),matchFormat:Number($('matchFormat').value),squadSize:Math.max(5,Number($('squadSize').value)||12),playersOnPitch:Math.max(1,Number($('playersOnPitch').value)||5)};saveSettings(s);
 function formatDateDisplay(value){
   if(!value)return 'Unknown date';
@@ -124,15 +146,31 @@ $('deleteMatchBtn').onclick=()=>{
   currentMatchReport=null; showView(homeView); renderMatchHistory();
 };
 
-renderSettings();renderPlayers();renderMatchHistory();renderSeasonStatistics();renderMatchHistory();$('settingsSaved').textContent='Saved';setTimeout(()=>$('settingsSaved').textContent='',1500);};
+renderSettings();renderPlayers();renderMatchHistory();renderSeasonStatistics();refreshIdentityPreviews();if(!hasCompletedFirstUseSetup())refreshFirstUseContinue();$('settingsSaved').textContent='Saved';setTimeout(()=>$('settingsSaved').textContent='',1500);};
 $('matchFormat').onchange=()=>{$('playersOnPitch').value=$('matchFormat').value;};
 
 function openMatchSetup(){const players=loadPlayers(),s=loadSettings();if(players.length<s.playersOnPitch){alert(`You need at least ${s.playersOnPitch} players in the squad first.`);return;}availableIds=new Set(players.map(p=>p.id));starterIds=new Set(players.slice(0,s.playersOnPitch).map(p=>p.id));$('matchDate').value=new Date().toISOString().slice(0,10);$('opponentName').value='';$('opponentAbbr').value='';$('matchSetupError').textContent='';renderMatchSelection();showView(matchSetupView);refreshIdentityPreviews();}
 function renderMatchSelection(){const players=loadPlayers(),s=loadSettings();$('startingTeamHeading').textContent=`Starting ${s.playersOnPitch}`;$('availableCount').textContent=`${availableIds.size} available`;$('starterCount').textContent=`${starterIds.size} / ${s.playersOnPitch}`;$('availabilityList').innerHTML=players.map(p=>`<label class="selection-row"><input class="availability-check" type="checkbox" data-id="${p.id}" ${availableIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');$('starterList').innerHTML=players.filter(p=>availableIds.has(p.id)).map(p=>`<label class="selection-row ${starterIds.has(p.id)?'selected':''}"><input class="starter-check" type="checkbox" data-id="${p.id}" ${starterIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');const subs=players.filter(p=>availableIds.has(p.id)&&!starterIds.has(p.id));$('substituteList').innerHTML=subs.length?subs.map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join(''):'<p class="muted">No substitutes selected.</p>';document.querySelectorAll('.availability-check').forEach(c=>c.onchange=()=>{if(c.checked)availableIds.add(c.dataset.id);else{availableIds.delete(c.dataset.id);starterIds.delete(c.dataset.id);}renderMatchSelection();});document.querySelectorAll('.starter-check').forEach(c=>c.onchange=()=>{if(c.checked){if(starterIds.size>=s.playersOnPitch){$('matchSetupError').textContent=`You can only select ${s.playersOnPitch} starters.`;return;}starterIds.add(c.dataset.id);}else starterIds.delete(c.dataset.id);$('matchSetupError').textContent='';renderMatchSelection();});}
 $('teamName').addEventListener('input',refreshIdentityPreviews);$('teamAbbr').addEventListener('input',refreshIdentityPreviews);$('opponentName').addEventListener('input',refreshIdentityPreviews);$('opponentAbbr').addEventListener('input',refreshIdentityPreviews);
-$('newMatchBtn').onclick=openMatchSetup;
-$('settingsBtn').onclick=()=>showView(settingsView);
-$('settingsBackBtn').onclick=()=>{showView(homeView);};
+$('continueToMatchBtn')?.addEventListener('click',()=>{
+  const s=loadSettings();
+  const players=loadPlayers();
+  if(!String(s.teamName||'').trim() || !String(s.teamAbbr||'').trim()){
+    alert('Complete the team name and 3-letter abbreviation first.');
+    $('teamName')?.focus();
+    return;
+  }
+  if(players.length<s.playersOnPitch){
+    alert(`Add at least ${s.playersOnPitch} players to your squad before continuing.`);
+    $('playerList')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  closeFirstUseSetup();
+  openMatchSetup();
+});
+$('newMatchBtn').onclick=()=>{if(!hasCompletedFirstUseSetup()){openFirstUseSetup();return;}openMatchSetup();};
+$('settingsBtn').onclick=()=>{closeFirstUseSetup();showView(settingsView);};
+$('settingsBackBtn').onclick=()=>{closeFirstUseSetup();showView(homeView);};
 
 function renderSeasonStatistics(){
   const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime);

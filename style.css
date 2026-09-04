@@ -586,3 +586,11 @@ dialog{border-radius:22px!important}dialog h2{font-size:23px!important;margin-bo
   .player-stat-mini{gap:8px}
   .player-stat-mini span{font-size:9px}
 }
+
+
+/* v19.6 first-use onboarding */
+.first-use-banner{margin:-2px 0 16px;padding:18px 18px 16px;border-radius:18px;background:linear-gradient(135deg,rgba(32,214,107,.14),rgba(32,214,107,.035));border:1px solid rgba(32,214,107,.26)}
+.first-use-banner h3{margin:2px 0 6px;font-size:21px;color:#fff}
+.first-use-banner p{margin:0}
+.first-use-continue{margin-top:4px;grid-column:1/-1}
+.first-use-continue .primary-btn{width:100%}

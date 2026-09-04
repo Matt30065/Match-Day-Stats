@@ -83,6 +83,12 @@
           <button id="settingsBackBtn" class="secondary-btn">Back to Home</button>
         </div>
 
+        <div id="firstUseBanner" class="first-use-banner hidden">
+          <p class="eyebrow">FIRST-TIME SETUP</p>
+          <h3>Let's set up your team</h3>
+          <p class="muted compact">Complete your team details and add your squad here. These settings are saved on this device, so next time New Match will take you straight to match setup.</p>
+        </div>
+
         <div class="setup-section first-section">
           <h3>Team identity</h3>
           <div class="identity-preview"><div class="team-crest settings-crest" id="settingsTeamCrest">YTM</div><div class="identity-preview-copy"><span>STANDARD TEAM CREST</span><strong id="settingsTeamPreviewName">Your Team</strong><small>Your abbreviation updates the crest automatically.</small></div></div><div class="team-identity-grid">
@@ -112,6 +118,9 @@
             <div class="settings-action">
               <button type="submit" class="secondary-btn">Save settings</button>
               <span id="settingsSaved" class="saved-message"></span>
+            </div>
+            <div id="firstUseContinue" class="first-use-continue hidden">
+              <button type="button" id="continueToMatchBtn" class="primary-btn">Continue to New Match</button>
             </div>
           </form>
         </div>
@@ -310,6 +319,6 @@
       window.setTimeout(finish, DISPLAY_MS);
     })();
   </script>
-  <script src="app.js?v=19.4.0"></script>
+  <script src="app.js?v=19.6.0"></script>
 </body>
 </html>
