@@ -364,7 +364,7 @@ $('deleteMatchBtn').onclick=()=>{
 };
 
 renderSettings();renderPlayers();
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=15').catch(()=>{}));
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=18.3').catch(()=>{}));
 
 function refreshHomeData() {
   if (document.hidden) return;

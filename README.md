@@ -1,26 +1,11 @@
-# Grassroots Match Tracker v18
+# Grassroots Match Tracker v18.3
 
-Professional visual redesign built on the tested v17/v16.3 functionality.
+Professional football UI redesign with a fully branded splash experience.
 
-## Visual changes
-- Dark professional football-app theme
-- Premium match-centre scoreboard and clock
-- High-contrast touch-friendly buttons
-- Redesigned cards, player rows, statistics, event timeline and match history
-- Power Play given its own visual treatment
-- Improved dialogs and form controls
-- Mobile-first spacing and typography
-- Retains the Matt Ashby branded splash screen
-
-## Functionality
-No intentional match-logic changes in this release. Existing assists, Power Play rules,
-substitutions, undo, reports, season statistics, local storage and match-history behaviour
-are retained.
-
-Power Play remains:
-- 4-goal deficit: optional first additional player
-- 6-goal deficit: optional second additional player
-- reduced to 5: withdraw one if the second was used
-- reduced to 3: withdraw the remaining additional player
+## v18.3 fixes
+- Corrected dark-theme text contrast across the app
+- Main app stays hidden behind the splash until the splash has fully finished
+- Splash is displayed for about 3 seconds before a short fade
+- Existing match logic, assists, Power Play, statistics, history, local storage and PWA behaviour are retained
 
 Designed & developed by Matt Ashby.
