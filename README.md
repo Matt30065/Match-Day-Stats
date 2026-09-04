@@ -2,6 +2,7 @@
 
 Polish release built on v19.3.
 
+
 ## Player statistics fix
 Player statistics are now presented as responsive player cards so every tracked metric is visible without horizontal scrolling:
 - Apps
