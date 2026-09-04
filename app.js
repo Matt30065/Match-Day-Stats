@@ -194,7 +194,7 @@ function renderLiveUI(){
   const ppLimit=powerPlayLimit(match),ppActive=match.powerPlayPlayers.length,ppDiff=powerPlayDifference(match);
   const needsWithdrawal=ppActive>ppLimit;
   $('powerPlayStatus').textContent=ppLimit?`Eligible: ${powerPlayLabel(ppLimit)}`:'Not active';
-  $('powerPlayCount').textContent=`On pitch: ${normalPlayerCount(match)+ppActive} / ${normalPlayerCount(match)+ppLimit}`;
+  $('powerPlayCount').textContent=`${normalPlayerCount(match)+ppActive}v${normalPlayerCount(match)}`;
   $('powerPlayAddBtn').disabled=match.halfTime||match.fullTime||ppActive>=ppLimit||!match.currentSubs.length||ppLimit===0;
   $('powerPlayAddBtn').classList.toggle('hidden',ppLimit===0||ppActive>=ppLimit);
   $('powerPlayAddHint').textContent=ppLimit===0?'Reach a 4-goal deficit to unlock Power Play.':ppActive<ppLimit?`Goal difference: ${ppDiff}. You can add ${ppLimit-ppActive} Power Play player${ppLimit-ppActive===1?'':'s'}.`:'Power Play allowance is full.';
