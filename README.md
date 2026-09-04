@@ -1,4 +1,4 @@
-# Grassroots Match Tracker v16
+# Grassroots Match Tracker v16.2.1
 
 Adds assists and your team's Power Play tracking while preserving existing match history, local storage and match-day flow.
 
@@ -11,3 +11,12 @@ Adds assists and your team's Power Play tracking while preserving existing match
 - Existing matches remain compatible; older matches simply show zero assists/Power Play Apps unless new events exist.
 
 Replace the current app.js, index.html, style.css and service-worker.js with the v16 files.
+
+
+### v16.1 fix
+- Power Play player-count display now shows our players vs the opponent's fixed match-format count (for example 5v5, 6v5, 7v5).
+
+
+## v16.2 fix
+- Required Power Play withdrawal can select any player currently on the pitch, not only the player(s) originally added for Power Play.
+- The Power Play allowance is reduced correctly while preserving the actual on-pitch players.
