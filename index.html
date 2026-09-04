@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#06131a" />
   <title>Grassroots Match Tracker</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=18.2" />
+  <link rel="stylesheet" href="style.css?v=18.3" />
 </head>
-<body>
+<body class="app-starting">
 
   <div id="splashScreen" class="splash-screen" aria-label="Grassroots Match Tracker loading">
     <div class="splash-stadium-glow"></div>
@@ -271,13 +271,23 @@
   <script>
     window.addEventListener('load', () => {
       const splash = document.getElementById('splashScreen');
-      if (!splash) return;
-      setTimeout(() => {
+      if (!splash) {
+        document.body.classList.remove('app-starting');
+        return;
+      }
+      // Keep the branded splash visible long enough to read.
+      // Keep the main app hidden until the splash has fully faded.
+      const DISPLAY_MS = 3000;
+      const FADE_MS = 550;
+      window.setTimeout(() => {
         splash.classList.add('splash-exit');
-        setTimeout(() => splash.remove(), 500);
-      }, 2600);
+        window.setTimeout(() => {
+          splash.remove();
+          document.body.classList.remove('app-starting');
+        }, FADE_MS);
+      }, DISPLAY_MS);
     });
   </script>
-  <script src="app.js?v=18.2"></script>
+  <script src="app.js?v=18.3"></script>
 </body>
 </html>
