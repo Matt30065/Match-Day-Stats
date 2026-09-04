@@ -63,3 +63,11 @@
     font-size: 28px;
   }
 }
+
+/* v16: assists and Power Play */
+.power-play-panel{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 22px;padding:16px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
+.power-play-title{font-weight:800;font-size:15px;margin-bottom:3px}
+.power-play-status{font-weight:800;margin-bottom:3px}
+.power-play-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.power-play-actions button{white-space:nowrap}
+@media(max-width:620px){.power-play-panel{flex-direction:column;align-items:stretch}.power-play-actions{justify-content:flex-start}.power-play-actions button{flex:1;min-width:0}}
