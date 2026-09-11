@@ -588,10 +588,81 @@ openMatchReport=function(id){
 };
 
 $('toggleMatchDetailsBtn').onclick=()=>{const p=$('reportDetailsPanel'),hidden=p.classList.toggle('hidden');$('toggleMatchDetailsBtn').textContent=hidden?'Match Details':'Hide Details';};
+async function svgShareImageForResult(){
+  const hero=$('matchReportView')?.querySelector('.result-hero');
+  const assists=$('reportAssistSummary');
+  if(!hero)return null;
+  const heroRect=hero.getBoundingClientRect();
+  const assistHeight=assists&&!assists.classList.contains('hidden')?assists.getBoundingClientRect().height:0;
+  const shareHeight=Math.max(1,Math.round(heroRect.height+assistHeight+2));
+  const heroWidth=Math.max(320,Math.round(heroRect.width));
+  const heroClone=hero.cloneNode(true);
+  const assistClone=assists&&!assists.classList.contains('hidden')?assists.cloneNode(true):null;
+  const styles=[];
+  for(const sheet of Array.from(document.styleSheets)){
+    try{for(const rule of Array.from(sheet.cssRules||[]))styles.push(rule.cssText);}catch(e){}
+  }
+  const rootStyle=getComputedStyle(document.documentElement);
+  const variables=[];
+  for(let i=0;i<rootStyle.length;i++){
+    const name=rootStyle[i];
+    if(name.startsWith('--'))variables.push(`${name}:${rootStyle.getPropertyValue(name)};`);
+  }
+  const wrapper=document.createElement('div');
+  wrapper.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+  wrapper.style.cssText=`width:${heroWidth}px;background:linear-gradient(180deg,#0b2836,#05151e);color:#f7fbfd;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;overflow:hidden;border:1px solid rgba(181,215,228,.16);border-radius:24px;${variables.join('')}`;
+  wrapper.appendChild(heroClone);
+  if(assistClone)wrapper.appendChild(assistClone);
+  const serializer=new XMLSerializer();
+  const markup=serializer.serializeToString(wrapper);
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${heroWidth}" viewBox="0 0 ${heroWidth} 100"><foreignObject x="0" y="0" width="100%" height="100%"><style>${styles.join('')}</style>${markup}</foreignObject></svg>`;
+  const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  try{
+    const img=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});
+    const naturalHeight=shareHeight;
+    const scale=Math.min(3,Math.max(2,window.devicePixelRatio||2));
+    const canvas=document.createElement('canvas');
+    canvas.width=heroWidth*scale;
+    canvas.height=naturalHeight*scale;
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png',1));
+    return png;
+  }finally{URL.revokeObjectURL(url);}
+}
+
 $('shareResultBtn').onclick=async()=>{
-  if(!currentMatchReport)return; const m=currentMatchReport, team=m.teamName||teamDisplaySettings().name, ht=m.halfTimeScore||{our:0,their:0};
+  if(!currentMatchReport)return;
+  const btn=$('shareResultBtn');
+  const m=currentMatchReport, team=m.teamName||teamDisplaySettings().name, ht=m.halfTimeScore||{our:0,their:0};
   const text=`FULL TIME\n${team} ${m.ourScore} - ${m.theirScore} ${m.opponent}\nHT ${ht.our}-${ht.their}\n${formatDateDisplay(m.date)}`;
-  try{if(navigator.share)await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,text});else{await navigator.clipboard.writeText(text);alert('Result copied to clipboard.');}}catch(e){}
+  const originalLabel=btn.textContent;
+  btn.disabled=true;
+  btn.textContent='Preparing...';
+  try{
+    const png=await svgShareImageForResult();
+    if(png){
+      const file=new File([png],`match-result-${m.date||'match'}.png`,{type:'image/png'});
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,files:[file]});
+        return;
+      }
+      if(navigator.share){
+        await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,text});
+        return;
+      }
+    }
+    if(navigator.share)await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,text});
+    else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert('Result copied to clipboard.');}
+  }catch(e){
+    if(e&&e.name!=='AbortError'){
+      try{if(navigator.share)await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,text});else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert('Result copied to clipboard.');}}catch(f){}
+    }
+  }finally{
+    btn.disabled=false;
+    btn.textContent=originalLabel;
+  }
 };
 $('reportBackBtn').onclick=()=>{currentMatchReport=null;showView(homeView);renderMatchHistory();};
 $('reportHomeBtn').onclick=()=>{currentMatchReport=null;showView(homeView);renderMatchHistory();};

@@ -625,6 +625,9 @@ dialog{border-radius:22px!important}dialog h2{font-size:23px!important;margin-bo
 @media(max-width:600px){.batch-sub-grid{grid-template-columns:1fr 1fr;gap:8px}.batch-choice{padding:10px 8px;font-size:11px}.result-topbar{grid-template-columns:auto 1fr auto;padding:10px 9px}.compact-btn{font-size:11px}.result-hero{grid-template-columns:1fr .65fr 1fr;padding:23px 7px 21px;gap:5px}.result-crest{width:58px!important;height:68px!important;font-size:15px!important}.result-crest:after{width:11px!important;height:11px!important;transform:translateY(20px)!important}.result-team>strong{font-size:13px}.result-scorers{font-size:10px}.result-scoreline strong{font-size:47px}.result-scoreline{gap:6px}.result-scoreline span{font-size:23px}.result-actions-primary{grid-template-columns:1fr}.report-details-panel .report-grid{grid-template-columns:1fr}}
 
 
+/* v20.4 share result as the visible result card (navigation and action buttons excluded) */
+.share-capture-surface{position:fixed;left:-100000px;top:0;pointer-events:none;opacity:0;overflow:hidden}
+
 /* v20.1 result-card scorer grouping */
 .result-scorers{width:100%;text-align:left}
 .result-scorers .scorer-group{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:8px;line-height:1.3}
