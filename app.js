@@ -612,66 +612,76 @@ function shareSvgText(x,y,text,opts={}){
   const anchor=opts.anchor||'start',size=opts.size||24,fill=opts.fill||'#f7fbfd',weight=opts.weight||600;
   return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="Arial,Helvetica,sans-serif" font-size="${size}px" font-weight="${weight}" fill="${fill}">${xmlEscape(text)}</text>`;
 }
+function shareWrapText(text,maxChars=32){
+  const words=String(text||'').split(/\s+/).filter(Boolean),rows=[]; let row='';
+  for(const word of words){const candidate=row?`${row} ${word}`:word;if(row&&candidate.length>maxChars){rows.push(row);row=word;}else row=candidate;}
+  if(row)rows.push(row); return rows.length?rows:[''];
+}
 function buildResultShareSvg(match){
-  const W=1200;
-  const left=shareGoalGroups(match,'our_goal'), right=shareGoalGroups(match,'their_goal');
-  const assists=(match.events||[]).filter(e=>e.type==='our_goal'&&e.assistPlayerId).map(e=>`${Object.fromEntries(loadPlayers().map(p=>[p.id,p]))[e.assistPlayerId]?.name||'Unknown'} ${goalTimeLabel(e)}`);
-  const leftLines=left.flatMap(g=>{const times=wrapTimes(g.times);return [{name:g.name,times,empty:false}];});
-  const rightLines=right.flatMap(g=>{const times=wrapTimes(g.times);return [{name:g.name,times,empty:false}];});
-  const rows=Math.max(leftLines.reduce((n,g)=>n+1+Math.max(0,g.times.length-1),0),rightLines.reduce((n,g)=>n+1+Math.max(0,g.times.length-1),0),1);
-  const top=300,rowH=48,extra=Math.max(0,rows-5)*22;
-  const goalsBottom=top+rows*rowH+extra;
-  const assistBlock=assists.length?110:0;
-  const H=Math.max(620,goalsBottom+assistBlock+70);
+  const W=1200, H=720;
   const team=teamDisplaySettings(), ourName=match.teamName||team.name, oppName=match.opponent||'Opponent';
+  const left=shareGoalGroups(match,'our_goal'), right=shareGoalGroups(match,'their_goal');
+  const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
+  const assists=(match.events||[]).filter(e=>e.type==='our_goal'&&e.assistPlayerId).map(e=>`${players[e.assistPlayerId]?.name||'Unknown'} (${goalTimeLabel(e)})`);
   const meta=`${formatDateDisplay(match.date)} · ${match.venue==='home'?'Home':'Away'}`;
+  const teamRows=(name,max=27)=>shareWrapText(name,max);
+  const scorerRows=(groups,maxTimeChars=31)=>groups.map(g=>({name:g.name,timeRows:wrapTimes(g.times,maxTimeChars)}));
+  const leftRows=scorerRows(left,30), rightRows=scorerRows(right,30);
+  const sideHeight=leftRows.concat(rightRows).reduce((sum,g)=>sum+Math.max(1,g.timeRows.length)*34+8,0);
+  const assistLines=wrapTimes(assists,84);
   let body=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b3a40"/><stop offset="1" stop-color="#03131c"/></linearGradient>
-    <linearGradient id="green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2ce978"/><stop offset="1" stop-color="#15bc5d"/></linearGradient>
-    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-opacity=".28"/></filter>
-  </defs>
-  <rect width="100%" height="100%" rx="26" fill="url(#bg)"/>
-  <rect x="1" y="1" width="1198" height="${H-2}" rx="25" fill="none" stroke="#365966" stroke-opacity=".55"/>
-  <path d="M600 90 V${H-70}" stroke="#dff4fb" stroke-opacity=".10" stroke-width="2"/>
-  <circle cx="600" cy="${Math.min(H-160,520)}" r="115" fill="none" stroke="#dff4fb" stroke-opacity=".11" stroke-width="3"/>
-  ${shareSvgText(600,58,'MATCH RESULT',{anchor:'middle',size:18,fill:'#25df72',weight:900})}
-  ${shareSvgText(600,87,meta,{anchor:'middle',size:18,fill:'#b7cad2',weight:700})}
-  <path d="M600 108 V${H-25}" stroke="#dff4fb" stroke-opacity=".06" stroke-width="2"/>
-  <g filter="url(#shadow)">
-    <path d="M260 118 l52 20 -6 100 -46 42 -46 -42 -6 -100z" fill="#0b1f2d" stroke="#25df72" stroke-width="4"/>
-    <path d="M940 118 l52 20 -6 100 -46 42 -46 -42 -6 -100z" fill="#0b1f2d" stroke="#25df72" stroke-width="4"/>
-  </g>
-  ${shareSvgText(260,205,cleanAbbr(match.teamAbbr,team.abbr),{anchor:'middle',size:32,weight:900})}
-  ${shareSvgText(940,205,cleanAbbr(match.opponentAbbr,derivedAbbr(oppName,'OPP')),{anchor:'middle',size:32,weight:900})}
-  ${shareSvgText(260,262,ourName,{anchor:'middle',size:22,weight:850})}
-  ${shareSvgText(940,262,oppName,{anchor:'middle',size:22,weight:850})}
-  ${shareSvgText(600,165,'FULL TIME',{anchor:'middle',size:17,fill:'#25df72',weight:900})}
-  ${shareSvgText(552,235,String(match.ourScore),{anchor:'end',size:82,weight:900})}
-  ${shareSvgText(600,235,'–',{anchor:'middle',size:42,fill:'#9cb2bd',weight:500})}
-  ${shareSvgText(648,235,String(match.theirScore),{anchor:'start',size:82,weight:900})}
-  ${shareSvgText(600,282,`HT ${match.halfTimeScore?.our??0} - ${match.halfTimeScore?.their??0}`,{anchor:'middle',size:17,fill:'#cbd9df',weight:700})}`;
-  const renderSide=(groups,x,nameAlign,timeAlign)=>{
-    let y=top;
-    let out='';
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d333b"/><stop offset="0.52" stop-color="#06232c"/><stop offset="1" stop-color="#03131c"/></linearGradient>
+      <linearGradient id="crest" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#102b40"/><stop offset="1" stop-color="#061722"/></linearGradient>
+    </defs>
+    <rect width="1200" height="720" rx="28" fill="url(#bg)"/>
+    <rect x="1" y="1" width="1198" height="718" rx="27" fill="none" stroke="#365966" stroke-opacity=".6"/>
+    <path d="M600 122 V690" stroke="#dff4fb" stroke-opacity=".10" stroke-width="2"/>
+    <circle cx="600" cy="540" r="78" fill="none" stroke="#dff4fb" stroke-opacity=".10" stroke-width="3"/>
+    <path d="M58 448 H1142" stroke="#8eabb8" stroke-opacity=".13" stroke-width="2"/>
+    ${shareSvgText(600,48,'MATCH RESULT',{anchor:'middle',size:20,fill:'#25df72',weight:900})}
+    ${shareSvgText(600,77,meta,{anchor:'middle',size:16,fill:'#b6c9d2',weight:700})}
+    ${shareSvgText(600,129,'FULL TIME',{anchor:'middle',size:16,fill:'#25df72',weight:900})}
+    ${shareSvgText(600,237,`HT ${match.halfTimeScore?.our??0} - ${match.halfTimeScore?.their??0}`,{anchor:'middle',size:17,fill:'#cbd9df',weight:700})}
+    ${shareSvgText(552,214,String(match.ourScore),{anchor:'end',size:92,weight:900})}
+    ${shareSvgText(600,214,'–',{anchor:'middle',size:42,fill:'#9cb2bd',weight:500})}
+    ${shareSvgText(648,214,String(match.theirScore),{anchor:'start',size:92,weight:900})}
+  `;
+
+  const drawCrest=(x,abbr,opponent=false)=>`<path d="M${x-52} 99 l52 20 52-20 -7 107 -45 40 -45-40z" fill="url(#crest)" stroke="${opponent?'#25df72':'#25df72'}" stroke-width="4"/><circle cx="${x}" cy="218" r="10" fill="#03131c" stroke="#f7fbfd" stroke-width="3"/><circle cx="${x}" cy="218" r="3" fill="#f7fbfd"/>${shareSvgText(x,174,abbr,{anchor:'middle',size:26,weight:900})}`;
+  body+=drawCrest(240,cleanAbbr(match.teamAbbr,team.abbr));
+  body+=drawCrest(960,cleanAbbr(match.opponentAbbr,derivedAbbr(oppName,'OPP')),true);
+
+  const drawTeamName=(x,name,anchor)=>{
+    const rows=teamRows(name,26); return rows.map((line,i)=>shareSvgText(x,276+i*22,line,{anchor,size:19,weight:850})).join('');
+  };
+  body+=drawTeamName(240,ourName,'middle');
+  body+=drawTeamName(960,oppName,'middle');
+
+  const drawScorers=(groups,x,side)=>{
+    let y=side==='left'?345:345; const anchor=side==='left'?'start':'end'; let out='';
+    if(!groups.length)return shareSvgText(x,y,'No goals',{anchor,size:15,fill:'#8fa5af',weight:700});
     for(const g of groups){
-      out+=shareSvgText(x,y,g.name,{anchor:nameAlign,size:18,weight:850});
-      let ty=y+26;
-      for(const line of g.times){out+=shareSvgText(x,ty,line,{anchor:timeAlign,size:15,fill:'#a7bdc7',weight:700});ty+=22;}
-      y+=rowH + Math.max(0,g.times.length-1)*22;
+      const times=g.timeRows.join(' · ');
+      out+=shareSvgText(x,y,g.name,{anchor,size:15,weight:850});
+      if(times.length<=31){out+=shareSvgText(side==='left'?x+185:x-185,y,times,{anchor:side==='left'?'end':'start',size:13,fill:'#a9bdc5',weight:700});}
+      else{
+        let ty=y+20; for(const line of g.timeRows){out+=shareSvgText(x+(side==='left'?8:-8),ty,line,{anchor,size:12,fill:'#a9bdc5',weight:700});ty+=18;}
+        y=ty-3;
+      }
+      y+=40;
     }
-    if(!groups.length)out+=shareSvgText(x,top,'No goals',{anchor:nameAlign,size:16,fill:'#8fa5af',weight:700});
     return out;
   };
-  body+=renderSide(leftLines,70,'start','start');
-  body+=renderSide(rightLines,1130,'end','end');
-  const dividerY=goalsBottom-18;
-  body+=`<path d="M40 ${dividerY} H1160" stroke="#89aab7" stroke-opacity=".16" stroke-width="2"/>`;
+  body+=drawScorers(leftRows,72,'left');
+  body+=drawScorers(rightRows,1128,'right');
+
   if(assists.length){
-    body+=shareSvgText(600,dividerY+44,`Assists · ${assists.join(', ')}`,{anchor:'middle',size:16,fill:'#cbd9df',weight:700});
+    body+=shareSvgText(600,485,'ASSISTS',{anchor:'middle',size:11,fill:'#7de6a6',weight:900});
+    assistLines.slice(0,3).forEach((line,i)=>{body+=shareSvgText(600,510+i*21,line,{anchor:'middle',size:13,fill:'#cbd9df',weight:700});});
   }
-  body+='</svg>';
-  return body;
+  body+=shareSvgText(600,690,'GRASSROOTS MATCH TRACKER',{anchor:'middle',size:10,fill:'#6f8792',weight:800});
+  body+='</svg>'; return body;
 }
 async function resultCardToPng(){
   if(!currentMatchReport)return null;
