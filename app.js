@@ -588,81 +588,135 @@ openMatchReport=function(id){
 };
 
 $('toggleMatchDetailsBtn').onclick=()=>{const p=$('reportDetailsPanel'),hidden=p.classList.toggle('hidden');$('toggleMatchDetailsBtn').textContent=hidden?'Match Details':'Hide Details';};
-async function svgShareImageForResult(){
-  const hero=$('matchReportView')?.querySelector('.result-hero');
-  const assists=$('reportAssistSummary');
-  if(!hero)return null;
-  const heroRect=hero.getBoundingClientRect();
-  const assistHeight=assists&&!assists.classList.contains('hidden')?assists.getBoundingClientRect().height:0;
-  const shareHeight=Math.max(1,Math.round(heroRect.height+assistHeight+2));
-  const heroWidth=Math.max(320,Math.round(heroRect.width));
-  const heroClone=hero.cloneNode(true);
-  const assistClone=assists&&!assists.classList.contains('hidden')?assists.cloneNode(true):null;
-  const styles=[];
-  for(const sheet of Array.from(document.styleSheets)){
-    try{for(const rule of Array.from(sheet.cssRules||[]))styles.push(rule.cssText);}catch(e){}
+function xmlEscape(value){return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
+function shareGoalGroups(match,type){
+  const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
+  const goals=(match.events||[]).filter(e=>e.type===type);
+  const groups=new Map();
+  goals.forEach(e=>{
+    const key=type==='their_goal'?'opponent':(e.playerId||'unknown');
+    if(!groups.has(key))groups.set(key,{name:type==='their_goal'?match.opponent:(players[e.playerId]?.name||'Unknown'),goals:[]});
+    groups.get(key).goals.push(e);
+  });
+  return [...groups.values()].map(group=>({name:group.name,times:group.goals.map(goalTimeLabel)}));
+}
+function wrapTimes(times,maxChars=42){
+  const rows=[]; let row='';
+  times.forEach(t=>{
+    const candidate=row?`${row} · ${t}`:t;
+    if(row && candidate.length>maxChars){rows.push(row);row=t;}else row=candidate;
+  });
+  if(row)rows.push(row); return rows;
+}
+function shareSvgText(x,y,text,opts={}){
+  const anchor=opts.anchor||'start',size=opts.size||24,fill=opts.fill||'#f7fbfd',weight=opts.weight||600;
+  return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="Arial,Helvetica,sans-serif" font-size="${size}px" font-weight="${weight}" fill="${fill}">${xmlEscape(text)}</text>`;
+}
+function buildResultShareSvg(match){
+  const W=1200;
+  const left=shareGoalGroups(match,'our_goal'), right=shareGoalGroups(match,'their_goal');
+  const assists=(match.events||[]).filter(e=>e.type==='our_goal'&&e.assistPlayerId).map(e=>`${Object.fromEntries(loadPlayers().map(p=>[p.id,p]))[e.assistPlayerId]?.name||'Unknown'} ${goalTimeLabel(e)}`);
+  const leftLines=left.flatMap(g=>{const times=wrapTimes(g.times);return [{name:g.name,times,empty:false}];});
+  const rightLines=right.flatMap(g=>{const times=wrapTimes(g.times);return [{name:g.name,times,empty:false}];});
+  const rows=Math.max(leftLines.reduce((n,g)=>n+1+Math.max(0,g.times.length-1),0),rightLines.reduce((n,g)=>n+1+Math.max(0,g.times.length-1),0),1);
+  const top=300,rowH=48,extra=Math.max(0,rows-5)*22;
+  const goalsBottom=top+rows*rowH+extra;
+  const assistBlock=assists.length?110:0;
+  const H=Math.max(620,goalsBottom+assistBlock+70);
+  const team=teamDisplaySettings(), ourName=match.teamName||team.name, oppName=match.opponent||'Opponent';
+  const meta=`${formatDateDisplay(match.date)} · ${match.venue==='home'?'Home':'Away'}`;
+  let body=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b3a40"/><stop offset="1" stop-color="#03131c"/></linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2ce978"/><stop offset="1" stop-color="#15bc5d"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-opacity=".28"/></filter>
+  </defs>
+  <rect width="100%" height="100%" rx="26" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1198" height="${H-2}" rx="25" fill="none" stroke="#365966" stroke-opacity=".55"/>
+  <path d="M600 90 V${H-70}" stroke="#dff4fb" stroke-opacity=".10" stroke-width="2"/>
+  <circle cx="600" cy="${Math.min(H-160,520)}" r="115" fill="none" stroke="#dff4fb" stroke-opacity=".11" stroke-width="3"/>
+  ${shareSvgText(600,58,'MATCH RESULT',{anchor:'middle',size:18,fill:'#25df72',weight:900})}
+  ${shareSvgText(600,87,meta,{anchor:'middle',size:18,fill:'#b7cad2',weight:700})}
+  <path d="M600 108 V${H-25}" stroke="#dff4fb" stroke-opacity=".06" stroke-width="2"/>
+  <g filter="url(#shadow)">
+    <path d="M260 118 l52 20 -6 100 -46 42 -46 -42 -6 -100z" fill="#0b1f2d" stroke="#25df72" stroke-width="4"/>
+    <path d="M940 118 l52 20 -6 100 -46 42 -46 -42 -6 -100z" fill="#0b1f2d" stroke="#25df72" stroke-width="4"/>
+  </g>
+  ${shareSvgText(260,205,cleanAbbr(match.teamAbbr,team.abbr),{anchor:'middle',size:32,weight:900})}
+  ${shareSvgText(940,205,cleanAbbr(match.opponentAbbr,derivedAbbr(oppName,'OPP')),{anchor:'middle',size:32,weight:900})}
+  ${shareSvgText(260,262,ourName,{anchor:'middle',size:22,weight:850})}
+  ${shareSvgText(940,262,oppName,{anchor:'middle',size:22,weight:850})}
+  ${shareSvgText(600,165,'FULL TIME',{anchor:'middle',size:17,fill:'#25df72',weight:900})}
+  ${shareSvgText(552,235,String(match.ourScore),{anchor:'end',size:82,weight:900})}
+  ${shareSvgText(600,235,'–',{anchor:'middle',size:42,fill:'#9cb2bd',weight:500})}
+  ${shareSvgText(648,235,String(match.theirScore),{anchor:'start',size:82,weight:900})}
+  ${shareSvgText(600,282,`HT ${match.halfTimeScore?.our??0} - ${match.halfTimeScore?.their??0}`,{anchor:'middle',size:17,fill:'#cbd9df',weight:700})}`;
+  const renderSide=(groups,x,nameAlign,timeAlign)=>{
+    let y=top;
+    let out='';
+    for(const g of groups){
+      out+=shareSvgText(x,y,g.name,{anchor:nameAlign,size:18,weight:850});
+      let ty=y+26;
+      for(const line of g.times){out+=shareSvgText(x,ty,line,{anchor:timeAlign,size:15,fill:'#a7bdc7',weight:700});ty+=22;}
+      y+=rowH + Math.max(0,g.times.length-1)*22;
+    }
+    if(!groups.length)out+=shareSvgText(x,top,'No goals',{anchor:nameAlign,size:16,fill:'#8fa5af',weight:700});
+    return out;
+  };
+  body+=renderSide(leftLines,70,'start','start');
+  body+=renderSide(rightLines,1130,'end','end');
+  const dividerY=goalsBottom-18;
+  body+=`<path d="M40 ${dividerY} H1160" stroke="#89aab7" stroke-opacity=".16" stroke-width="2"/>`;
+  if(assists.length){
+    body+=shareSvgText(600,dividerY+44,`Assists · ${assists.join(', ')}`,{anchor:'middle',size:16,fill:'#cbd9df',weight:700});
   }
-  const rootStyle=getComputedStyle(document.documentElement);
-  const variables=[];
-  for(let i=0;i<rootStyle.length;i++){
-    const name=rootStyle[i];
-    if(name.startsWith('--'))variables.push(`${name}:${rootStyle.getPropertyValue(name)};`);
-  }
-  const wrapper=document.createElement('div');
-  wrapper.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
-  wrapper.style.cssText=`width:${heroWidth}px;background:linear-gradient(180deg,#0b2836,#05151e);color:#f7fbfd;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;overflow:hidden;border:1px solid rgba(181,215,228,.16);border-radius:24px;${variables.join('')}`;
-  wrapper.appendChild(heroClone);
-  if(assistClone)wrapper.appendChild(assistClone);
-  const serializer=new XMLSerializer();
-  const markup=serializer.serializeToString(wrapper);
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${heroWidth}" viewBox="0 0 ${heroWidth} 100"><foreignObject x="0" y="0" width="100%" height="100%"><style>${styles.join('')}</style>${markup}</foreignObject></svg>`;
+  body+='</svg>';
+  return body;
+}
+async function resultCardToPng(){
+  if(!currentMatchReport)return null;
+  const svg=buildResultShareSvg(currentMatchReport);
   const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   try{
     const img=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=url;});
-    const naturalHeight=shareHeight;
     const scale=Math.min(3,Math.max(2,window.devicePixelRatio||2));
     const canvas=document.createElement('canvas');
-    canvas.width=heroWidth*scale;
-    canvas.height=naturalHeight*scale;
+    canvas.width=1200*scale; canvas.height=img.height*scale;
     const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#03131c';ctx.fillRect(0,0,canvas.width,canvas.height);
     ctx.drawImage(img,0,0,canvas.width,canvas.height);
-    const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png',1));
-    return png;
+    return await new Promise(resolve=>canvas.toBlob(resolve,'image/png',1));
   }finally{URL.revokeObjectURL(url);}
 }
-
+function downloadResultPng(blob,filename){
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
 $('shareResultBtn').onclick=async()=>{
   if(!currentMatchReport)return;
-  const btn=$('shareResultBtn');
-  const m=currentMatchReport, team=m.teamName||teamDisplaySettings().name, ht=m.halfTimeScore||{our:0,their:0};
-  const text=`FULL TIME\n${team} ${m.ourScore} - ${m.theirScore} ${m.opponent}\nHT ${ht.our}-${ht.their}\n${formatDateDisplay(m.date)}`;
-  const originalLabel=btn.textContent;
-  btn.disabled=true;
-  btn.textContent='Preparing...';
+  const btn=$('shareResultBtn'),m=currentMatchReport,team=m.teamName||teamDisplaySettings().name;
+  const originalLabel=btn.textContent; btn.disabled=true; btn.textContent='Preparing...';
   try{
-    const png=await svgShareImageForResult();
-    if(png){
-      const file=new File([png],`match-result-${m.date||'match'}.png`,{type:'image/png'});
-      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-        await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,files:[file]});
-        return;
-      }
-      if(navigator.share){
-        await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,text});
-        return;
-      }
+    const png=await resultCardToPng();
+    if(!png)throw new Error('Could not create result image');
+    const filename=`match-result-${m.date||'match'}.png`;
+    const file=new File([png],filename,{type:'image/png'});
+    const canFileShare=!!(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}));
+    if(canFileShare){
+      await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,files:[file]});
+      return;
     }
-    if(navigator.share)await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,text});
-    else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert('Result copied to clipboard.');}
+    downloadResultPng(png,filename);
+    alert('This browser cannot share images directly. The result card has been saved as an image. You can share it from your Photos/Gallery app.');
   }catch(e){
-    if(e&&e.name!=='AbortError'){
-      try{if(navigator.share)await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,text});else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert('Result copied to clipboard.');}}catch(f){}
-    }
-  }finally{
-    btn.disabled=false;
-    btn.textContent=originalLabel;
-  }
+    if(e&&e.name==='AbortError')return;
+    console.error('Share result failed',e);
+    try{
+      const png=await resultCardToPng();
+      if(png){downloadResultPng(png,`match-result-${m.date||'match'}.png`);alert('The result card has been saved as an image. You can share it from your Photos/Gallery app.');return;}
+    }catch(f){console.error('Result image fallback failed',f);}
+    alert('Sorry, the result image could not be created on this browser.');
+  }finally{btn.disabled=false;btn.textContent=originalLabel;}
 };
 $('reportBackBtn').onclick=()=>{currentMatchReport=null;showView(homeView);renderMatchHistory();};
 $('reportHomeBtn').onclick=()=>{currentMatchReport=null;showView(homeView);renderMatchHistory();};
