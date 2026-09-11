@@ -550,12 +550,23 @@ $('subForm').onsubmit=e=>{
 // Opponent goals are deliberately one tap; Undo remains the safety net.
 $('theirGoalBtn').onclick=()=>recordGoal('their_goal');
 
+function goalTimeLabel(e){return `${e.period===2?'2H':'1H'} ${e.minute}'${e.penalty?' (P)':''}`;}
 function scorerSummary(match,type){
   const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
   const goals=(match.events||[]).filter(e=>e.type===type);
   if(!goals.length)return '<span class="muted">No goals</span>';
-  if(type==='their_goal') return goals.map(e=>`<strong>${escapeHtml(match.opponent)}</strong> ${e.minute}'${e.penalty?' (P)':''}`).join('<br>');
-  return goals.map(e=>`<strong>${escapeHtml(players[e.playerId]?.name||'Unknown')}</strong> ${e.minute}'${e.penalty?' (P)':''}`).join('<br>');
+  const groups=new Map();
+  goals.forEach(e=>{
+    const key=type==='their_goal'?'opponent':(e.playerId||'unknown');
+    if(!groups.has(key))groups.set(key,{name:type==='their_goal'?match.opponent:(players[e.playerId]?.name||'Unknown'),goals:[]});
+    groups.get(key).goals.push(e);
+  });
+  return [...groups.values()].map(group=>{
+    const count=group.goals.length;
+    const countLabel=count>1?` <span class="scorer-count">×${count}</span>`:'';
+    const times=group.goals.map(goalTimeLabel).join(' · ');
+    return `<div class="scorer-group"><strong>${escapeHtml(group.name)}${countLabel}</strong><span>${escapeHtml(times)}</span></div>`;
+  }).join('');
 }
 
 openMatchReport=function(id){
@@ -567,7 +578,7 @@ openMatchReport=function(id){
   $('reportOurScore').textContent=match.ourScore; $('reportTheirScore').textContent=match.theirScore; $('reportHalfScore').textContent=`${ht.our} - ${ht.their}`;
   $('reportOurScorers').innerHTML=scorerSummary(match,'our_goal'); $('reportTheirScorers').innerHTML=scorerSummary(match,'their_goal');
   const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
-  const assists=events.filter(e=>e.type==='our_goal'&&e.assistPlayerId).map(e=>`${players[e.assistPlayerId]?.name||'Unknown'} ${e.minute}'`);
+  const assists=events.filter(e=>e.type==='our_goal'&&e.assistPlayerId).map(e=>`${players[e.assistPlayerId]?.name||'Unknown'} ${goalTimeLabel(e)}`);
   $('reportAssistSummary').classList.toggle('hidden',!assists.length); $('reportAssistSummary').innerHTML=assists.length?`<strong>Assists</strong> · ${escapeHtml(assists.join(', '))}`:'';
   const goals=events.filter(e=>e.type==='our_goal'||e.type==='their_goal'), subs=events.filter(e=>e.type==='substitution'||e.type==='power_play_on'||e.type==='power_play_off');
   $('reportGoals').innerHTML=goals.length?goals.map(e=>`<div class="event-row"><span class="event-minute">${e.period===1?'1H':'2H'} ${e.minute}'</span><span>${escapeHtml(reportEventText(e))}</span></div>`).join(''):'<p class="muted">No goals recorded.</p>';

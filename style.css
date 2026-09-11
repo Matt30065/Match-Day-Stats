@@ -623,3 +623,11 @@ dialog{border-radius:22px!important}dialog h2{font-size:23px!important;margin-bo
 .result-score-centre{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:12px}.result-status{font-size:10px;font-weight:900;letter-spacing:.18em;color:var(--green)!important}.result-scoreline{display:flex;align-items:center;gap:11px;margin:8px 0 5px}.result-scoreline strong{font-size:64px;line-height:.95;color:#fff!important}.result-scoreline span{font-size:30px;color:#8fa8b5!important}.result-ht{font-size:12px;color:var(--muted)!important}.result-ht strong{color:#dce8ed!important}
 .result-assists{padding:13px 18px;text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;color:#c8d7de!important}.result-actions-primary{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}.report-details-panel{padding:0 16px 18px;border-top:1px solid var(--line)}
 @media(max-width:600px){.batch-sub-grid{grid-template-columns:1fr 1fr;gap:8px}.batch-choice{padding:10px 8px;font-size:11px}.result-topbar{grid-template-columns:auto 1fr auto;padding:10px 9px}.compact-btn{font-size:11px}.result-hero{grid-template-columns:1fr .65fr 1fr;padding:23px 7px 21px;gap:5px}.result-crest{width:58px!important;height:68px!important;font-size:15px!important}.result-crest:after{width:11px!important;height:11px!important;transform:translateY(20px)!important}.result-team>strong{font-size:13px}.result-scorers{font-size:10px}.result-scoreline strong{font-size:47px}.result-scoreline{gap:6px}.result-scoreline span{font-size:23px}.result-actions-primary{grid-template-columns:1fr}.report-details-panel .report-grid{grid-template-columns:1fr}}
+
+
+/* v20.1 result-card scorer grouping */
+.result-scorers .scorer-group{display:grid;gap:2px;margin-top:8px;line-height:1.25}
+.result-scorers .scorer-group>strong{font-size:12px;color:#fff!important}
+.result-scorers .scorer-group>span{font-size:11px;color:#a9bac4!important;font-weight:750}
+.result-scorers .scorer-count{display:inline;color:#25df72!important;font-size:10px;font-weight:900}
+@media(max-width:560px){.result-scorers .scorer-group>strong{font-size:11px}.result-scorers .scorer-group>span{font-size:10px}}

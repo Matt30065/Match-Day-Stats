@@ -1,5 +1,3 @@
-# Grassroots Match Tracker v20.0
+# Grassroots Match Tracker v20.1
 
-Match-day UX prototype based on real match testing.
-
-Changes: quicker match setup presentation, one-tap opponent goals, batch Quick Subs, compact Full Time result card, expandable detailed report, and native Share Result action. Existing local storage, statistics, assists, timer, undo and Power Play logic are retained.
+Result-card refinement: goal scorers are grouped by player, multiple goals show a goal count, and every goal/assist time is labelled 1H or 2H (for example 1H 5' · 2H 5'). Detailed Match Details remain chronological.
