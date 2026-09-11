@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#06131a" />
   <title>Grassroots Match Tracker</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=19.4.0" />
+  <link rel="stylesheet" href="style.css?v=20.0.0" />
 
   <style id="critical-ui">
     html,body{margin:0;min-height:100%;background:#06131c;color:#f8fafc;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -240,31 +240,48 @@
     </div>
 
     <div id="matchReportView" class="hidden">
-      <section class="card">
-        <div class="section-heading">
-          <div><p class="eyebrow">MATCH REPORT</p><div class="report-team-head"><span class="team-crest mini-crest" id="reportOurCrest">KEG</span><h2 id="reportOpponent"></h2><span class="team-crest mini-crest opponent-crest" id="reportOpponentCrest">OPP</span></div><p id="reportMeta" class="muted compact"></p></div>
-          <button id="reportBackBtn" class="secondary-btn">Back to Home</button>
+      <section class="card result-card-shell">
+        <div class="result-topbar">
+          <button id="reportBackBtn" class="secondary-btn compact-btn">‹ Home</button>
+          <div class="result-competition"><span>MATCH RESULT</span><strong id="reportMeta"></strong></div>
+          <button id="shareResultBtn" class="secondary-btn compact-btn">Share ↗</button>
         </div>
 
-        <div class="report-score">
-          <div><span>Final</span><strong id="reportFinalScore"></strong></div>
-          <div><span>Half Time</span><strong id="reportHalfScore"></strong></div>
+        <div class="result-hero">
+          <div class="result-team">
+            <span class="team-crest result-crest" id="reportOurCrest">YTM</span>
+            <strong id="reportOurName">Your Team</strong>
+            <div id="reportOurScorers" class="result-scorers"></div>
+          </div>
+          <div class="result-score-centre">
+            <span class="result-status">FULL TIME</span>
+            <div class="result-scoreline"><strong id="reportOurScore">0</strong><span>–</span><strong id="reportTheirScore">0</strong></div>
+            <div class="result-ht">HT <strong id="reportHalfScore">0 - 0</strong></div>
+          </div>
+          <div class="result-team">
+            <span class="team-crest result-crest opponent-crest" id="reportOpponentCrest">OPP</span>
+            <strong id="reportOpponent"></strong>
+            <div id="reportTheirScorers" class="result-scorers"></div>
+          </div>
         </div>
 
-        <div class="report-grid">
-          <div class="setup-section"><h3>Goals</h3><div id="reportGoals" class="event-list"></div></div>
-          <div class="setup-section"><h3>Substitutions</h3><div id="reportSubs" class="event-list"></div></div>
+        <div id="reportAssistSummary" class="result-assists hidden"></div>
+
+        <div class="result-actions-primary">
+          <button id="toggleMatchDetailsBtn" class="secondary-btn">Match Details</button>
+          <button id="reportHomeBtn" class="primary-btn">New Match / Home</button>
         </div>
 
-        <div class="report-grid">
-          <div class="setup-section"><h3>Starting 5</h3><div id="reportStarters" class="summary-list"></div></div>
-          <div class="setup-section"><h3>Substitutes</h3><div id="reportSubstitutes" class="summary-list"></div></div>
-        </div>
-
-        <div class="report-actions">
-          <button id="deleteMatchBtn" class="danger-btn">Delete Match</button>
-          <span class="dialog-spacer"></span>
-          <button id="reportHomeBtn" class="primary-btn">Save & Return Home</button>
+        <div id="reportDetailsPanel" class="report-details-panel hidden">
+          <div class="report-grid">
+            <div class="setup-section"><h3>Goals</h3><div id="reportGoals" class="event-list"></div></div>
+            <div class="setup-section"><h3>Substitutions</h3><div id="reportSubs" class="event-list"></div></div>
+          </div>
+          <div class="report-grid">
+            <div class="setup-section"><h3>Starting team</h3><div id="reportStarters" class="summary-list"></div></div>
+            <div class="setup-section"><h3>Substitutes</h3><div id="reportSubstitutes" class="summary-list"></div></div>
+          </div>
+          <div class="report-actions"><button id="deleteMatchBtn" class="danger-btn">Delete Match</button></div>
         </div>
       </section>
     </div>
@@ -292,7 +309,7 @@
     </form>
   </dialog>
 
-  <dialog id="subDialog"><form id="subForm" class="dialog-card"><h2>Substitution</h2><label>Player off<select id="subOff"></select></label><label>Player on<select id="subOn"></select></label><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelSubBtn">Cancel</button><button type="submit" class="primary-btn">Make substitution</button></div></form></dialog>
+  <dialog id="subDialog"><form id="subForm" class="dialog-card batch-sub-dialog"><div class="dialog-kicker">QUICK SUBS</div><h2>Make substitutions</h2><p class="muted compact">Select everyone coming off, then the same number coming on. All changes are recorded at the current match minute.</p><div class="batch-sub-grid"><div><h3>OFF <span id="subOffCount" class="count-badge">0</span></h3><div id="subOffList" class="dialog-choice-list"></div></div><div><h3>ON <span id="subOnCount" class="count-badge">0</span></h3><div id="subOnList" class="dialog-choice-list"></div></div></div><p id="subBatchHint" class="muted compact"></p><div class="dialog-actions"><button type="button" class="secondary-btn" id="cancelSubBtn">Cancel</button><span class="dialog-spacer"></span><button type="submit" class="primary-btn" id="saveBatchSubsBtn" disabled>Save substitutions</button></div></form></dialog>
 
   <dialog id="powerPlayOnDialog"><form class="dialog-card" onsubmit="return false;"><h2>Add Power Play Player</h2><label>Player<select id="powerPlayOnPlayer"></select></label><p class="muted compact">This player will be recorded as a Power Play appearance.</p><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPowerPlayOnBtn">Cancel</button><button type="button" class="primary-btn" id="savePowerPlayOnBtn">Add Player</button></div></form></dialog>
 
@@ -320,6 +337,6 @@
       window.setTimeout(finish, DISPLAY_MS);
     })();
   </script>
-  <script src="app.js?v=19.6.1.0"></script>
+  <script src="app.js?v=20.0.0"></script>
 </body>
 </html>

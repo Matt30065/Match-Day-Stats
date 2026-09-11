@@ -1,5 +1,5 @@
-# Grassroots Match Tracker v19.6
+# Grassroots Match Tracker v20.0
 
-First-use onboarding workflow built on v19.5.
+Match-day UX prototype based on real match testing.
 
-When New Match is tapped for the first time, the app guides the user through team identity, match settings and squad setup. Saved users go straight to normal Match Setup on later uses. Settings remains available for changes. Existing assists, substitutions, timer, undo, history, player statistics and official Power Play rules are retained.
+Changes: quicker match setup presentation, one-tap opponent goals, batch Quick Subs, compact Full Time result card, expandable detailed report, and native Share Result action. Existing local storage, statistics, assists, timer, undo and Power Play logic are retained.

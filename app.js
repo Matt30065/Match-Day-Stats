@@ -501,3 +501,89 @@ document.addEventListener('visibilitychange', () => {
 });
 
 refreshIdentityPreviews();
+
+/* =========================================================
+   v20 - match day UX overrides
+   ========================================================= */
+let batchOffIds = new Set();
+let batchOnIds = new Set();
+
+function renderBatchSubs(){
+  const match=currentMatch(); if(!match)return;
+  const byId=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
+  const offList=$('subOffList'), onList=$('subOnList');
+  if(!offList||!onList)return;
+  offList.innerHTML=match.currentOnPitch.map(id=>byId[id]).filter(Boolean).map(p=>`<label class="batch-choice"><input type="checkbox" class="batch-off-check" data-id="${p.id}" ${batchOffIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');
+  onList.innerHTML=match.currentSubs.map(id=>byId[id]).filter(Boolean).map(p=>`<label class="batch-choice"><input type="checkbox" class="batch-on-check" data-id="${p.id}" ${batchOnIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');
+  $('subOffCount').textContent=batchOffIds.size; $('subOnCount').textContent=batchOnIds.size;
+  const valid=batchOffIds.size>0&&batchOffIds.size===batchOnIds.size;
+  $('saveBatchSubsBtn').disabled=!valid;
+  $('saveBatchSubsBtn').textContent=valid?`Save ${batchOffIds.size} substitution${batchOffIds.size===1?'':'s'}`:'Save substitutions';
+  $('subBatchHint').textContent=batchOffIds.size===batchOnIds.size?(batchOffIds.size?`${batchOffIds.size} off · ${batchOnIds.size} on · recorded at ${matchMinute()}'`:'Select players to change.'):`Select the same number OFF and ON.`;
+  document.querySelectorAll('.batch-off-check').forEach(c=>c.onchange=()=>{c.checked?batchOffIds.add(c.dataset.id):batchOffIds.delete(c.dataset.id);renderBatchSubs();});
+  document.querySelectorAll('.batch-on-check').forEach(c=>c.onchange=()=>{c.checked?batchOnIds.add(c.dataset.id):batchOnIds.delete(c.dataset.id);renderBatchSubs();});
+}
+
+openSubDialog=function(){
+  const match=currentMatch();if(!match||match.halfTime||match.fullTime)return;
+  if(!match.currentSubs.length){alert('There are no substitutes available.');return;}
+  batchOffIds=new Set();batchOnIds=new Set();renderBatchSubs();$('subDialog').showModal();
+};
+$('subBtn').onclick=openSubDialog;
+$('cancelSubBtn').onclick=()=>$('subDialog').close();
+$('subForm').onsubmit=e=>{
+  e.preventDefault(); const match=currentMatch(); if(!match)return;
+  if(!batchOffIds.size||batchOffIds.size!==batchOnIds.size)return;
+  ensurePowerPlayFields(match); if(match.powerPlayPlayers.length>powerPlayLimit(match))return;
+  match.periodElapsedSeconds=elapsedNow(); if(match.periodStartedAt)match.periodStartedAt=Date.now();
+  const offs=[...batchOffIds], ons=[...batchOnIds], minute=matchMinute();
+  offs.forEach((off,i)=>{
+    const on=ons[i], beforePlayerState=capturePlayerState(match), wasPowerPlay=match.powerPlayPlayers.includes(off);
+    match.currentOnPitch=match.currentOnPitch.filter(id=>id!==off); match.currentOnPitch.push(on);
+    match.currentSubs=match.currentSubs.filter(id=>id!==on); match.currentSubs.push(off);
+    if(wasPowerPlay){match.powerPlayPlayers=match.powerPlayPlayers.filter(id=>id!==off);match.powerPlayPlayers.push(on);}
+    match.events.push({id:makeId(),type:'substitution',period:match.period,minute,offId:off,onId:on,powerPlaySlotTransferred:wasPowerPlay,beforePlayerState,batchId:'batch-'+minute});
+  });
+  saveCurrentMatch(match);$('subDialog').close();renderLiveUI();
+};
+
+// Opponent goals are deliberately one tap; Undo remains the safety net.
+$('theirGoalBtn').onclick=()=>recordGoal('their_goal');
+
+function scorerSummary(match,type){
+  const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
+  const goals=(match.events||[]).filter(e=>e.type===type);
+  if(!goals.length)return '<span class="muted">No goals</span>';
+  if(type==='their_goal') return goals.map(e=>`<strong>${escapeHtml(match.opponent)}</strong> ${e.minute}'${e.penalty?' (P)':''}`).join('<br>');
+  return goals.map(e=>`<strong>${escapeHtml(players[e.playerId]?.name||'Unknown')}</strong> ${e.minute}'${e.penalty?' (P)':''}`).join('<br>');
+}
+
+openMatchReport=function(id){
+  const match=loadMatches().find(m=>m.id===id); if(!match)return; currentMatchReport=match;
+  const team=teamDisplaySettings(), ht=match.halfTimeScore||{our:0,their:0}, events=match.events||[];
+  $('reportOurName').textContent=match.teamName||team.name; $('reportOpponent').textContent=match.opponent;
+  $('reportOurCrest').textContent=cleanAbbr(match.teamAbbr,team.abbr); $('reportOpponentCrest').textContent=cleanAbbr(match.opponentAbbr,derivedAbbr(match.opponent,'OPP'));
+  $('reportMeta').textContent=`${formatDateDisplay(match.date)} · ${match.venue==='home'?'Home':'Away'}`;
+  $('reportOurScore').textContent=match.ourScore; $('reportTheirScore').textContent=match.theirScore; $('reportHalfScore').textContent=`${ht.our} - ${ht.their}`;
+  $('reportOurScorers').innerHTML=scorerSummary(match,'our_goal'); $('reportTheirScorers').innerHTML=scorerSummary(match,'their_goal');
+  const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
+  const assists=events.filter(e=>e.type==='our_goal'&&e.assistPlayerId).map(e=>`${players[e.assistPlayerId]?.name||'Unknown'} ${e.minute}'`);
+  $('reportAssistSummary').classList.toggle('hidden',!assists.length); $('reportAssistSummary').innerHTML=assists.length?`<strong>Assists</strong> · ${escapeHtml(assists.join(', '))}`:'';
+  const goals=events.filter(e=>e.type==='our_goal'||e.type==='their_goal'), subs=events.filter(e=>e.type==='substitution'||e.type==='power_play_on'||e.type==='power_play_off');
+  $('reportGoals').innerHTML=goals.length?goals.map(e=>`<div class="event-row"><span class="event-minute">${e.period===1?'1H':'2H'} ${e.minute}'</span><span>${escapeHtml(reportEventText(e))}</span></div>`).join(''):'<p class="muted">No goals recorded.</p>';
+  $('reportSubs').innerHTML=subs.length?subs.map(e=>`<div class="event-row"><span class="event-minute">${e.period===1?'1H':'2H'} ${e.minute}'</span><span>${escapeHtml(reportEventText(e))}</span></div>`).join(''):'<p class="muted">No substitutions recorded.</p>';
+  $('reportStarters').innerHTML=(match.starterPlayerIds||[]).map(pid=>players[pid]).filter(Boolean).map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join('')||'<p class="muted">No starters recorded.</p>';
+  $('reportSubstitutes').innerHTML=(match.substitutePlayerIds||[]).map(pid=>players[pid]).filter(Boolean).map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join('')||'<p class="muted">No substitutes recorded.</p>';
+  $('reportDetailsPanel').classList.add('hidden'); $('toggleMatchDetailsBtn').textContent='Match Details';
+  activeMatchId=null;stopInterval();showView($('matchReportView'));renderMatchHistory();
+};
+
+$('toggleMatchDetailsBtn').onclick=()=>{const p=$('reportDetailsPanel'),hidden=p.classList.toggle('hidden');$('toggleMatchDetailsBtn').textContent=hidden?'Match Details':'Hide Details';};
+$('shareResultBtn').onclick=async()=>{
+  if(!currentMatchReport)return; const m=currentMatchReport, team=m.teamName||teamDisplaySettings().name, ht=m.halfTimeScore||{our:0,their:0};
+  const text=`FULL TIME\n${team} ${m.ourScore} - ${m.theirScore} ${m.opponent}\nHT ${ht.our}-${ht.their}\n${formatDateDisplay(m.date)}`;
+  try{if(navigator.share)await navigator.share({title:`${team} ${m.ourScore}-${m.theirScore} ${m.opponent}`,text});else{await navigator.clipboard.writeText(text);alert('Result copied to clipboard.');}}catch(e){}
+};
+$('reportBackBtn').onclick=()=>{currentMatchReport=null;showView(homeView);renderMatchHistory();};
+$('reportHomeBtn').onclick=()=>{currentMatchReport=null;showView(homeView);renderMatchHistory();};
+$('deleteMatchBtn').onclick=()=>{if(!currentMatchReport)return;if(!confirm(`Delete the match against ${currentMatchReport.opponent}?`))return;saveMatches(loadMatches().filter(m=>m.id!==currentMatchReport.id));currentMatchReport=null;showView(homeView);renderMatchHistory();};
