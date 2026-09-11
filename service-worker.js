@@ -1,9 +1,9 @@
-const CACHE_NAME = 'grassroots-tracker-v20.1';
+const CACHE_NAME = 'grassroots-tracker-v20.2.0';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './style.css?v=20.1.0',
-  './app.js?v=20.1.0',
+  './style.css?v=20.2.0',
+  './app.js?v=20.2.0',
   './manifest.json',
   './app-logo.svg'
 ];
