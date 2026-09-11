@@ -1,5 +1,5 @@
-# Grassroots Match Tracker v20.2
+# Grassroots Match Tracker v20.3
 
-Fluid first-use onboarding and a streamlined Match Lobby, building on v20.1.
+Result card scorer presentation polish building on v20.2.
 
-First use now guides the user through club identity, visual match format selection and a quick squad builder, then ends with a choice to set up a match now or go home. Returning users go straight to a compact Match Lobby with opponent details, remembered starters where possible, optional availability editing and a clear Start Match action. Existing match timer, goals, assists, substitutions, quick batch substitutions, undo, history, player statistics, result card, sharing and Power Play rules are retained.
+Changes: scorer times sit to the right of player names; multiple goals remain grouped without a count badge; penalties use `(Pen)`; onboarding Position field is labelled consistently as `Position`; cache assets are versioned to v20.3.

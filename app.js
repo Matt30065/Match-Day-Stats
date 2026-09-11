@@ -335,7 +335,7 @@ function renderLiveUI(){
   $('eventTimeline').innerHTML=match.events.length?[...match.events].reverse().map(e=>`<div class="event-row"><span class="event-minute">${e.period===1?'1H':'2H'} ${e.minute}'</span><span>${escapeHtml(eventText(e))}</span></div>`).join(''):'<p class="muted">No events yet.</p>';
   $('undoBtn').disabled=match.events.length===0; updateClock(); saveCurrentMatch(match);
 }
-function eventText(e){const byId=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));if(e.type==='our_goal'){const assistText=Object.prototype.hasOwnProperty.call(e,'assistPlayerId')?(e.assistPlayerId&&byId[e.assistPlayerId]?` — Assist: ${playerLabel(byId[e.assistPlayerId])}`:' — No assist'):'';return`⚽ ${byId[e.playerId]?playerLabel(byId[e.playerId]):'Unknown player'} scored${assistText}${e.penalty?' (P)':''}`;}if(e.type==='their_goal')return`⚽ Opponent scored${e.penalty?' (P)':''}`;if(e.type==='substitution')return`🔄 ${byId[e.offId]?playerLabel(byId[e.offId]):'Unknown'} off → ${byId[e.onId]?playerLabel(byId[e.onId]):'Unknown'} on`;if(e.type==='power_play_on')return powerPlayEventText(e);if(e.type==='power_play_off')return powerPlayEventText(e);return e.type;}
+function eventText(e){const byId=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));if(e.type==='our_goal'){const assistText=Object.prototype.hasOwnProperty.call(e,'assistPlayerId')?(e.assistPlayerId&&byId[e.assistPlayerId]?` — Assist: ${playerLabel(byId[e.assistPlayerId])}`:' — No assist'):'';return`⚽ ${byId[e.playerId]?playerLabel(byId[e.playerId]):'Unknown player'} scored${assistText}${e.penalty?' (Pen)':''}`;}if(e.type==='their_goal')return`⚽ Opponent scored${e.penalty?' (Pen)':''}`;if(e.type==='substitution')return`🔄 ${byId[e.offId]?playerLabel(byId[e.offId]):'Unknown'} off → ${byId[e.onId]?playerLabel(byId[e.onId]):'Unknown'} on`;if(e.type==='power_play_on')return powerPlayEventText(e);if(e.type==='power_play_off')return powerPlayEventText(e);return e.type;}
 
 function startLiveMatch(id){activeMatchId=id;const m=currentMatch();if(!m)return;ensureMatchFields(m);m.periodStartedAt=null;matchElapsedSeconds=0;stopInterval();saveCurrentMatch(m);renderLiveUI();showView(liveMatchView);}
 function openGoalDialog(kind){
@@ -550,7 +550,7 @@ $('subForm').onsubmit=e=>{
 // Opponent goals are deliberately one tap; Undo remains the safety net.
 $('theirGoalBtn').onclick=()=>recordGoal('their_goal');
 
-function goalTimeLabel(e){return `${e.period===2?'2H':'1H'} ${e.minute}'${e.penalty?' (P)':''}`;}
+function goalTimeLabel(e){return `${e.period===2?'2H':'1H'} ${e.minute}'${e.penalty?' (Pen)':''}`;}
 function scorerSummary(match,type){
   const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
   const goals=(match.events||[]).filter(e=>e.type===type);
@@ -562,10 +562,8 @@ function scorerSummary(match,type){
     groups.get(key).goals.push(e);
   });
   return [...groups.values()].map(group=>{
-    const count=group.goals.length;
-    const countLabel=count>1?` <span class="scorer-count">×${count}</span>`:'';
     const times=group.goals.map(goalTimeLabel).join(' · ');
-    return `<div class="scorer-group"><strong>${escapeHtml(group.name)}${countLabel}</strong><span>${escapeHtml(times)}</span></div>`;
+    return `<div class="scorer-group"><strong>${escapeHtml(group.name)}</strong><span>${escapeHtml(times)}</span></div>`;
   }).join('');
 }
 
