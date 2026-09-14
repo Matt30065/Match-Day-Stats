@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
-  <title id="title">Grassroots Match Tracker logo</title>
-  <desc id="desc">A football inside a bright green circular arc</desc>
+  <title id="title">GrassStatory logo</title>
+  <desc id="desc">A football inside a bright green circular arc for GrassStatory</desc>
   <defs>
     <radialGradient id="ball" cx="38%" cy="30%" r="72%">
       <stop offset="0" stop-color="#ffffff"/>

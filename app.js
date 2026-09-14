@@ -76,4 +76,130 @@ function fullTime(){const m=currentMatch();if(!m||m.period!==2||m.fullTime)retur
 function openMatchReport(id){const m=loadMatches().find(x=>x.id===id);if(!m)return;window._report=m;currentMatchReport=m;$('reportOurName').textContent=m.teamName||teamDisplay().name;$('reportOpponent').textContent=m.opponent;$('reportOurCrest').textContent=cleanAbbr(m.teamAbbr,teamDisplay().abbr);$('reportOpponentCrest').textContent=cleanAbbr(m.opponentAbbr,derivedAbbr(m.opponent));$('reportMeta').textContent=`${formatDate(m.date)} · ${m.venue==='home'?'Home':'Away'}`;$('reportCompetition').textContent=m.competition||'League';$('reportOurScore').textContent=m.ourScore;$('reportTheirScore').textContent=m.theirScore;$('reportHalfScore').textContent=`${m.halfTimeScore?.our??0} - ${m.halfTimeScore?.their??0}`;const goals=(m.events||[]).filter(e=>e.type==='our_goal'||e.type==='their_goal');const premium=loadSettings().planPreview==='platinum';$('reportOurScorers').innerHTML=scorerSummary(m,'our_goal',premium);$('reportTheirScorers').innerHTML=scorerSummary(m,'their_goal',premium);const assists=goals.filter(e=>e.type==='our_goal'&&e.assistPlayerId&&e.goalType!=='own_goal').map(e=>{const p=loadPlayers().find(x=>x.id===e.assistPlayerId);return p?`${p.name} (${periodLabel(e.period)} ${e.minute}')`:''}).filter(Boolean);$('reportAssistSummary').classList.toggle('hidden',!assists.length);if(assists.length)$('reportAssistSummary').innerHTML=`<strong>Assists</strong> · ${escapeHtml(assists.join(', '))}`;$('reportGoals').innerHTML=goals.map(e=>`<div class="event-row"><span class="event-minute">${periodLabel(e.period)} ${e.minute}'</span><span>${escapeHtml(eventText(e))}</span></div>`).join('')||'<p class="muted">No goals recorded.</p>';const other=(m.events||[]).filter(e=>e.type==='substitution'||e.type==='players_adjust_our'||e.type==='players_adjust_opponent');$('reportSubs').innerHTML=other.map(e=>`<div class="event-row"><span class="event-minute">${periodLabel(e.period)} ${e.minute}'</span><span>${escapeHtml(eventText(e))}</span></div>`).join('')||'<p class="muted">No player changes recorded.</p>';$('reportStarters').innerHTML=(m.starterPlayerIds||[]).map(id=>loadPlayers().find(p=>p.id===id)).filter(Boolean).map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join('')||'<p class="muted">No starters recorded.</p>';$('reportSubstitutes').innerHTML=(m.substitutePlayerIds||[]).map(id=>loadPlayers().find(p=>p.id===id)).filter(Boolean).map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join('')||'<p class="muted">No substitutes recorded.</p>';const premiumReport=loadSettings().planPreview==='platinum';$('toggleMatchDetailsBtn').classList.toggle('hidden',!premiumReport);$('reportDetailsPanel').classList.toggle('hidden',!premiumReport);$('reportAssistSummary').classList.toggle('hidden',!premiumReport||!assists.length);renderReportMilestones(m);showView(views.matchReportView)}
 let currentMatchReport=null;
 function scorerSummary(m,type,premium=false){const by=Object.fromEntries(loadPlayers().map(p=>[p.id,p])),gs=(m.events||[]).filter(e=>e.type===type&&e.goalType!=='own_goal'),groups=new Map();for(const e of gs){const key=type==='their_goal'?'opp':e.playerId;if(!groups.has(key))groups.set(key,{name:type==='their_goal'?m.opponent:(by[e.playerId]?.name||'Unknown'),times:[]});groups.get(key).times.push(`${periodLabel(e.period)} ${e.minute}'`)}return[...groups.values()].map(g=>`<div class="scorer-group"><strong>${escapeHtml(g.name)}</strong><span>${premium?escapeHtml(g.times.join(' · ')):''}</span></div>`).join('')||'<span class="muted">No goals</span>'}
+
+function renderMilestoneWatch(){
+  const panel=$('milestoneWatchPanel'),list=$('milestoneWatchList');
+  if(!panel||!list)return;
+  const premium=loadSettings().planPreview==='platinum';
+  if(!premium){panel.classList.add('hidden');return}
+  const ps=loadPlayers(), available=window._available||new Set(ps.map(p=>p.id)), starters=window._starters||new Set();
+  const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime);
+  const goals={}; const apps={}; const assists={};
+  ps.forEach(p=>{goals[p.id]=0;apps[p.id]=0;assists[p.id]=0});
+  for(const m of matches){
+    const participants=new Set(m.starterPlayerIds||[]);
+    for(const e of m.events||[]){
+      if(e.type==='substitution'&&e.onId)participants.add(e.onId);
+      if(e.type==='players_adjust_our'&&e.playerId)participants.add(e.playerId);
+      if(e.type==='our_goal'&&e.playerId&&e.goalType!=='own_goal'&&goals[e.playerId]!=null)goals[e.playerId]++;
+      if(e.type==='our_goal'&&e.assistPlayerId&&e.goalType!=='own_goal'&&assists[e.assistPlayerId]!=null)assists[e.assistPlayerId]++;
+    }
+    participants.forEach(id=>{if(apps[id]!=null)apps[id]++});
+  }
+  const items=[];
+  for(const p of ps){
+    if(!available.has(p.id))continue;
+    if(starters.has(p.id)){
+      const next=apps[p.id]+1;
+      if(next%10===0)items.push({text:`${p.name} will make their ${next}th appearance if they play today.`,rank:3});
+    }else if(apps[p.id]+1===10){items.push({text:`${p.name} will make their 10th appearance if they play today.`,rank:2})}
+    if(goals[p.id]>=0 && [10,20,25,50].includes(goals[p.id]+1))items.push({text:`${p.name}'s next goal will be their ${goals[p.id]+1}th goal of the season.`,rank:4});
+    if(assists[p.id]>=0 && [10,20,25,50].includes(assists[p.id]+1))items.push({text:`${p.name}'s next assist will be their ${assists[p.id]+1}th of the season.`,rank:2});
+  }
+  items.sort((a,b)=>b.rank-a.rank);
+  const chosen=items.slice(0,5);
+  if(!chosen.length){panel.classList.remove('hidden');list.innerHTML='<p class="muted compact">No major milestones are close enough to show today.</p>';return}
+  panel.classList.remove('hidden');
+  list.innerHTML=chosen.map(x=>`<div class="milestone-row">${escapeHtml(x.text)}</div>`).join('');
+}
+function renderReportMilestones(m){
+  const box=$('reportMilestones'); if(!box)return;
+  const premium=loadSettings().planPreview==='platinum'; if(!premium){box.classList.add('hidden');return}
+  const ps=loadPlayers(), reached=[];
+  const counts={}; ps.forEach(p=>counts[p.id]={g:0,a:0,app:0});
+  for(const mm of loadMatches().filter(x=>x.status==='completed'||x.fullTime)){
+    const part=new Set(mm.starterPlayerIds||[]);
+    for(const e of mm.events||[]){
+      if(e.type==='substitution'&&e.onId)part.add(e.onId);
+      if(e.type==='players_adjust_our'&&e.playerId)part.add(e.playerId);
+      if(e.type==='our_goal'&&e.playerId&&e.goalType!=='own_goal'&&counts[e.playerId])counts[e.playerId].g++;
+      if(e.type==='our_goal'&&e.assistPlayerId&&e.goalType!=='own_goal'&&counts[e.assistPlayerId])counts[e.assistPlayerId].a++;
+    }
+    part.forEach(id=>{if(counts[id])counts[id].app++});
+  }
+  for(const p of ps){
+    const c=counts[p.id]; if(!c)continue;
+    if([10,20,25,50].includes(c.g))reached.push(`⚽ ${p.name} has reached ${c.g} season goals.`);
+    if([10,20,25,50].includes(c.a))reached.push(`🎯 ${p.name} has reached ${c.a} assists.`);
+    if([10,20,25,50].includes(c.app))reached.push(`👕 ${p.name} has reached ${c.app} appearances.`);
+  }
+  box.classList.toggle('hidden',!reached.length); if(reached.length)box.innerHTML=`<strong>🏆 Milestones</strong><div>${reached.slice(-4).map(escapeHtml).map(x=>`<div>${x}</div>`).join('')}</div>`;
+}
+function onboardingSettingsDraft(){const s=loadSettings();return {...s,teamName:$('onboardingTeamName')?.value.trim()||'',teamAbbr:cleanAbbr($('onboardingTeamAbbr')?.value,'YTM'),ageGroup:$('onboardingAgeGroup')?.value||'',season:$('onboardingSeason')?.value.trim()||'2026/27',userRole:$('onboardingRole')?.value||'Parent'}}
+function setOnboardingStep(step){['onboardingStep1','onboardingStep2','onboardingStep3','onboardingDone'].forEach(id=>$(id)?.classList.add('hidden'));const target=step===4?'onboardingDone':`onboardingStep${step}`;$(target)?.classList.remove('hidden');if($('onboardingStepLabel'))$('onboardingStepLabel').textContent=step===4?'READY':`${step} of 3`;}
+function renderOnboardingSquad(){const ps=loadPlayers(),s=loadSettings(),target=Math.max(1,Number(s.playersOnPitch)||5);if($('onboardingSquadCount'))$('onboardingSquadCount').textContent=`${ps.length} player${ps.length===1?'':'s'}`;if($('onboardingPlayerList'))$('onboardingPlayerList').innerHTML=ps.length?[...ps].sort((a,b)=>(Number(a.number)||999)-(Number(b.number)||999)).map(p=>`<div class="onboarding-player-row"><span class="player-number">${escapeHtml(p.number||'-')}</span><span class="player-name">${escapeHtml(p.name)}</span><span class="position-badge">${escapeHtml(p.position||'—')}</span><button type="button" class="mini-delete-player" data-id="${p.id}">×</button></div>`).join(''):'<p class="muted">Your squad will appear here.</p>';document.querySelectorAll('.mini-delete-player').forEach(btn=>btn.onclick=()=>{savePlayers(loadPlayers().filter(p=>p.id!==btn.dataset.id));renderOnboardingSquad()});const ready=ps.length>=target;if($('finishOnboardingBtn'))$('finishOnboardingBtn').disabled=!ready;if($('onboardingSquadHint'))$('onboardingSquadHint').textContent=ready?`${ps.length} players added. You can add more or finish setup.`:`Add at least ${target} players to field your ${s.matchFormat}v${s.matchFormat} team.`}
+function renderOnboarding(){const s=loadSettings();if($('onboardingTeamName'))$('onboardingTeamName').value=s.teamName==='Your Team'?'':s.teamName;if($('onboardingTeamAbbr'))$('onboardingTeamAbbr').value=s.teamAbbr==='YTM'?'':cleanAbbr(s.teamAbbr,'YTM');if($('onboardingAgeGroup'))$('onboardingAgeGroup').value=s.ageGroup||'';if($('onboardingSeason'))$('onboardingSeason').value=s.season||'2026/27';if($('onboardingRole'))$('onboardingRole').value=s.userRole||'Parent';document.querySelectorAll('.format-option').forEach(btn=>btn.classList.toggle('selected',Number(btn.dataset.format)===Number(s.matchFormat)));if($('onboardingTeamCrest'))$('onboardingTeamCrest').textContent=cleanAbbr($('onboardingTeamAbbr')?.value,'YTM');renderOnboardingSquad()}
+function openOnboarding(){renderOnboarding();setOnboardingStep(1);showView(views.onboardingView);window.setTimeout(()=>$("onboardingTeamName")?.focus(),80)}
+function finishOnboardingV21(){const s=loadSettings();saveSettings({...s,teamName:$('onboardingTeamName').value.trim(),teamAbbr:cleanAbbr($('onboardingTeamAbbr').value,'YTM'),ageGroup:$('onboardingAgeGroup').value,season:$('onboardingSeason').value.trim()||'2026/27',userRole:$('onboardingRole').value,onboardingComplete:true});renderOnboarding();$('onboardingCompleteTitle').textContent=`${loadSettings().teamName} is ready.`;$('onboardingCompleteMeta').textContent=`${loadSettings().matchFormat}v${loadSettings().matchFormat} · ${loadPlayers().length} players` ;setOnboardingStep(4)}
+function wire(){
+  $('newMatchBtn').onclick=()=>{if(!loadSettings().onboardingComplete){openOnboarding();return}openMatchSetup()};
+  $('settingsBtn').onclick=()=>showView(views.settingsView);
+  $('settingsBackBtn').onclick=()=>showView(views.homeView);
+  $('matchesNewBtn')?.addEventListener('click',openMatchSetup);
+  $('statsUpgradeBtn')?.addEventListener('click',()=>showView(views.platinumView));
+  $('startPlatinumBtn')?.addEventListener('click',()=>{saveSettings({...loadSettings(),planPreview:'platinum'});renderHome();renderStatsView();alert('Platinum preview enabled for testing.');});
+  $('toggleMatchDetailsBtn')?.addEventListener('click',()=>{const p=$('reportDetailsPanel');const hidden=p.classList.toggle('hidden');$('toggleMatchDetailsBtn').textContent=hidden?'Match Details':'Hide Details'});
+  $('reportBackBtn')?.addEventListener('click',()=>showView(views.homeView));
+  $('reportHomeBtn')?.addEventListener('click',()=>showView(views.homeView));
+  $('cancelMatchSetupBtn')?.addEventListener('click',()=>showView(views.homeView));
+  $('toggleAvailabilityBtn')?.addEventListener('click',()=>{const w=$('availabilityWrap');const hidden=w.classList.toggle('hidden');$('toggleAvailabilityBtn').textContent=hidden?'Change availability':'Done'});
+  $('matchSetupForm')?.addEventListener('submit',e=>{e.preventDefault();const ps=loadPlayers(),s=loadSettings(),available=[...(window._available||new Set())],starters=[...(window._starters||new Set())];const opponent=$('opponentName').value.trim();if(!opponent){$('matchSetupError').textContent='Enter the opponent name.';return}if(starters.length!==s.playersOnPitch){$('matchSetupError').textContent=`Select exactly ${s.playersOnPitch} starters.`;return}const team=teamDisplay();const m={id:makeId(),teamName:team.name,teamAbbr:team.abbr,opponent,opponentAbbr:cleanAbbr($('opponentAbbr').value,derivedAbbr(opponent)),date:$('matchDate').value,venue:document.querySelector('input[name="venue"]:checked')?.value||'home',competition:$('matchCompetition').value,availablePlayerIds:available,starterPlayerIds:starters,substitutePlayerIds:available.filter(id=>!starters.includes(id)),currentOnPitch:starters,currentSubs:available.filter(id=>!starters.includes(id)),opponentPlayersOnPitch:s.playersOnPitch,status:'live',period:1,halfTime:false,fullTime:false,periodElapsedSeconds:0,periodStartedAt:null,periodDurations:{},ourScore:0,theirScore:0,events:[],createdAt:new Date().toISOString()};saveMatches([...loadMatches(),m]);startTimerForNewMatch(m.id);});
+  $('timerBtn')?.addEventListener('click',()=>{const m=currentMatch();if(m?.periodStartedAt)pauseTimer();else startTimer()});
+  $('halfTimeBtn')?.addEventListener('click',halfTime);
+  $('startSecondHalfBtn')?.addEventListener('click',startSecond);
+  $('fullTimeBtn')?.addEventListener('click',fullTime);
+  $('ourGoalBtn')?.addEventListener('click',()=>openGoalDialog('our_goal'));
+  $('theirGoalBtn')?.addEventListener('click',()=>openGoalDialog('their_goal'));
+  $('subBtn')?.addEventListener('click',openSubDialog);
+  $('adjustPlayersBtn')?.addEventListener('click',openAdjust);
+  $('undoBtn')?.addEventListener('click',undoLast);
+  $('saveGoalBtn')?.addEventListener('click',()=>{const m=currentMatch();if(!m)return;const kind=$('goalDialog').dataset.kind,gt=$('goalType').value,score=kind==='our_goal';const pid=score&&gt!=='own_goal'?$('goalScorer').value:null;const aid=score&&gt!=='own_goal'?($('goalAssist').value||null):null;const og=$('ownGoalPlayer').value||null;recordGoal(kind,gt,pid,aid,og);$('goalDialog').close()});
+  $('cancelGoalBtn')?.addEventListener('click',()=>$('goalDialog').close());
+  $('goalType')?.addEventListener('change',goalTypeChanged);
+  $('saveBatchSubsBtn')?.addEventListener('click',saveBatchSubs);
+  $('cancelSubBtn')?.addEventListener('click',()=>$('subDialog').close());
+  $('saveAdjustPlayersBtn')?.addEventListener('click',saveAdjust);
+  $('cancelAdjustPlayersBtn')?.addEventListener('click',()=>$('adjustPlayersDialog').close());
+  $('oppCountMinus')?.addEventListener('click',()=>{adjustOpponentCount=Math.max(0,adjustOpponentCount-1);renderAdjust()});
+  $('oppCountPlus')?.addEventListener('click',()=>{adjustOpponentCount=Math.min(20,adjustOpponentCount+1);renderAdjust()});
+  $('addPlayerBtn')?.addEventListener('click',()=>openPlayerDialog());
+  $('cancelPlayerBtn')?.addEventListener('click',()=>$('playerDialog').close());
+  $('playerForm')?.addEventListener('submit',e=>{e.preventDefault();const ps=loadPlayers(),data={name:$('playerName').value.trim(),number:$('playerNumber').value.trim(),position:$('playerPosition').value};if(!data.name)return;if(editingPlayerId){const p=ps.find(x=>x.id===editingPlayerId);if(p)Object.assign(p,data)}else ps.push({id:makeId(),...data});savePlayers(ps);$('playerDialog').close();renderPlayers();});
+  $('deletePlayerBtn')?.addEventListener('click',()=>{if(!editingPlayerId)return;savePlayers(loadPlayers().filter(p=>p.id!==editingPlayerId));$('playerDialog').close();renderPlayers()});
+  $('fillTestPlayersBtn')?.addEventListener('click',()=>{const s=loadSettings(),ps=loadPlayers();for(let i=ps.length+1;i<=Math.max(s.playersOnPitch+3,10);i++)ps.push({id:makeId(),name:`Player ${i}`,number:String(i),position:''});savePlayers(ps);renderPlayers();});
+  $('settingsForm')?.addEventListener('submit',e=>{e.preventDefault();const s=loadSettings();saveSettings({...s,teamName:$('teamName').value.trim()||'Your Team',teamAbbr:cleanAbbr($('teamAbbr').value,'YTM'),matchFormat:Number($('matchFormat').value)||5,playersOnPitch:Number($('playersOnPitch').value)||Number($('matchFormat').value)||5,ageGroup:$('ageGroup').value,season:$('season').value.trim()||'2026/27',primaryColor:$('primaryColor').value,secondaryColor:$('secondaryColor').value});$('settingsSaved').textContent='Saved';renderSettings();setTimeout(()=>$('settingsSaved').textContent='',1200)});
+  $('matchFormat')?.addEventListener('change',()=>{$('playersOnPitch').value=$('matchFormat').value});
+  $('onboardingNext1')?.addEventListener('click',()=>{if(!$('onboardingTeamName').value.trim()){alert('Enter your team name.');return}const s=loadSettings();saveSettings({...s,teamName:$('onboardingTeamName').value.trim(),teamAbbr:cleanAbbr($('onboardingTeamAbbr').value,'YTM'),ageGroup:$('onboardingAgeGroup').value,season:$('onboardingSeason').value.trim()||'2026/27',userRole:$('onboardingRole').value});renderOnboarding();setOnboardingStep(2)});
+  $('onboardingBack2')?.addEventListener('click',()=>setOnboardingStep(1));
+  document.querySelectorAll('.format-option').forEach(btn=>btn.addEventListener('click',()=>{const f=Number(btn.dataset.format);saveSettings({...loadSettings(),matchFormat:f,playersOnPitch:f});document.querySelectorAll('.format-option').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');renderOnboarding()}));
+  $('onboardingNext2')?.addEventListener('click',()=>{renderOnboardingSquad();setOnboardingStep(3)});
+  $('onboardingBack3')?.addEventListener('click',()=>setOnboardingStep(2));
+  $('quickAddPlayerBtn')?.addEventListener('click',()=>{const name=$('quickPlayerName').value.trim();if(!name)return;const ps=loadPlayers();ps.push({id:makeId(),name,number:$('quickPlayerNumber').value.trim(),position:$('quickPlayerPosition').value});savePlayers(ps);$('quickPlayerName').value='';$('quickPlayerNumber').value='';$('quickPlayerPosition').value='';renderOnboardingSquad()});
+  $('onboardingTestSquadBtn')?.addEventListener('click',()=>{$('fillTestPlayersBtn')?.click();renderOnboardingSquad()});
+  $('finishOnboardingBtn')?.addEventListener('click',finishOnboardingV21);
+  $('onboardingSetupMatchBtn')?.addEventListener('click',()=>{closeOnboarding();openMatchSetup()});
+  $('onboardingGoHomeBtn')?.addEventListener('click',()=>{closeOnboarding();showView(views.homeView)});
+  document.querySelectorAll('[data-nav]').forEach(btn=>btn.addEventListener('click',()=>{const n=btn.dataset.nav;document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('is-active',b===btn));showView({home:views.homeView,matches:views.matchesView,stats:views.statsView,team:views.settingsView,settings:views.settingsView}[n]||views.homeView)}));
+  $('statsFilterRow')?.querySelectorAll('[data-stats-filter]').forEach(btn=>btn.addEventListener('click',()=>{statsFilter=btn.dataset.statsFilter;document.querySelectorAll('[data-stats-filter]').forEach(b=>b.classList.toggle('active-filter',b===btn));renderStatsView()}));
+  $('shareResultBtn')?.addEventListener('click',()=>{const m=currentMatchReport;if(!m)return;const text=`${m.teamName} ${m.ourScore}-${m.theirScore} ${m.opponent} · ${m.competition}`;if(navigator.share)navigator.share({title:'GrassStatory match result',text});else navigator.clipboard?.writeText(text).then(()=>alert('Result copied to clipboard.'))});
+  $('shareMilestoneWatchBtn')?.addEventListener('click',()=>{const txt=[...document.querySelectorAll('#milestoneWatchList .milestone-row')].map(x=>x.textContent).join('\n');if(navigator.share)navigator.share({title:'GrassStatory milestone watch',text:txt});else navigator.clipboard?.writeText(txt).then(()=>alert('Milestones copied to clipboard.'))});
+  $('shareLiveBtn')?.addEventListener('click',()=>{const m=currentMatch();if(!m)return;const text=`Live on GrassStatory: ${m.teamName} ${m.ourScore}-${m.theirScore} ${m.opponent}`;if(navigator.share)navigator.share({title:'GrassStatory Live Match',text});else navigator.clipboard?.writeText(text).then(()=>alert('Live match text copied to clipboard.'))});
+  $('opponentName')?.addEventListener('input',()=>{$('setupOpponentPreviewName').textContent=$('opponentName').value.trim()||'Add opponent details';$('setupOpponentCrest').textContent=cleanAbbr($('opponentAbbr').value,derivedAbbr($('opponentName').value,'OPP'))});
+  $('opponentAbbr')?.addEventListener('input',()=>{$('setupOpponentCrest').textContent=cleanAbbr($('opponentAbbr').value,derivedAbbr($('opponentName').value,'OPP'))});
+  $('onboardingTeamName')?.addEventListener('input',()=>{$('onboardingTeamCrest').textContent=cleanAbbr($('onboardingTeamAbbr').value,derivedAbbr($('onboardingTeamName').value,'YTM'))});
+  $('onboardingTeamAbbr')?.addEventListener('input',()=>{$('onboardingTeamCrest').textContent=cleanAbbr($('onboardingTeamAbbr').value,'YTM')});
+}
+function closeOnboarding(){$('onboardingView')?.classList.add('hidden')}
+function startTimerForNewMatch(id){activeMatchId=id;const m=currentMatch();if(!m)return;showView(views.liveMatchView);startTimer()}
+
 refreshIdentity();wire();renderHome();renderSettings();if(!loadSettings().onboardingComplete)openOnboarding();
