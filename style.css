@@ -70,7 +70,7 @@
 .power-play-status{font-weight:800;margin-bottom:3px}
 .power-play-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .power-play-actions button{white-space:nowrap}
-@media(max-width:620px){.power-play-panel{flex-direction:column;align-items:stretch}.power-play-actions{justify-content:flex-start}.power-play-actions button{flex:1;min-width:0}}
+@media(max-width:620px){}
 
 /* =========================================================
    v18.5 - AUTHORITATIVE PROFESSIONAL UI
@@ -303,7 +303,7 @@ body.app-starting .app-shell{visibility:hidden!important;opacity:0!important}
   .settings-grid,.match-details-grid{grid-template-columns:1fr}.section-heading{flex-direction:column}.button-row{width:100%}.button-row button{flex:1}
   .player-row{grid-template-columns:38px 1fr auto}.edit-label{display:none}
   .live-actions{grid-template-columns:1fr 1fr}.live-columns{grid-template-columns:1fr}.match-clock{font-size:48px}.scoreboard{gap:14px}.scoreboard>div{min-width:90px}.scoreboard strong{font-size:56px}
-  .power-play-panel{flex-direction:column;align-items:stretch}.power-play-actions{justify-content:flex-start}.power-play-actions button{flex:1;min-width:0}
+  
   .report-grid{grid-template-columns:1fr}.history-card{align-items:flex-start}.history-date{min-width:72px}
   #seasonSummary{grid-template-columns:repeat(2,minmax(0,1fr))}#seasonSummary .stat-card{min-height:96px}#seasonSummary .stat-card strong{font-size:28px}
 }
@@ -341,63 +341,12 @@ input,select{background:#06151e!important;color:#f4fbfd!important;border:1px sol
 
 
 /* v19.1 - prominent active Power Play state */
-.power-play-panel.is-active{
-  background:linear-gradient(135deg,rgba(255,81,75,.24),rgba(58,20,27,.96)) !important;
-  border:2px solid #ff4f4b !important;
-  box-shadow:
-    0 0 0 2px rgba(255,79,75,.10),
-    0 0 24px rgba(255,79,75,.34),
-    0 16px 42px rgba(113,22,28,.24) !important;
-}
-.power-play-panel.is-active .power-play-kicker{color:#ffb0ad !important}
-.power-play-panel.is-active .power-play-title{color:#fff !important}
-.power-play-panel.is-active .power-play-title::after{
-  content:'  •  ACTIVE';
-  color:#ff6b67;
-  font-size:.72em;
-  letter-spacing:.12em;
-  vertical-align:middle;
-}
-.power-play-panel.is-active .power-play-status{color:#ffd2d0 !important}
-.power-play-panel.is-active .count-badge{
-  color:#fff !important;
-  background:rgba(255,79,75,.18) !important;
-  border-color:rgba(255,120,116,.52) !important;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 0 14px rgba(255,79,75,.20);
-}
-.power-play-panel.is-active .power-play-actions button.secondary-btn{
-  background:linear-gradient(180deg,#f76b66,#df403d) !important;
-  color:#fff !important;
-  border-color:rgba(255,255,255,.16) !important;
-}
-.power-play-panel.is-warning{
-  border-color:#ff3f3b !important;
-  box-shadow:0 0 0 2px rgba(255,63,59,.12),0 0 28px rgba(255,63,59,.44),0 16px 42px rgba(113,22,28,.28) !important;
-  animation:ppWarnPulse 1.35s ease-in-out infinite;
-}
-@keyframes ppWarnPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.06)}}
 
 
-/* =========================================================
-   v19.2 MATCH CENTRE POLISH
-   Coordinated visual refinement for the live match screen.
-   No new controls or match logic.
-   ========================================================= */
-.live-card{border-radius:28px!important;box-shadow:0 30px 85px rgba(0,0,0,.48)!important}
-.live-topbar{padding:18px 20px 14px!important;background:linear-gradient(180deg,rgba(255,255,255,.035),transparent)!important}
-.live-topbar .eyebrow{font-size:10px!important;letter-spacing:.2em!important}
-.live-topbar #liveMeta{font-size:12px!important;color:#a8bdc7!important}
-.live-topbar .icon-btn{width:44px;height:44px;min-width:44px;border-radius:14px!important;background:rgba(22,55,70,.8)!important}
 
-.scoreboard-hero{
-  min-height:390px!important;
-  padding:38px 30px 28px!important;
-  background:
-    linear-gradient(180deg,rgba(2,12,18,.02) 0%,rgba(2,12,18,.25) 42%,rgba(2,12,18,.95) 100%),
-    radial-gradient(circle at 12% 15%,rgba(255,255,255,.30),transparent 10%),
-    radial-gradient(circle at 88% 15%,rgba(255,255,255,.30),transparent 10%),
-    linear-gradient(180deg,#0d3c45 0%,#0b3340 45%,#0a5134 100%)!important;
-}
+
+
+
 .scoreboard-hero:before{
   opacity:.34!important;
   background:
@@ -455,23 +404,9 @@ input,select{background:#06151e!important;color:#f4fbfd!important;border:1px sol
 .action-btn{min-height:72px!important;border-radius:17px!important;font-size:16px!important;letter-spacing:.01em;box-shadow:inset 0 1px rgba(255,255,255,.10),0 10px 25px rgba(0,0,0,.17)!important}
 .action-btn.goal-btn{box-shadow:inset 0 1px rgba(255,255,255,.25),0 10px 28px rgba(16,205,91,.16)!important}
 
-.power-play-panel{margin:10px 20px 20px!important;padding:18px 20px!important;border-radius:20px!important}
-.power-play-panel:not(.is-active){background:linear-gradient(135deg,rgba(113,75,188,.18),rgba(17,33,44,.96))!important}
-.power-play-panel.is-active{min-height:86px!important}
-.power-play-panel.is-active .power-play-title::before{content:'⚡ ';color:#ff6b67}
 
-.live-columns{padding:0 20px!important;gap:14px!important}
-.live-columns>div{padding:16px!important;border-radius:18px!important;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02))!important}
-.live-columns h3{font-size:15px!important;letter-spacing:.01em}
-.live-columns .summary-row{padding:11px 12px!important;border-radius:11px!important;font-size:13px!important}
 
-.setup-section:has(#eventTimeline){margin-top:22px!important;padding:18px 0 2px!important}
-.setup-section:has(#eventTimeline)>h3{padding:0 20px!important;font-size:17px!important;letter-spacing:.01em}
-.live-card .event-list{position:relative!important;padding:4px 20px 24px 42px!important}
-.live-card .event-list:before{
-  content:"";position:absolute;left:27px;top:17px;bottom:29px;width:2px;
-  background:linear-gradient(180deg,rgba(42,225,118,.55),rgba(148,177,190,.10));
-}
+
 .live-card .event-row{position:relative!important;min-height:54px!important;grid-template-columns:54px 1fr!important;padding:10px 13px!important;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.025))!important}
 .live-card .event-row:before{
   content:"";position:absolute;left:-19px;top:21px;width:9px;height:9px;border-radius:50%;
@@ -524,23 +459,9 @@ body{font-weight:500}.app-header h1{font-weight:800;letter-spacing:-.045em}.eyeb
 .team-panel{align-self:center!important;gap:12px!important}.team-crest{width:105px!important;height:123px!important;font-size:28px!important}.team-crest:after{width:19px!important;height:19px!important;transform:translateY(36px)!important}.team-name{font-size:14px!important;line-height:1.15!important;max-width:165px!important;min-height:34px;display:flex;align-items:flex-start;justify-content:center}
 .score-centre{align-self:center!important;transform:none!important}.match-stage{margin-bottom:5px}.scoreline strong{font-size:80px!important;line-height:.95}.scoreline .score-divider{font-size:39px!important}.match-clock-pill{margin:13px 0 9px!important}.match-clock-pill span{font-size:35px!important}.period-status{margin-top:0!important}.scoreboard-hero .timer-btn{margin-top:7px!important}
 .score-meta-line{min-height:54px!important}.score-meta-line strong{padding:5px 10px;border-radius:999px;background:rgba(37,223,114,.10)}
-.live-card.pp-score-active .score-meta-line strong{color:#ff8a84;background:rgba(255,78,76,.12);box-shadow:0 0 0 1px rgba(255,92,88,.25)}.live-card.pp-score-active .score-meta-line:after{content:'POWER PLAY';color:#ff7c77;font-size:9px;font-weight:900;letter-spacing:.13em}
+
 .period-controls{justify-content:flex-end!important}.period-controls .secondary-btn{max-width:180px!important;opacity:.68}.period-controls .primary-btn,.period-controls .danger-btn{max-width:220px!important}
-.live-actions{grid-template-columns:1.15fr 1fr!important}.action-btn{font-size:15px!important}.goal-btn{font-size:17px!important}.power-play-panel{box-shadow:inset 0 1px rgba(255,255,255,.04)}.power-play-panel.is-active{box-shadow:0 0 0 1px rgba(255,87,82,.32),0 0 30px rgba(255,68,68,.18),inset 0 1px rgba(255,255,255,.05)!important}
-.live-columns>div{min-height:250px}.live-columns .summary-row{min-height:43px!important;display:flex;align-items:center}.setup-section:has(#eventTimeline){background:rgba(0,0,0,.10)}
-
-/* Reports: make them feel like a match result rather than a form */
-#matchReportView>.card{background:linear-gradient(180deg,#0d2a38,#071d27)!important}.report-team-head{justify-content:center!important;gap:20px!important;margin:10px 0}.report-team-head h2{font-size:22px!important;text-align:center}.mini-crest{width:67px!important;height:78px!important;font-size:17px!important}.mini-crest:after{width:12px!important;height:12px!important;transform:translateY(23px)!important}.report-score{max-width:560px;margin:18px auto 26px!important}.report-score>div{padding:22px!important}.report-score strong{font-size:32px!important}.report-grid{gap:16px!important}.report-grid .setup-section{background:rgba(255,255,255,.025);border:1px solid rgba(148,177,190,.12);border-radius:17px;padding:16px!important}
-
-/* Dialog hierarchy */
-dialog{border-radius:22px!important}dialog h2{font-size:23px!important;margin-bottom:17px!important}.dialog-card{padding:22px!important}.dialog-actions{padding-top:4px}.dialog-card label{font-size:12px;font-weight:800}.dialog-card select{min-height:50px}.dialog-card .primary-btn{min-height:50px}
-
-@media(max-width:700px){
-  .home-team-lockup{gap:12px}.home-crest{width:59px!important;height:69px!important;font-size:16px!important}.home-crest:after{width:12px!important;height:12px!important;transform:translateY(20px)!important}.home-team-lockup h2{font-size:23px}.hero-card>p:not(.muted),.hero-actions{margin-left:0}.hero-card>p:not(.muted){margin-top:9px}
-  #matchSetupView .selection-list,#matchSetupView .summary-list{grid-template-columns:1fr}
-  .identity-preview,.opponent-preview{padding:13px;gap:13px}.settings-crest,.setup-crest{width:63px!important;height:74px!important;font-size:17px!important}.settings-crest:after,.setup-crest:after{width:12px!important;height:12px!important;transform:translateY(21px)!important}
-  .scoreboard-hero{min-height:305px!important;padding:22px 7px 20px!important;grid-template-columns:1fr 1.35fr 1fr!important}.team-crest{width:74px!important;height:87px!important;font-size:20px!important}.team-crest:after{width:15px!important;height:15px!important;transform:translateY(26px)!important}.team-name{font-size:12px!important;max-width:108px!important}.scoreline strong{font-size:58px!important}.scoreline .score-divider{font-size:30px!important}.match-clock-pill span{font-size:27px!important}.match-clock-pill{padding:8px 13px!important}.live-actions{grid-template-columns:1fr 1fr!important}.action-btn{font-size:13px!important}.goal-btn{font-size:14px!important}.period-controls .secondary-btn{max-width:150px!important}.live-columns>div{min-height:0}.report-team-head{gap:10px!important}.mini-crest{width:54px!important;height:63px!important;font-size:14px!important}
-}
+.live-actions{grid-template-columns:1.15fr 1fr!important}.action-btn{font-size:15px!important}.goal-btn{font-size:17px!important}.power-play-panel{box-shadow:inset 0 1px rgba(255,255,255,.04)}
 
 /* =========================================================
    v19.4 player statistics + final polish
@@ -662,8 +583,21 @@ dialog{border-radius:22px!important}dialog h2{font-size:23px!important;margin-bo
 @media(max-width:700px){.bottom-nav{position:sticky;bottom:6px}.adjust-team-grid{grid-template-columns:1fr}.players-on-pitch-head{align-items:stretch;flex-direction:column}.players-on-pitch-head .secondary-btn{width:100%}}
 
 /* GrassStatory v21 additions */
-.stats-filter{margin-bottom:16px}.stats-filter button{min-height:40px;padding:8px 12px}.stats-filter .active-filter{background:rgba(37,223,114,.16)!important;border-color:rgba(37,223,114,.45)!important;color:#c8f7d7!important}.free-stats-card{border:1px solid var(--v19-line);border-radius:18px;padding:16px;background:rgba(255,255,255,.035)}.free-stats-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.free-stats-head span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.free-goal-row{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-top:1px solid rgba(148,177,190,.10)}.upgrade-preview{display:grid;gap:8px;margin-top:14px;padding:15px;border-radius:14px;background:linear-gradient(135deg,rgba(145,103,244,.13),rgba(255,255,255,.025));border:1px solid rgba(145,103,244,.25)}.upgrade-preview span{font-size:12px;color:var(--muted)}.upgrade-preview .primary-btn{width:max-content}.platinum-hero-card{background:radial-gradient(circle at 50% 0,rgba(37,223,114,.12),transparent 22rem),linear-gradient(180deg,#0d2b38,#061923)!important}.platinum-feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.platinum-feature-grid>div{display:grid;gap:7px;padding:14px;border:1px solid rgba(148,177,190,.14);border-radius:15px;background:rgba(255,255,255,.035);text-align:center}.platinum-feature-grid strong{font-size:25px}.platinum-feature-grid span{font-size:11px;color:#b7c8d0}.price-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.price-panel>div{display:grid;gap:3px;padding:16px;border-radius:16px;border:1px solid rgba(148,177,190,.16);background:rgba(255,255,255,.035)}.price-panel span{font-size:10px;color:#8fe9af;text-transform:uppercase;letter-spacing:.14em;font-weight:900}.price-panel strong{font-size:28px}.price-panel small{font-size:11px;color:var(--muted)}.center-text{text-align:center}.milestone-watch-panel{margin-top:15px;padding:16px;border-radius:18px;background:linear-gradient(135deg,rgba(145,103,244,.13),rgba(255,255,255,.025));border:1px solid rgba(145,103,244,.26)}.milestone-watch-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.milestone-watch-head h3{margin:0 0 4px}.milestone-list{display:grid;gap:8px;margin-top:12px}.milestone-item{display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:start;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(148,177,190,.10)}.milestone-icon{font-size:20px}.milestone-copy strong{display:block;color:#fff}.milestone-copy span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.milestone-achieved{margin:0 16px 16px;padding:15px;border-radius:16px;background:linear-gradient(135deg,rgba(255,196,71,.10),rgba(37,223,114,.07));border:1px solid rgba(246,194,71,.22)}.milestone-achieved h3{margin:0 0 8px}.share-live-btn{border-color:rgba(255,84,86,.34)!important;background:linear-gradient(180deg,rgba(255,84,86,.18),rgba(83,26,32,.34))!important}.bottom-nav{margin-bottom:max(6px,env(safe-area-inset-bottom))}
+.stats-filter{margin-bottom:16px}.stats-filter button{min-height:40px;padding:8px 12px}.stats-filter .active-filter{background:rgba(37,223,114,.16)!important;border-color:rgba(37,223,114,.45)!important;color:#c8f7d7!important}.free-stats-card{border:1px solid var(--v19-line);border-radius:18px;padding:16px;background:rgba(255,255,255,.035)}.free-stats-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.free-stats-head span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.free-goal-row{display:flex;align-items:center;justify-content:space-between;padding:12px 10px;border-top:1px solid rgba(148,177,190,.10)}.upgrade-preview{display:grid;gap:8px;margin-top:14px;padding:15px;border-radius:14px;background:linear-gradient(135deg,rgba(145,103,244,.13),rgba(255,255,255,.025));border:1px solid rgba(145,103,244,.25)}.upgrade-preview span{font-size:12px;color:var(--muted)}.upgrade-preview .primary-btn{width:max-content}.platinum-hero-card{background:radial-gradient(circle at 50% 0,rgba(37,223,114,.12),transparent 22rem),linear-gradient(180deg,#0d2b38,#061923)!important}.platinum-feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.platinum-feature-grid>div{display:grid;gap:7px;padding:14px;border:1px solid rgba(148,177,190,.14);border-radius:15px;background:rgba(255,255,255,.035);text-align:center}.platinum-feature-grid strong{font-size:25px}.platinum-feature-grid span{font-size:11px;color:#b7c8d0}.price-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.price-panel>div{display:grid;gap:3px;padding:16px;border-radius:16px;border:1px solid rgba(148,177,190,.16);background:rgba(255,255,255,.035)}.price-panel span{font-size:10px;color:#8fe9af;text-transform:uppercase;letter-spacing:.14em;font-weight:900}.price-panel strong{font-size:28px}.price-panel small{font-size:11px;color:var(--muted)}.center-text{text-align:center}.milestone-watch-panel{margin-top:15px;padding:16px;border-radius:18px;background:linear-gradient(135deg,rgba(246,194,71,.11),rgba(37,223,114,.045));border:1px solid rgba(246,194,71,.24)}.milestone-watch-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.milestone-watch-head h3{margin:0 0 4px}.milestone-list{display:grid;gap:8px;margin-top:12px}.milestone-item{display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:start;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(148,177,190,.10)}.milestone-icon{font-size:20px}.milestone-copy strong{display:block;color:#fff}.milestone-copy span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.milestone-achieved{margin:0 16px 16px;padding:15px;border-radius:16px;background:linear-gradient(135deg,rgba(255,196,71,.10),rgba(37,223,114,.07));border:1px solid rgba(246,194,71,.22)}.milestone-achieved h3{margin:0 0 8px}.share-live-btn{border-color:rgba(255,84,86,.34)!important;background:linear-gradient(180deg,rgba(255,84,86,.18),rgba(83,26,32,.34))!important}.bottom-nav{margin-bottom:max(6px,env(safe-area-inset-bottom))}
 @media(max-width:700px){.platinum-feature-grid{grid-template-columns:repeat(2,1fr)}.price-panel{grid-template-columns:1fr}.milestone-watch-head{flex-direction:column}.milestone-watch-head .secondary-btn{width:100%}}
 
 .onboarding-extra-fields,.team-detail-fields,.team-colour-fields{margin-top:8px}.team-colour-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.team-colour-fields input[type="color"]{min-height:50px;padding:4px}.role-select-label{max-width:650px;margin:10px auto}.result-competition small{display:block;color:var(--v19-muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}.hidden-by-entitlement{display:none!important}
 @media(max-width:620px){.team-colour-fields{grid-template-columns:1fr}}
+
+
+/* GrassStatory v21.0.4 UI polish: consistent screen and dialog transitions */
+.screen-enter{animation:screen-in .24s cubic-bezier(.2,.75,.25,1) both}
+@keyframes screen-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+dialog[open]{animation:dialog-in .18s ease-out both}
+@keyframes dialog-in{from{opacity:0;transform:translateY(7px) scale(.985)}to{opacity:1;transform:none}}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid rgba(37,223,114,.72);outline-offset:2px}
+.bottom-nav-item{transition:background .16s ease,color .16s ease,transform .12s ease}
+.card,.history-card,.player-stat-card,.lobby-selection-card,.milestone-watch-panel{transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.card:focus-within{box-shadow:0 20px 52px rgba(0,0,0,.23)}
+@media (hover:hover){.history-card:hover,.player-stat-card:hover{transform:translateY(-1px)}}
+@media (prefers-reduced-motion: reduce){.screen-enter,dialog[open],.onboarding-step,.collapsible-panel,.splash-logo,.splash-progress span{animation:none!important}.card,.history-card,.player-stat-card,.lobby-selection-card,.milestone-watch-panel,button,.bottom-nav-item{transition:none!important}}
