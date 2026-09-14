@@ -1,9 +1,9 @@
-const CACHE_NAME = 'grassstatory-v21-1-2';
+const CACHE_NAME = 'grassstatory-v21-1-3';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './style.css?v=21.0.4',
-  './app.js?v=21.0.4',
+  './style.css?v=21.1.3',
+  './app.js?v=21.1.3',
   './manifest.json',
   './app-logo.svg'
 ];
