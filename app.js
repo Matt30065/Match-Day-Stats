@@ -186,7 +186,8 @@ function wire(){
   $('saveGoalBtn')?.addEventListener('click',()=>{const m=currentMatch();if(!m)return;const kind=$('goalDialog').dataset.kind,gt=$('goalType').value,score=kind==='our_goal';const pid=score&&gt!=='own_goal'?$('goalScorer').value:null;const aid=score&&gt!=='own_goal'?($('goalAssist').value||null):null;const og=$('ownGoalPlayer').value||null;recordGoal(kind,gt,pid,aid,og);$('goalDialog').close()});
   $('cancelGoalBtn')?.addEventListener('click',()=>$('goalDialog').close());
   $('goalType')?.addEventListener('change',goalTypeChanged);
-  $('saveBatchSubsBtn')?.addEventListener('click',saveBatchSubs);
+  $('subForm')?.addEventListener('submit',e=>{e.preventDefault();saveBatchSubs()});
+  $('saveBatchSubsBtn')?.addEventListener('click',e=>{e.preventDefault();saveBatchSubs()});
   $('cancelSubBtn')?.addEventListener('click',()=>$('subDialog').close());
   $('saveAdjustPlayersBtn')?.addEventListener('click',saveAdjust);
   $('cancelAdjustPlayersBtn')?.addEventListener('click',()=>$('adjustPlayersDialog').close());
