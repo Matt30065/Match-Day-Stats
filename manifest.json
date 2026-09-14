@@ -1,6 +1,6 @@
 {
-  "name": "Grassroots Match Tracker",
-  "short_name": "Match Tracker",
+  "name": "GrassStatory",
+  "short_name": "GrassStatory",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#06131c",

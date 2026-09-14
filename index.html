@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#06131a" />
-  <title>Grassroots Match Tracker</title>
+  <title>GrassStatory</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css?v=20.6.0" />
+  <link rel="stylesheet" href="style.css?v=21.0.0" />
 
   <style id="critical-ui">
     html,body{margin:0;min-height:100%;background:#06131c;color:#f8fafc;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -18,14 +18,14 @@
 </head>
 <body class="app-starting">
 
-  <div id="splashScreen" class="splash-screen" aria-label="Grassroots Match Tracker loading">
+  <div id="splashScreen" class="splash-screen" aria-label="GrassStatory loading">
     <div class="splash-stadium-glow"></div>
     <div class="splash-content">
-      <img class="splash-logo" src="app-logo.svg" alt="Grassroots Match Tracker logo" width="180" height="180" />
+      <img class="splash-logo" src="app-logo.svg" alt="GrassStatory logo" width="180" height="180" />
       <p class="splash-eyebrow">GRASSROOTS FOOTBALL</p>
       <h2 class="splash-title"><span>Grassroots</span> <em>Match Tracker</em></h2>
       <div class="splash-rule"></div>
-      <p class="splash-tagline">Grassroots football.<br />Tracked better.</p>
+      <p class="splash-tagline">Your football. Your stats. Your story.</p>
       <div class="splash-credit">
         <span>Designed &amp; developed by</span>
         <strong>Matt Ashby</strong>
@@ -37,7 +37,7 @@
     <header class="app-header">
       <div>
         <p class="eyebrow">GRASSROOTS FOOTBALL</p>
-        <h1>Match Tracker</h1>
+        <h1>GrassStatory</h1>
       </div>
       <span class="status-dot" title="Local app"></span>
     </header>
@@ -57,7 +57,7 @@
         <div class="section-heading">
           <div>
             <h2>Season Statistics</h2>
-            <p class="muted compact">Calculated automatically from completed matches. Goals include penalties.</p>
+            <p class="muted compact">Your season builds automatically from completed matches.</p>
           </div>
         </div>
         <div id="seasonSummary" class="stat-cards"></div>
@@ -66,9 +66,42 @@
 
       <section class="card">
         <div class="section-heading">
-          <div><h2>Match History</h2><p class="muted compact">All completed matches are saved here on this device. Tap a match to open its report.</p></div>
+          <div><h2>Match History</h2><p class="muted compact">Your completed matches, ready to revisit.</p></div>
         </div>
         <div id="matchHistoryList" class="history-list"></div>
+      </section>
+    </div>
+
+    <div id="matchesView" class="hidden">
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">MATCHES</p><h2>Your Matches</h2><p class="muted compact">Upcoming fixtures and completed results.</p></div><button id="matchesNewBtn" class="primary-btn" type="button">New Match</button></div>
+        <div id="upcomingMatchesList" class="history-list"></div>
+        <div class="setup-section"><h3>Results</h3><div id="matchesResultsList" class="history-list"></div></div>
+      </section>
+    </div>
+
+    <div id="statsView" class="hidden">
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">2026/27</p><h2>Season Statistics</h2><p class="muted compact">Your season, broken down by competition.</p></div><button id="statsUpgradeBtn" class="secondary-btn" type="button">Explore Platinum</button></div>
+        <div class="choice-row stats-filter" id="statsFilterRow"><button class="secondary-btn active-filter" data-stats-filter="All" type="button">All</button><button class="secondary-btn" data-stats-filter="League" type="button">League</button><button class="secondary-btn" data-stats-filter="Cup" type="button">Cup</button><button class="secondary-btn" data-stats-filter="Tournament" type="button">Tournament</button><button class="secondary-btn" data-stats-filter="Friendly" type="button">Friendly</button></div>
+        <div id="statsViewBody"></div>
+      </section>
+    </div>
+
+    <div id="platinumView" class="hidden">
+      <section class="card platinum-hero-card">
+        <p class="eyebrow">GRASSSTATORY PLATINUM</p>
+        <h2>Unlock your complete GrassStatory</h2>
+        <p class="muted">Every match is already building your story. Platinum lets you see it.</p>
+        <div class="platinum-feature-grid">
+          <div><strong>📊</strong><span>Full season & player stats</span></div>
+          <div><strong>🏆</strong><span>Milestones & streaks</span></div>
+          <div><strong>🔴</strong><span>Live match sharing</span></div>
+          <div><strong>⚽</strong><span>Unlimited teams</span></div>
+        </div>
+        <div class="price-panel"><div><span>Annual</span><strong>£24.99</strong><small>30 days free · best value</small></div><div><span>Monthly</span><strong>£2.99</strong><small>Cancel anytime</small></div></div>
+        <button id="startPlatinumBtn" class="primary-btn full-width" type="button">Start 30-Day Free Trial</button>
+        <p class="muted compact center-text">Production purchase flow will connect to Apple App Store / Google Play.</p>
       </section>
     </div>
 
@@ -93,6 +126,17 @@
               <input id="onboardingTeamAbbr" type="text" maxlength="3" minlength="1" placeholder="KEG" />
             </label>
           </div>
+          <div class="team-identity-grid onboarding-fields onboarding-extra-fields">
+            <label>Age group
+              <select id="onboardingAgeGroup"><option value="">Select age group</option><option>U7</option><option>U8</option><option>U9</option><option>U10</option><option>U11</option><option>U12</option><option>U13</option><option>U14</option><option>U15</option><option>U16</option><option>U17</option><option>U18</option><option>Adult</option></select>
+            </label>
+            <label>Season
+              <input id="onboardingSeason" type="text" maxlength="9" placeholder="2026/27" />
+            </label>
+          </div>
+          <label class="role-select-label">How will you mainly use GrassStatory?
+            <select id="onboardingRole"><option value="Parent">Parent</option><option value="Coach">Coach / Manager</option><option value="Supporter">Supporter</option><option value="Other">Other</option></select>
+          </label>
           <button id="onboardingNext1" class="primary-btn full-width" type="button">Continue</button>
         </div>
 
@@ -157,6 +201,11 @@
           <p class="muted compact">Complete your team details and add your squad here. These settings are saved on this device, so next time New Match will take you straight to match setup.</p>
         </div>
 
+        <div class="setup-section subscription-preview-section">
+          <h3>Plan preview</h3>
+          <p class="muted compact">Temporary local preview for v21 design/testing. Production subscriptions will be connected to Apple/Google purchases later.</p>
+          <div class="choice-row plan-toggle"><label class="choice-pill"><input type="radio" name="planPreview" value="free" checked /> Free</label><label class="choice-pill"><input type="radio" name="planPreview" value="platinum" /> Platinum</label></div>
+        </div>
         <div class="setup-section first-section">
           <h3>Team identity</h3>
           <div class="identity-preview"><div class="team-crest settings-crest" id="settingsTeamCrest">YTM</div><div class="identity-preview-copy"><span>STANDARD TEAM CREST</span><strong id="settingsTeamPreviewName">Your Team</strong><small>Your abbreviation updates the crest automatically.</small></div></div><div class="team-identity-grid">
@@ -168,6 +217,18 @@
             </label>
           </div>
           <p class="muted compact">The abbreviation appears inside your standard team crest.</p>
+          <div class="team-identity-grid team-detail-fields">
+            <label>Age group
+              <select id="ageGroup"><option value="">Select age group</option><option>U7</option><option>U8</option><option>U9</option><option>U10</option><option>U11</option><option>U12</option><option>U13</option><option>U14</option><option>U15</option><option>U16</option><option>U17</option><option>U18</option><option>Adult</option></select>
+            </label>
+            <label>Season
+              <input id="season" type="text" maxlength="9" placeholder="2026/27" />
+            </label>
+          </div>
+          <div class="team-colour-fields">
+            <label>Team colour <input id="primaryColor" type="color" value="#25df72" /></label>
+            <label>Secondary colour <input id="secondaryColor" type="color" value="#0b2a38" /></label>
+          </div>
           <form id="settingsForm" class="settings-grid">
             <label>Match format
               <select id="matchFormat">
@@ -223,6 +284,7 @@
               <label>Opponent<input id="opponentName" type="text" placeholder="e.g. Liverpool Girls U9 North" required /></label>
               <label>Abbreviation<input id="opponentAbbr" type="text" maxlength="3" minlength="1" placeholder="LIV" required /></label>
               <label>Date<input id="matchDate" type="date" required /></label>
+              <label>Competition<select id="matchCompetition"><option value="League">League</option><option value="Cup">Cup</option><option value="Tournament">Tournament</option><option value="Friendly">Friendly</option></select></label>
             </div>
           </div>
           <div class="lobby-row">
@@ -237,6 +299,10 @@
             <div class="section-heading"><div><p class="eyebrow">STARTING TEAM</p><h3 id="startingTeamHeading">Starting 5</h3><p class="muted compact">Your last starting team is used where possible. Change it only when needed.</p></div><span id="starterCount" class="count-badge"></span></div>
             <div id="starterList" class="selection-list"></div>
             <div class="bench-preview"><span class="eyebrow">BENCH</span><div id="substituteList" class="summary-list"></div></div>
+          </div>
+          <div id="milestoneWatchPanel" class="milestone-watch-panel hidden">
+            <div class="milestone-watch-head"><div><p class="eyebrow">PLATINUM</p><h3>🏆 Today's Milestone Watch</h3><p class="muted compact">Possible milestones based on today's squad.</p></div><button id="shareMilestoneWatchBtn" class="secondary-btn compact-btn" type="button">Share</button></div>
+            <div id="milestoneWatchList" class="milestone-list"></div>
           </div>
           <p id="matchSetupError" class="error-message" aria-live="polite"></p>
           <button type="submit" class="primary-btn full-width">START MATCH</button>
@@ -282,19 +348,16 @@
           <button id="subBtn" class="action-btn">🔄 Substitution</button>
           <button id="theirGoalBtn" class="action-btn">⚽ Opponent Goal</button>
           <button id="undoBtn" class="action-btn">↩ Undo Last</button>
+          <button id="shareLiveBtn" class="action-btn share-live-btn">🔴 Share Live</button>
         </div>
-
-        <div class="power-play-panel" id="powerPlayPanel">
-          <div>
-            <div class="power-play-kicker">MATCH RULE</div><div class="power-play-title">⚡ Power Play</div>
-            <div id="powerPlayStatus" class="power-play-status">Not active</div>
-            <div id="powerPlayAddHint" class="muted compact">Reach a 4-goal deficit to unlock Power Play.</div>
-            <div id="powerPlayRequired" class="error-message hidden" aria-live="polite"></div>
-          </div>
-          <div class="power-play-actions">
-            <span id="powerPlayCount" class="count-badge">On pitch</span>
-            <button id="powerPlayAddBtn" class="secondary-btn hidden" type="button">Add Power Play Player</button>
-            <button id="powerPlayRemoveBtn" class="danger-btn hidden" type="button">Withdraw Power Play Player</button>
+        <div class="players-on-pitch-panel" id="playersOnPitchPanel">
+          <div class="players-on-pitch-head">
+            <div>
+              <div class="players-on-pitch-kicker">MATCH STATE</div>
+              <div class="players-on-pitch-title">👥 Players on Pitch</div>
+              <div class="players-on-pitch-status" id="playersOnPitchStatus">Adjust who is actually on the field.</div>
+            </div>
+            <button id="adjustPlayersBtn" class="secondary-btn" type="button">Adjust Players</button>
           </div>
         </div>
 
@@ -311,7 +374,7 @@
       <section class="card result-card-shell">
         <div class="result-topbar">
           <button id="reportBackBtn" class="secondary-btn compact-btn">‹ Home</button>
-          <div class="result-competition"><span>MATCH RESULT</span><strong id="reportMeta"></strong></div>
+          <div class="result-competition"><span>MATCH RESULT</span><strong id="reportMeta"></strong><small id="reportCompetition"></small></div>
           <button id="shareResultBtn" class="secondary-btn compact-btn">Share ↗</button>
         </div>
 
@@ -334,6 +397,7 @@
         </div>
 
         <div id="reportAssistSummary" class="result-assists hidden"></div>
+        <div id="reportMilestones" class="milestone-achieved hidden"></div>
 
         <div class="result-actions-primary">
           <button id="toggleMatchDetailsBtn" class="secondary-btn">Match Details</button>
@@ -354,6 +418,14 @@
       </section>
     </div>
   </main>
+    <nav class="bottom-nav" aria-label="Primary">
+      <button type="button" class="bottom-nav-item is-active" data-nav="home">🏠<span>Home</span></button>
+      <button type="button" class="bottom-nav-item" data-nav="matches">⚽<span>Matches</span></button>
+      <button type="button" class="bottom-nav-item" data-nav="stats">📊<span>Stats</span></button>
+      <button type="button" class="bottom-nav-item" data-nav="team">👥<span>Team</span></button>
+      <button type="button" class="bottom-nav-item" data-nav="settings">•••<span>More</span></button>
+    </nav>
+
 
   <dialog id="playerDialog"><form id="playerForm" class="dialog-card"><h2 id="playerDialogTitle">Add player</h2><label>Name<input id="playerName" type="text" required /></label><label>Shirt number<input id="playerNumber" type="number" min="0" max="99" /></label><label>Position<select id="playerPosition"><option value="">Not set</option><option value="GK">Goalkeeper</option><option value="DEF">Defender</option><option value="MID">Midfielder</option><option value="FWD">Forward</option></select></label><div class="dialog-actions"><button type="button" class="danger-btn hidden" id="deletePlayerBtn">Delete</button><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPlayerBtn">Cancel</button><button type="submit" class="primary-btn">Save player</button></div></form></dialog>
 
@@ -365,10 +437,15 @@
           <select id="goalScorer"></select>
         </label>
         <label>Assist
-          <select id="goalAssist"><option value="">No assist</option></select>
+          <select id="goalAssist"><option value="">No Assist</option></select>
         </label>
       </div>
-      <label class="checkline"><input id="goalPenalty" type="checkbox" /><span>Penalty</span></label>
+      <label>Goal type
+        <select id="goalType"><option value="normal">Normal</option><option value="penalty">Penalty</option><option value="own_goal">Own Goal</option></select>
+      </label>
+      <label id="ownGoalPlayerWrap" class="hidden">Own goal by (optional)
+        <select id="ownGoalPlayer"><option value="">Not specified</option></select>
+      </label>
       <div class="dialog-actions">
         <span class="dialog-spacer"></span>
         <button type="button" class="secondary-btn" id="cancelGoalBtn">Cancel</button>
@@ -379,9 +456,33 @@
 
   <dialog id="subDialog"><form id="subForm" class="dialog-card batch-sub-dialog"><div class="dialog-kicker">QUICK SUBS</div><h2>Make substitutions</h2><p class="muted compact">Select everyone coming off, then the same number coming on. All changes are recorded at the current match minute.</p><div class="batch-sub-grid"><div><h3>OFF <span id="subOffCount" class="count-badge">0</span></h3><div id="subOffList" class="dialog-choice-list"></div></div><div><h3>ON <span id="subOnCount" class="count-badge">0</span></h3><div id="subOnList" class="dialog-choice-list"></div></div></div><p id="subBatchHint" class="muted compact"></p><div class="dialog-actions"><button type="button" class="secondary-btn" id="cancelSubBtn">Cancel</button><span class="dialog-spacer"></span><button type="submit" class="primary-btn" id="saveBatchSubsBtn" disabled>Save substitutions</button></div></form></dialog>
 
-  <dialog id="powerPlayOnDialog"><form class="dialog-card" onsubmit="return false;"><h2>Add Power Play Player</h2><label>Player<select id="powerPlayOnPlayer"></select></label><p class="muted compact">This player will be recorded as a Power Play appearance.</p><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPowerPlayOnBtn">Cancel</button><button type="button" class="primary-btn" id="savePowerPlayOnBtn">Add Player</button></div></form></dialog>
-
-  <dialog id="powerPlayOffDialog"><form class="dialog-card" onsubmit="return false;"><h2>Withdraw Power Play Player</h2><p id="powerPlayOffRequired" class="error-message"></p><p class="muted compact">Under the Power Play rule, the player withdrawn does not have to be the player who originally came on.</p><label>Player<select id="powerPlayOffPlayer"></select></label><div class="dialog-actions"><span class="dialog-spacer"></span><button type="button" class="secondary-btn" id="cancelPowerPlayOffBtn">Cancel</button><button type="button" class="primary-btn" id="savePowerPlayOffBtn">Withdraw Player</button></div></form></dialog>
+  <dialog id="adjustPlayersDialog">
+    <form class="dialog-card adjust-players-dialog" id="adjustPlayersForm" onsubmit="return false;">
+      <div class="dialog-kicker">MATCH STATE</div>
+      <h2>Players on Pitch</h2>
+      <p class="muted compact">Set who is actually on the field. This is independent of substitutions and can be adjusted for any circumstance.</p>
+      <div class="adjust-team-grid">
+        <section>
+          <div class="adjust-team-head"><h3 id="adjustOurTeamName">Our Team</h3><span id="adjustOurCount" class="count-badge">5</span></div>
+          <div class="adjust-pane-title">ON PITCH</div>
+          <div id="adjustOurOnList" class="dialog-choice-list"></div>
+          <div class="adjust-pane-title">OFF PITCH</div>
+          <div id="adjustOurOffList" class="dialog-choice-list"></div>
+        </section>
+        <section>
+          <div class="adjust-team-head"><h3 id="adjustOpponentName">Opponent</h3><span id="adjustOpponentCount" class="count-badge">5</span></div>
+          <div class="adjust-opponent-count">
+            <button id="oppCountMinus" class="secondary-btn count-control" type="button">−</button>
+            <strong id="oppCountValue">5</strong>
+            <button id="oppCountPlus" class="secondary-btn count-control" type="button">+</button>
+          </div>
+          <p class="muted compact">Opposition player identities are not stored.</p>
+        </section>
+      </div>
+      <p id="adjustPlayersHint" class="muted compact"></p>
+      <div class="dialog-actions"><button type="button" class="secondary-btn" id="cancelAdjustPlayersBtn">Cancel</button><span class="dialog-spacer"></span><button type="button" class="primary-btn" id="saveAdjustPlayersBtn">Save changes</button></div>
+    </form>
+  </dialog>
 
   <script>
     (() => {
@@ -405,6 +506,6 @@
       window.setTimeout(finish, DISPLAY_MS);
     })();
   </script>
-  <script src="app.js?v=20.6.0"></script>
+  <script src="app.js?v=21.0.0"></script>
 </body>
 </html>
