@@ -654,3 +654,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .home-season-snapshot{align-items:stretch}
   .home-season-snapshot .secondary-btn{width:100%}
 }
+
+/* v21.1.7 header simplification */
+.app-brand-mini{margin:8px 0 16px;padding:0 4px}
+.app-brand-mini img{width:42px;height:42px;border-radius:11px}
+.app-brand-mini strong{font-size:1.15rem}
+body:not(.splash-active) .app-header .eyebrow,
+body:not(.splash-active) .app-header .brand-title,
+body:not(.splash-active) .site-eyebrow,
+body:not(.splash-active) .site-title{display:none!important}
+.splash-brand-image{width:min(92vw,780px);max-height:48vh;object-fit:contain;margin-inline:auto}
+@media(max-width:600px){.splash-brand-image{width:100%;max-height:38vh}.app-brand-mini{margin-bottom:12px}}
