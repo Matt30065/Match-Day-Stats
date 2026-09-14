@@ -2,10 +2,14 @@ const CACHE_NAME = 'grassstatory-v21-1-3';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './style.css?v=21.1.3',
-  './app.js?v=21.1.3',
+  './style.css?v=21.1.4',
+  './app.js?v=21.1.4',
   './manifest.json',
-  './app-logo.svg'
+  './app-logo.svg',
+  './grassstatory-wordmark.png',
+  './grassstatory-app-icon.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -44,7 +48,7 @@ self.addEventListener('fetch', event => {
   }
 
   // Versioned app assets: fetch fresh when possible, then update the cache.
-  const isAppAsset = /(?:style\.css|app\.js|manifest\.json|app-logo\.svg)(?:\?|$)/.test(new URL(request.url).pathname + new URL(request.url).search);
+  const isAppAsset = /(?:style\.css|app\.js|manifest\.json|app-logo\.svg|grassstatory-wordmark\.png|grassstatory-app-icon\.png|icon-192\.png|icon-512\.png)(?:\?|$)/.test(new URL(request.url).pathname + new URL(request.url).search);
   if (isAppAsset) {
     event.respondWith(
       fetch(request, { cache: 'no-store' })
