@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grassstatory-v21.0.4';
+const CACHE_NAME = 'grassstatory-v21-1';
 const CORE_ASSETS = [
   './',
   './index.html',

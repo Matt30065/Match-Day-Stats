@@ -113,10 +113,9 @@
         </div>
         <div id="onboardingStep1" class="onboarding-step">
           <div class="onboarding-hero">
-            <div class="team-crest onboarding-crest" id="onboardingTeamCrest">YTM</div>
             <p class="eyebrow">WELCOME TO GRASSSTATORY</p>
-            <h2>Your club first.</h2>
-            <p class="muted">Set your team identity once. The app will use it throughout your matches and reports.</p>
+            <h2>Set up your team.</h2>
+            <p class="muted">Give your team an identity. Your crest and team colours will be used in matches and share cards.</p>
           </div>
           <div class="team-identity-grid onboarding-fields">
             <label>Team name
@@ -133,6 +132,14 @@
             <label>Season
               <input id="onboardingSeason" type="text" maxlength="9" placeholder="2026/27" />
             </label>
+          </div>
+          <div class="team-colour-fields onboarding-colour-fields">
+            <label>Primary team colour <input id="onboardingPrimaryColor" type="color" value="#25df72" /></label>
+            <label>Secondary team colour <input id="onboardingSecondaryColor" type="color" value="#0b2a38" /></label>
+          </div>
+          <div class="identity-preview onboarding-identity-preview">
+            <div class="team-crest onboarding-crest" id="onboardingTeamCrest">YTM</div>
+            <div class="identity-preview-copy"><span>TEAM CREST PREVIEW</span><strong>Generated from your initials and colours</strong></div>
           </div>
           <label class="role-select-label">How will you mainly use GrassStatory?
             <select id="onboardingRole"><option value="Parent">Parent</option><option value="Coach">Coach / Manager</option><option value="Supporter">Supporter</option><option value="Other">Other</option></select>
@@ -179,7 +186,7 @@
           <h2 id="onboardingCompleteTitle">Your club is ready.</h2>
           <p id="onboardingCompleteMeta" class="muted">5v5 · 12 players</p>
           <p class="muted">You can come back to Settings at any time. Your next match can be set up now, or you can head home and do it later.</p>
-          <div class="onboarding-done-actions"><button id="onboardingSetupMatchBtn" class="primary-btn" type="button">⚽ Set Up a Match</button><button id="onboardingGoHomeBtn" class="secondary-btn" type="button">Go to Home</button></div>
+          <div class="onboarding-done-actions"><button id="onboardingGoHomeBtn" class="primary-btn" type="button">Go to Home</button></div>
         </div>
       </section>
     </div>
@@ -274,43 +281,60 @@
     <div id="matchSetupView" class="hidden">
       <section class="card match-lobby-shell">
         <div class="match-lobby-head">
-          <div><p class="eyebrow">MATCH LOBBY</p><h2>New Match</h2><p class="muted compact">A quick pre-match check. Most weeks, just add the opponent and go.</p></div>
-          <button id="cancelMatchSetupBtn" class="secondary-btn" type="button">Home</button>
+          <div><p class="eyebrow">MATCH LOBBY</p><h2 id="matchLobbyTitle">New Match</h2><p class="muted compact">Set up the match in four quick steps.</p></div>
+          <button id="cancelMatchSetupBtn" class="secondary-btn" type="button">Cancel</button>
         </div>
         <form id="matchSetupForm">
-          <div class="lobby-opponent-grid">
-            <div class="opponent-preview lobby-opponent-preview"><div class="team-crest opponent-crest setup-crest" id="setupOpponentCrest">OPP</div><div><span>OPPONENT</span><strong id="setupOpponentPreviewName">Add opponent details</strong></div></div>
-            <div class="lobby-fields">
-              <label>Opponent<input id="opponentName" type="text" placeholder="e.g. Liverpool Girls U9 North" required /></label>
-              <label>Abbreviation<input id="opponentAbbr" type="text" maxlength="3" minlength="1" placeholder="LIV" required /></label>
+          <div class="match-wizard-step" data-match-step="1">
+            <div class="wizard-heading"><span>1</span><div><p class="eyebrow">OPPONENT</p><h3>Who are you playing?</h3></div></div>
+            <div class="lobby-opponent-grid lobby-single-column">
+              <div class="lobby-fields">
+                <label>Opponent<input id="opponentName" type="text" placeholder="e.g. Liverpool Girls U9 North" required /></label>
+                <label>Abbreviation<input id="opponentAbbr" type="text" maxlength="3" minlength="1" placeholder="LIV" required /></label>
+              </div>
+            </div>
+            <div class="opponent-preview wizard-preview"><div class="team-crest opponent-crest setup-crest" id="setupOpponentCrest">OPP</div><div><span>OPPONENT</span><strong id="setupOpponentPreviewName">Add opponent details</strong></div></div>
+            <div class="wizard-actions"><button class="primary-btn full-width" type="button" data-match-next="2">Next</button></div>
+          </div>
+
+          <div class="match-wizard-step hidden" data-match-step="2">
+            <div class="wizard-heading"><span>2</span><div><p class="eyebrow">MATCH</p><h3>When and where?</h3></div></div>
+            <div class="lobby-fields two-column-mobile">
               <label>Date<input id="matchDate" type="date" required /></label>
               <label>Competition<select id="matchCompetition"><option value="League">League</option><option value="Cup">Cup</option><option value="Tournament">Tournament</option><option value="Friendly">Friendly</option></select></label>
             </div>
+            <div class="lobby-row"><div><span class="eyebrow">VENUE</span><div class="choice-row"><label class="choice-pill"><input type="radio" name="venue" value="home" checked /> Home</label><label class="choice-pill"><input type="radio" name="venue" value="away" /> Away</label></div></div><div class="lobby-format-pill"><span>FORMAT</span><strong id="lobbyFormatText">5v5</strong></div></div>
+            <div class="wizard-actions"><button class="secondary-btn" type="button" data-match-back="1">Back</button><button class="primary-btn" type="button" data-match-next="3">Next</button></div>
           </div>
-          <div class="lobby-row">
-            <div><span class="eyebrow">VENUE</span><div class="choice-row"><label class="choice-pill"><input type="radio" name="venue" value="home" checked /> Home</label><label class="choice-pill"><input type="radio" name="venue" value="away" /> Away</label></div></div>
-            <div class="lobby-format-pill"><span>FORMAT</span><strong id="lobbyFormatText">5v5</strong></div>
+
+          <div class="match-wizard-step hidden" data-match-step="3">
+            <div class="wizard-heading"><span>3</span><div><p class="eyebrow">MATCH SQUAD</p><h3>Who's available?</h3></div></div>
+            <div class="lobby-selection-card">
+              <div class="section-heading"><div><h3><span id="availableCount">0 available</span></h3><p class="muted compact">Everyone is available by default.</p></div><button id="toggleAvailabilityBtn" class="secondary-btn compact-btn" type="button">Change availability</button></div>
+              <div id="availabilityWrap" class="collapsible-panel hidden"><div id="availabilityList" class="selection-list"></div></div>
+            </div>
+            <div class="wizard-actions"><button class="secondary-btn" type="button" data-match-back="2">Back</button><button class="primary-btn" type="button" data-match-next="4">Next</button></div>
           </div>
-          <div class="lobby-selection-card">
-            <div class="section-heading"><div><p class="eyebrow">MATCH SQUAD</p><h3><span id="availableCount">0 available</span></h3><p class="muted compact">Everyone is available by default. Change only if someone is missing.</p></div><button id="toggleAvailabilityBtn" class="secondary-btn compact-btn" type="button">Change availability</button></div>
-            <div id="availabilityWrap" class="collapsible-panel hidden"><div id="availabilityList" class="selection-list"></div></div>
+
+          <div class="match-wizard-step hidden" data-match-step="4">
+            <div class="wizard-heading"><span>4</span><div><p class="eyebrow">STARTING TEAM</p><h3>Who starts?</h3></div></div>
+            <div class="lobby-selection-card">
+              <div class="section-heading"><div><h3 id="startingTeamHeading">Starting 5</h3><p class="muted compact">Your last starting team is used where possible.</p></div><span id="starterCount" class="count-badge"></span></div>
+              <div id="starterList" class="selection-list"></div>
+              <div class="bench-preview"><span class="eyebrow">BENCH</span><div id="substituteList" class="summary-list"></div></div>
+            </div>
+            <div id="milestoneWatchPanel" class="milestone-watch-panel hidden">
+              <div class="milestone-watch-head"><div><p class="eyebrow">PLATINUM</p><h3>🏆 Today's Milestone Watch</h3><p class="muted compact">Possible milestones based on today's squad.</p></div><button id="shareMilestoneWatchBtn" class="secondary-btn compact-btn" type="button">Share</button></div>
+              <div id="milestoneWatchList" class="milestone-list"></div>
+            </div>
+            <p id="matchSetupError" class="error-message" aria-live="polite"></p>
+            <div class="wizard-actions"><button class="secondary-btn" type="button" data-match-back="3">Back</button><button type="submit" class="primary-btn">START MATCH</button></div>
           </div>
-          <div class="lobby-selection-card">
-            <div class="section-heading"><div><p class="eyebrow">STARTING TEAM</p><h3 id="startingTeamHeading">Starting 5</h3><p class="muted compact">Your last starting team is used where possible. Change it only when needed.</p></div><span id="starterCount" class="count-badge"></span></div>
-            <div id="starterList" class="selection-list"></div>
-            <div class="bench-preview"><span class="eyebrow">BENCH</span><div id="substituteList" class="summary-list"></div></div>
-          </div>
-          <div id="milestoneWatchPanel" class="milestone-watch-panel hidden">
-            <div class="milestone-watch-head"><div><p class="eyebrow">PLATINUM</p><h3>🏆 Today's Milestone Watch</h3><p class="muted compact">Possible milestones based on today's squad.</p></div><button id="shareMilestoneWatchBtn" class="secondary-btn compact-btn" type="button">Share</button></div>
-            <div id="milestoneWatchList" class="milestone-list"></div>
-          </div>
-          <p id="matchSetupError" class="error-message" aria-live="polite"></p>
-          <button type="submit" class="primary-btn full-width">START MATCH</button>
         </form>
       </section>
     </div>
 
-    <div id="liveMatchView" class="hidden">
+    <div id="liveMatchView"<div id="liveMatchView" class="hidden">
       <section class="card live-card">
         <div class="live-topbar">
           <div><p class="eyebrow">LIVE MATCH</p><p id="liveMeta" class="muted compact"></p></div>
@@ -401,7 +425,7 @@
 
         <div class="result-actions-primary">
           <button id="toggleMatchDetailsBtn" class="secondary-btn">Match Details</button>
-          <button id="reportHomeBtn" class="primary-btn">New Match / Home</button>
+          <button id="reportHomeBtn" class="primary-btn">New Match</button>
         </div>
 
         <div id="reportDetailsPanel" class="report-details-panel hidden">
