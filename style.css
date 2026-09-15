@@ -655,7 +655,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .home-season-snapshot .secondary-btn{width:100%}
 }
 
-/* v21.1.16 header simplification */
+/* v21.1.17 header simplification */
 .app-brand-mini{margin:8px 0 16px;padding:0 4px}
 .app-brand-mini img{width:42px;height:42px;border-radius:11px}
 .app-brand-mini strong{font-size:1.15rem}
@@ -666,10 +666,10 @@ body:not(.splash-active) .site-title{display:none!important}
 .splash-brand-image{width:min(92vw,780px);max-height:48vh;object-fit:contain;margin-inline:auto}
 @media(max-width:600px){.splash-brand-image{width:100%;max-height:38vh}.app-brand-mini{margin-bottom:12px}}
 
-/* v21.1.16 developer plan preview */
+/* v21.1.17 developer plan preview */
 .plan-preview-status{margin-top:8px}.platinum-preview-pill{font-weight:800}
 
-/* v21.1.16 Platinum UX */
+/* v21.1.17 Platinum UX */
 .scorer-row,.report-scorer-row{display:grid!important;grid-template-columns:minmax(82px,auto) 1fr;gap:10px;align-items:start}
 .scorer-row>strong,.report-scorer-row>strong{white-space:nowrap;word-break:normal}
 .scorer-row .goal-times,.report-scorer-row .goal-times{display:flex;flex-wrap:wrap;gap:5px 10px;min-width:0}
@@ -690,7 +690,7 @@ body:not(.splash-active) .site-title{display:none!important}
 
 #homeView section:has(#matchHistoryList){display:none!important}
 
-/* v21.1.16 premium player cards + moments */
+/* v21.1.17 premium player cards + moments */
 .platinum-stats-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px;margin:14px 0 18px;background:#071b20;border:1px solid var(--line);border-radius:15px}
 .platinum-stats-tabs button{border:0;border-radius:11px;padding:11px 8px;background:transparent;color:var(--muted);font-weight:900}
 .platinum-stats-tabs button.active{background:var(--accent);color:#04130d}
@@ -710,7 +710,7 @@ body:not(.splash-active) .site-title{display:none!important}
 .moments-list{display:grid;gap:12px;margin-top:14px}.moment-card{display:grid;grid-template-columns:48px 1fr auto;gap:13px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,#08252a,#06191d)}.moment-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.45rem;background:rgba(37,223,114,.11);border:1px solid rgba(37,223,114,.25)}.moment-card h3{margin:2px 0 4px}.moment-card p{margin:3px 0;color:var(--muted)}.moment-card .eyebrow{color:var(--accent);font-size:.64rem}.empty-moments{display:flex;flex-direction:column;gap:7px;padding:24px;text-align:center;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}.empty-moments strong{color:#fff}
 @media(max-width:520px){.player-card-carousel{grid-auto-columns:86%}.moment-card{grid-template-columns:44px 1fr}.moment-card .moment-share{grid-column:1/-1;width:100%}}
 
-/* v21.1.16 collectible Platinum card */
+/* v21.1.17 collectible Platinum card */
 .premium-card{height:430px!important;min-height:430px!important;border:0!important;border-radius:34px 34px 50px 50px!important;background:radial-gradient(circle at 65% 20%,rgba(255,255,255,.13),transparent 25%),linear-gradient(150deg,#090b0d 10%,#11191b 55%,#050708)!important;clip-path:polygon(10% 0,90% 0,100% 8%,97% 88%,82% 97%,50% 100%,18% 97%,3% 88%,0 8%)}
 .card-frame{position:absolute;inset:7px;clip-path:inherit;border:2px solid var(--club1);border-radius:30px 30px 46px 46px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);pointer-events:none}
 .card-flare{position:absolute;width:230px;height:230px;right:-70px;top:-55px;background:radial-gradient(circle,var(--club1),transparent 68%);opacity:.28;filter:blur(4px)}
@@ -724,7 +724,7 @@ body:not(.splash-active) .site-title{display:none!important}
 .premium-card-stats{position:relative;z-index:3;width:88%;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(245,231,179,.35);padding-top:10px}.premium-card-stats div{text-align:center;border-right:1px solid rgba(255,255,255,.12)}.premium-card-stats div:last-child{border:0}.premium-card-stats b{display:block;font-size:1.28rem;color:#fff}.premium-card-stats span{font-size:.64rem;color:#d7c995;font-weight:950}
 .moment-card small{display:block;color:#7f969b;margin-top:5px}
 
-/* v21.1.16 approved premium-card direction */
+/* v21.1.17 approved premium-card direction */
 .platinum-stats-tabs{background:#06191d!important;border:1px solid #244047!important;box-shadow:inset 0 1px rgba(255,255,255,.03)}
 .platinum-stats-tabs button{color:#b9c9cd!important;background:transparent!important;opacity:1!important}
 .platinum-stats-tabs button:hover{color:#fff!important}
@@ -754,7 +754,7 @@ body:not(.splash-active) .site-title{display:none!important}
 .premium-card-stats{width:91%!important;border-top-color:rgba(231,204,122,.4)!important}.premium-card-stats b{font-size:1.4rem!important}.premium-card-stats span{color:#dfc77f!important}
 @media(max-width:520px){.player-card-carousel{grid-auto-columns:91%!important}.premium-card{height:455px!important;min-height:455px!important}}
 
-/* v21.1.16 FINAL PLATINUM CARD REBUILD */
+/* v21.1.17 FINAL PLATINUM CARD REBUILD */
 .platinum-stats-tabs{background:#06181c!important;border:1px solid rgba(176,203,208,.30)!important;box-shadow:0 8px 24px rgba(0,0,0,.22)!important}
 .platinum-stats-tabs button{color:#eef6f7!important;background:transparent!important;opacity:1!important;font-weight:900!important;min-height:46px!important;text-shadow:0 1px 1px rgba(0,0,0,.25)}
 .platinum-stats-tabs button.active{color:#03120b!important;background:linear-gradient(180deg,#4af493,#1ecb6b)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 7px 18px rgba(22,203,107,.22)!important;text-shadow:none!important}
@@ -772,7 +772,7 @@ body:not(.splash-active) .site-title{display:none!important}
 .premium-player-name{position:relative!important;z-index:6!important;text-align:center!important;font-size:1.8rem!important;letter-spacing:.035em!important;text-transform:uppercase!important;color:#f0d886!important;text-shadow:0 2px 8px #000!important;margin-top:0!important}.premium-team-name{position:relative!important;z-index:6!important;display:flex!important;justify-content:center!important;gap:6px!important;flex-wrap:wrap!important;text-align:center!important;font-size:.73rem!important;color:#e0e4e5!important;font-weight:800!important;line-height:1.35!important;max-width:95%!important;margin-top:3px!important}.premium-team-name span{color:#d0ab53!important}.premium-card-stats{position:relative!important;z-index:6!important;width:91%!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important;border-top:1px solid rgba(239,214,139,.47)!important;margin-top:7px!important;padding-top:12px!important}.premium-card-stats div{text-align:center!important;border-right:1px solid rgba(255,255,255,.14)!important}.premium-card-stats div:last-child{border-right:0!important}.premium-card-stats b{display:block!important;color:#fff!important;font-size:1.5rem!important}.premium-card-stats span{display:block!important;color:#e0c77e!important;font-size:.65rem!important;font-weight:950!important;letter-spacing:.08em!important;margin-top:4px!important}
 @media(max-width:520px){.player-card-carousel{grid-auto-columns:94%!important;padding-inline:4px!important}.premium-card{height:520px!important;min-height:520px!important}.avatar-stage{height:286px!important}.realistic-player-avatar{width:258px!important;height:322px!important}.jersey-number{bottom:40px!important;font-size:4.3rem!important}.premium-player-name{font-size:1.56rem!important}.card-rating strong{font-size:2.7rem!important}.mini-crest{width:52px!important;height:52px!important}}
 
-/* v21.1.16 true premium player card rebuild */
+/* v21.1.17 true premium player card rebuild */
 .stats-display-toggle button{color:#eaf5f6!important;background:#0c252b!important;border:1px solid rgba(182,216,222,.22)!important}
 .stats-display-toggle button.active{color:#03150c!important;background:linear-gradient(180deg,#52f59a,#22cf6d)!important;border-color:#49ef92!important}
 .gs-player-card.premium-card{
@@ -800,7 +800,7 @@ body:not(.splash-active) .site-title{display:none!important}
 .gs-player-card.premium-card .premium-card-stats div{padding:0 4px!important}.gs-player-card.premium-card .premium-card-stats b{font-size:1.62rem!important}.gs-player-card.premium-card .premium-card-stats span{font-size:.67rem!important}
 @media(max-width:520px){.gs-player-card.premium-card{height:540px!important;min-height:540px!important}.premium-player-visual{height:287px}.premium-player-art{width:121%;object-position:center 22%}.player-art-number{top:174px;font-size:4.6rem}.gs-player-card.premium-card .premium-player-name{font-size:1.67rem!important}}
 
-/* v21.1.16 premium card rebuild - photographic player art + luxury frame */
+/* v21.1.17 premium card rebuild - photographic player art + luxury frame */
 .stats-display-toggle{background:#07171b!important;border:1px solid rgba(183,217,224,.30)!important;padding:5px!important;gap:5px!important}
 .stats-display-toggle button{color:#eff7f8!important;background:#0d272d!important;border:1px solid rgba(183,217,224,.18)!important;border-radius:11px!important}
 .stats-display-toggle button.active{color:#04150c!important;background:linear-gradient(180deg,#58f69e,#1dcc6a)!important;border-color:#58f69e!important;box-shadow:0 6px 18px rgba(38,221,120,.2)!important}
@@ -821,7 +821,7 @@ body:not(.splash-active) .site-title{display:none!important}
 .true-premium-card .premium-card-stats b{font-size:1.52rem!important;color:#fff!important}.true-premium-card .premium-card-stats span{font-size:.66rem!important;color:#e1c67d!important}
 @media(max-width:520px){.true-premium-card{height:540px!important;min-height:540px!important}.true-premium-card .premium-card-art-wrap{inset:0 0 171px 0}.true-premium-card .premium-player-art-image{width:134%;height:120%;object-position:52% 19%}.dynamic-jersey-number{top:334px;font-size:4.5rem}.true-premium-card .premium-player-name{bottom:88px;font-size:1.65rem!important}.true-premium-card .premium-team-name{bottom:63px}.true-premium-card .premium-card-stats{bottom:15px}}
 
-/* v21.1.16 final premium card visual pass */
+/* v21.1.17 final premium card visual pass */
 .true-premium-card{height:540px!important;min-height:540px!important;background:#050708!important;clip-path:polygon(12% 0,88% 0,100% 7%,98% 89%,87% 97%,50% 100%,13% 97%,2% 89%,0 7%)!important}
 .true-premium-card .premium-card-art-wrap{position:absolute!important;left:8px!important;right:8px!important;top:9px!important;height:350px!important;bottom:auto!important;overflow:hidden!important;z-index:1!important;clip-path:polygon(10% 0,90% 0,99% 10%,97% 100%,3% 100%,1% 10%)!important}
 .true-premium-card .premium-player-art-image{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;transform:none!important;object-fit:cover!important;object-position:center top!important;filter:contrast(1.04) brightness(.95) saturate(.88)!important}
@@ -833,9 +833,29 @@ body:not(.splash-active) .site-title{display:none!important}
 .true-premium-card .premium-player-name{bottom:91px!important;z-index:9!important;font-size:1.72rem!important;color:#f0d888!important}
 .true-premium-card .premium-team-name{bottom:66px!important;z-index:9!important;font-size:.72rem!important}
 .true-premium-card .premium-card-stats{bottom:15px!important;z-index:9!important}
-/* v21.1.16 final placement correction */
+/* v21.1.17 final placement correction */
 .true-premium-card .premium-player-name{position:absolute!important;left:0!important;right:0!important;bottom:94px!important;margin:0!important}
 .true-premium-card .premium-team-name{position:absolute!important;left:24px!important;right:24px!important;bottom:68px!important;margin:0!important}
 .true-premium-card .premium-player-art-wrap:after{content:"";position:absolute;inset:35% 0 0 0;background:linear-gradient(180deg,rgba(2,6,7,0) 0%,rgba(2,6,7,.08) 25%,rgba(2,6,7,.52) 78%,rgba(2,6,7,.92) 100%);pointer-events:none}
 .true-premium-card .dynamic-jersey-number{top:278px!important}
 @media(max-width:520px){.true-premium-card .premium-player-name{bottom:91px!important}.true-premium-card .premium-team-name{bottom:65px!important}.true-premium-card .dynamic-jersey-number{top:265px!important}}
+
+/* v21.1.17 card layout correction */
+.premium-card{position:relative!important;overflow:hidden!important;padding:0!important}
+.premium-card .premium-card-meta{position:absolute!important;z-index:8!important;left:9%!important;right:9%!important;top:7%!important;width:auto!important}
+.premium-card .footballer-avatar,
+.premium-card .premium-photo,
+.premium-card .player-art,
+.premium-card .card-player-art{position:absolute!important;z-index:2!important;left:7%!important;right:7%!important;top:3%!important;width:86%!important;height:64%!important;max-height:none!important;margin:0!important;object-fit:cover!important;object-position:center 20%!important}
+.premium-card .premium-player-name{position:absolute!important;z-index:10!important;left:8%!important;right:8%!important;top:65.5%!important;margin:0!important;text-align:center!important;line-height:1.05!important;font-size:clamp(1.18rem,5vw,1.65rem)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.premium-card .premium-team-name{position:absolute!important;z-index:10!important;left:10%!important;right:10%!important;top:71.5%!important;margin:0!important;text-align:center!important;line-height:1.2!important;font-size:clamp(.62rem,2.5vw,.78rem)!important;max-width:none!important;display:block!important}
+.premium-card .premium-team-name br{display:none!important}
+.premium-card .premium-card-stats{position:absolute!important;z-index:10!important;left:8%!important;right:8%!important;bottom:7.5%!important;width:auto!important;height:12.5%!important;margin:0!important;padding:10px 0 0!important;box-sizing:border-box!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;align-items:start!important;border-top:1px solid rgba(231,204,122,.5)!important}
+.premium-card .premium-card-stats div{min-width:0!important;padding:0 3px!important}
+.premium-card .premium-card-stats b{font-size:clamp(1rem,4vw,1.35rem)!important;line-height:1!important}
+.premium-card .premium-card-stats span{display:block!important;font-size:clamp(.5rem,2vw,.65rem)!important;line-height:1.1!important;margin-top:6px!important;white-space:nowrap!important}
+@media(max-width:420px){
+ .premium-card .premium-player-name{top:64.5%!important}
+ .premium-card .premium-team-name{top:70.5%!important;font-size:.62rem!important}
+ .premium-card .premium-card-stats{bottom:8%!important}
+}
