@@ -655,7 +655,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .home-season-snapshot .secondary-btn{width:100%}
 }
 
-/* v21.1.9 header simplification */
+/* v21.1.10 header simplification */
 .app-brand-mini{margin:8px 0 16px;padding:0 4px}
 .app-brand-mini img{width:42px;height:42px;border-radius:11px}
 .app-brand-mini strong{font-size:1.15rem}
@@ -666,10 +666,10 @@ body:not(.splash-active) .site-title{display:none!important}
 .splash-brand-image{width:min(92vw,780px);max-height:48vh;object-fit:contain;margin-inline:auto}
 @media(max-width:600px){.splash-brand-image{width:100%;max-height:38vh}.app-brand-mini{margin-bottom:12px}}
 
-/* v21.1.9 developer plan preview */
+/* v21.1.10 developer plan preview */
 .plan-preview-status{margin-top:8px}.platinum-preview-pill{font-weight:800}
 
-/* v21.1.9 Platinum UX */
+/* v21.1.10 Platinum UX */
 .scorer-row,.report-scorer-row{display:grid!important;grid-template-columns:minmax(82px,auto) 1fr;gap:10px;align-items:start}
 .scorer-row>strong,.report-scorer-row>strong{white-space:nowrap;word-break:normal}
 .scorer-row .goal-times,.report-scorer-row .goal-times{display:flex;flex-wrap:wrap;gap:5px 10px;min-width:0}
@@ -689,3 +689,23 @@ body:not(.splash-active) .site-title{display:none!important}
 .team-switch-panel{margin:12px 0;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
 
 #homeView section:has(#matchHistoryList){display:none!important}
+
+/* v21.1.10 premium player cards + moments */
+.platinum-stats-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px;margin:14px 0 18px;background:#071b20;border:1px solid var(--line);border-radius:15px}
+.platinum-stats-tabs button{border:0;border-radius:11px;padding:11px 8px;background:transparent;color:var(--muted);font-weight:900}
+.platinum-stats-tabs button.active{background:var(--accent);color:#04130d}
+.insight-panel,.moments-intro{display:flex;flex-direction:column;gap:5px;margin-top:16px;padding:16px;border-radius:16px;background:#082329;border:1px solid var(--line)}
+.insight-panel span,.moments-intro span{color:var(--muted)}
+.gs-player-card{min-height:355px!important;background:#071b20!important;border:1px solid rgba(255,255,255,.14)!important;padding:20px!important;color:#fff!important}
+.gs-player-card:before{display:none!important}
+.gs-card-accent{position:absolute;inset:0 0 auto 0;height:8px;background:linear-gradient(90deg,var(--club1),var(--club2))}
+.gs-card-head{display:flex;width:100%;justify-content:space-between;align-items:center;position:relative;z-index:2}
+.gs-card-number{font-size:1.45rem;font-weight:950;color:#fff}.gs-card-position{font-size:.72rem;letter-spacing:.13em;font-weight:900;color:var(--club1);background:rgba(255,255,255,.07);padding:6px 9px;border-radius:999px}
+.gs-silhouette{position:relative;width:118px;height:132px;margin:4px auto 0}
+.sil-head{position:absolute;width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#b8c7c9,#5f7478);left:30px;top:3px;border:3px solid rgba(255,255,255,.15)}
+.sil-body{position:absolute;width:110px;height:74px;border-radius:55px 55px 18px 18px;background:linear-gradient(145deg,#87999c,#41575b);left:4px;bottom:0;border:3px solid rgba(255,255,255,.12)}
+.gs-card-identity{text-align:center;display:flex;flex-direction:column;gap:4px;position:relative;z-index:2}.gs-card-identity strong{font-size:1.35rem;color:#fff}.gs-card-identity span{font-size:.75rem;color:#9fb2b7;font-weight:800}
+.gs-card-stats{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;border:0!important;padding-top:8px!important}
+.gs-card-stats div{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 5px}.gs-card-stats b{font-size:1.35rem!important;color:#fff}.gs-card-stats span{color:#a9bbc0!important}
+.moments-list{display:grid;gap:12px;margin-top:14px}.moment-card{display:grid;grid-template-columns:48px 1fr auto;gap:13px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,#08252a,#06191d)}.moment-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.45rem;background:rgba(37,223,114,.11);border:1px solid rgba(37,223,114,.25)}.moment-card h3{margin:2px 0 4px}.moment-card p{margin:3px 0;color:var(--muted)}.moment-card .eyebrow{color:var(--accent);font-size:.64rem}.empty-moments{display:flex;flex-direction:column;gap:7px;padding:24px;text-align:center;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}.empty-moments strong{color:#fff}
+@media(max-width:520px){.player-card-carousel{grid-auto-columns:86%}.moment-card{grid-template-columns:44px 1fr}.moment-card .moment-share{grid-column:1/-1;width:100%}}
