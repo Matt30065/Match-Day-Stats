@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 520" preserveAspectRatio="xMidYMax meet">
+<defs>
+ <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#566365"/><stop offset=".42" stop-color="#222a2c"/><stop offset="1" stop-color="#080c0d"/></linearGradient>
+ <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#141b1d"/><stop offset=".48" stop-color="#050809"/><stop offset="1" stop-color="#1b2224"/></linearGradient>
+ <linearGradient id="greenTrim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#18b95b"/><stop offset=".5" stop-color="#8ff0b4"/><stop offset="1" stop-color="#18b95b"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4bc"/><stop offset=".45" stop-color="#d5ad4a"/><stop offset="1" stop-color="#8b6b23"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#000" flood-opacity=".65"/></filter>
+ <radialGradient id="light" cx="52%" cy="20%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></radialGradient>
+</defs>
+<ellipse cx="210" cy="505" rx="118" ry="13" fill="#000" opacity=".48"/>
+<!-- head/hair -->
+<path d="M142 116c-2-37 9-70 47-86 35-15 80 4 89 52 8 42-7 83-67 92-42 6-65-22-69-58z" fill="url(#skin)" filter="url(#shadow)"/>
+<path d="M138 108c6-37 25-69 56-80 34-12 69 1 86 32 3 7 6 14 7 23-16-13-31-17-45-16-18 1-33 12-50 16-17 4-34 7-54 25z" fill="#050708"/>
+<path d="M151 50c18-25 44-36 69-34 27 2 49 16 60 38-17-8-32-10-46-7-17 4-35 15-51 17-12 2-21-1-32-14z" fill="#0a0d0e"/>
+<!-- neck -->
+<path d="M173 191c14 12 44 13 59 0l5 50h-69z" fill="#1a2224"/>
+<!-- torso and sleeves -->
+<path d="M143 222l67 34 68-34 40 21 57 73-25 166H70L45 316l57-73z" fill="url(#shirt)" stroke="#080d0e" stroke-width="6" filter="url(#shadow)"/>
+<!-- subtle shoulders -->
+<path d="M105 243l38-21 67 34-20 40-83-25zM315 243l-38-21-67 34 20 40 83-25z" fill="#20292b" opacity=".6"/>
+<!-- sleeves -->
+<path d="M45 316l58-73 39 21-23 65-65 18z" fill="#0d1416"/>
+<path d="M375 316l-58-73-39 21 23 65 65 18z" fill="#0d1416"/>
+<path d="M49 333l69-19M371 333l-69-19" stroke="url(#greenTrim)" stroke-width="8"/>
+<!-- collar -->
+<path d="M159 220l51 36 52-36 21 11-73 54-73-54z" fill="none" stroke="url(#greenTrim)" stroke-width="8"/>
+<!-- central jersey panel -->
+<path d="M142 252l68 4 68-4 26 177H116z" fill="#070a0b" opacity=".58"/>
+<!-- jersey sheen -->
+<path d="M93 279c67 25 160 25 234 0" stroke="#fff" stroke-opacity=".08" stroke-width="14" fill="none"/>
+<path d="M210 261v155" stroke="url(#greenTrim)" stroke-width="3" opacity=".5"/>
+<!-- grassstatory mark placeholder on chest -->
+<circle cx="210" cy="287" r="19" fill="#061011" stroke="url(#gold)" stroke-width="2" opacity=".8"/>
+<path d="M197 287h26" stroke="url(#gold)" stroke-width="2" opacity=".7"/>
+<!-- body light -->
+<ellipse cx="212" cy="260" rx="165" ry="205" fill="url(#light)" pointer-events="none"/>
+</svg>
