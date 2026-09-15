@@ -655,7 +655,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .home-season-snapshot .secondary-btn{width:100%}
 }
 
-/* v21.1.10 header simplification */
+/* v21.1.11 header simplification */
 .app-brand-mini{margin:8px 0 16px;padding:0 4px}
 .app-brand-mini img{width:42px;height:42px;border-radius:11px}
 .app-brand-mini strong{font-size:1.15rem}
@@ -666,10 +666,10 @@ body:not(.splash-active) .site-title{display:none!important}
 .splash-brand-image{width:min(92vw,780px);max-height:48vh;object-fit:contain;margin-inline:auto}
 @media(max-width:600px){.splash-brand-image{width:100%;max-height:38vh}.app-brand-mini{margin-bottom:12px}}
 
-/* v21.1.10 developer plan preview */
+/* v21.1.11 developer plan preview */
 .plan-preview-status{margin-top:8px}.platinum-preview-pill{font-weight:800}
 
-/* v21.1.10 Platinum UX */
+/* v21.1.11 Platinum UX */
 .scorer-row,.report-scorer-row{display:grid!important;grid-template-columns:minmax(82px,auto) 1fr;gap:10px;align-items:start}
 .scorer-row>strong,.report-scorer-row>strong{white-space:nowrap;word-break:normal}
 .scorer-row .goal-times,.report-scorer-row .goal-times{display:flex;flex-wrap:wrap;gap:5px 10px;min-width:0}
@@ -690,7 +690,7 @@ body:not(.splash-active) .site-title{display:none!important}
 
 #homeView section:has(#matchHistoryList){display:none!important}
 
-/* v21.1.10 premium player cards + moments */
+/* v21.1.11 premium player cards + moments */
 .platinum-stats-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px;margin:14px 0 18px;background:#071b20;border:1px solid var(--line);border-radius:15px}
 .platinum-stats-tabs button{border:0;border-radius:11px;padding:11px 8px;background:transparent;color:var(--muted);font-weight:900}
 .platinum-stats-tabs button.active{background:var(--accent);color:#04130d}
@@ -709,3 +709,17 @@ body:not(.splash-active) .site-title{display:none!important}
 .gs-card-stats div{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 5px}.gs-card-stats b{font-size:1.35rem!important;color:#fff}.gs-card-stats span{color:#a9bbc0!important}
 .moments-list{display:grid;gap:12px;margin-top:14px}.moment-card{display:grid;grid-template-columns:48px 1fr auto;gap:13px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,#08252a,#06191d)}.moment-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.45rem;background:rgba(37,223,114,.11);border:1px solid rgba(37,223,114,.25)}.moment-card h3{margin:2px 0 4px}.moment-card p{margin:3px 0;color:var(--muted)}.moment-card .eyebrow{color:var(--accent);font-size:.64rem}.empty-moments{display:flex;flex-direction:column;gap:7px;padding:24px;text-align:center;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}.empty-moments strong{color:#fff}
 @media(max-width:520px){.player-card-carousel{grid-auto-columns:86%}.moment-card{grid-template-columns:44px 1fr}.moment-card .moment-share{grid-column:1/-1;width:100%}}
+
+/* v21.1.11 collectible Platinum card */
+.premium-card{height:430px!important;min-height:430px!important;border:0!important;border-radius:34px 34px 50px 50px!important;background:radial-gradient(circle at 65% 20%,rgba(255,255,255,.13),transparent 25%),linear-gradient(150deg,#090b0d 10%,#11191b 55%,#050708)!important;clip-path:polygon(10% 0,90% 0,100% 8%,97% 88%,82% 97%,50% 100%,18% 97%,3% 88%,0 8%)}
+.card-frame{position:absolute;inset:7px;clip-path:inherit;border:2px solid var(--club1);border-radius:30px 30px 46px 46px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.3);pointer-events:none}
+.card-flare{position:absolute;width:230px;height:230px;right:-70px;top:-55px;background:radial-gradient(circle,var(--club1),transparent 68%);opacity:.28;filter:blur(4px)}
+.premium-card-meta{position:relative;z-index:3;width:100%;display:flex;justify-content:space-between;align-items:flex-start}.premium-card-meta>div:first-child{display:flex;flex-direction:column;line-height:.9}.premium-card-meta strong{font-size:2.15rem;color:#f5e7b0}.premium-card-meta span{font-size:.78rem;font-weight:950;color:#f5e7b0;margin-top:7px}.mini-crest{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--club1);background:#071417;color:#fff;font-weight:950;font-size:.72rem}
+.footballer-avatar{position:relative;width:180px;height:205px;margin:-8px auto -3px;z-index:2;filter:drop-shadow(0 8px 12px rgba(0,0,0,.5))}
+.avatar-face{position:absolute;width:76px;height:91px;left:52px;top:30px;border-radius:44% 44% 48% 48%;background:linear-gradient(145deg,#30383a,#111719);box-shadow:inset -9px -4px 14px rgba(0,0,0,.45)}
+.avatar-hair{position:absolute;width:82px;height:42px;left:49px;top:19px;background:#080b0c;clip-path:polygon(0 65%,8% 25%,22% 42%,32% 5%,45% 31%,59% 0,68% 29%,83% 12%,100% 48%,92% 100%,8% 100%);z-index:2}
+.avatar-neck{position:absolute;width:37px;height:39px;left:72px;top:105px;background:#20292b}
+.avatar-shirt{position:absolute;width:170px;height:102px;left:5px;bottom:0;border-radius:52% 52% 10px 10px;background:linear-gradient(140deg,var(--club1),var(--club2));clip-path:polygon(20% 8%,39% 0,50% 17%,61% 0,80% 8%,100% 38%,88% 100%,12% 100%,0 38%);display:grid;place-items:center;padding-top:25px}.avatar-shirt span{font-size:2.3rem;font-weight:950;color:rgba(255,255,255,.75)}
+.premium-player-name{font-size:1.45rem;font-weight:950;text-align:center;position:relative;z-index:3;color:#f6e7b3;text-transform:uppercase}.premium-team-name{font-size:.68rem;font-weight:800;text-align:center;color:#b8c3c5;position:relative;z-index:3;margin-top:-5px}
+.premium-card-stats{position:relative;z-index:3;width:88%;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(245,231,179,.35);padding-top:10px}.premium-card-stats div{text-align:center;border-right:1px solid rgba(255,255,255,.12)}.premium-card-stats div:last-child{border:0}.premium-card-stats b{display:block;font-size:1.28rem;color:#fff}.premium-card-stats span{font-size:.64rem;color:#d7c995;font-weight:950}
+.moment-card small{display:block;color:#7f969b;margin-top:5px}

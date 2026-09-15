@@ -51,14 +51,31 @@ function renderMatchHistory(){const matches=loadMatches().filter(m=>m.status==='
 function renderMatchesView(){const fx=loadFixtures();$('upcomingMatchesList').innerHTML=fx.length?fx.map(f=>`<div class="history-card"><span class="history-date">${formatDate(f.date)}</span><span class="history-main"><span class="history-opponent">${escapeHtml(teamDisplay().name)} vs ${escapeHtml(f.opponent)}</span><br><span class="history-result">${f.competition||'League'} · ${f.venue==='away'?'Away':'Home'}</span></span></div>`).join(''):'<p class="muted">No upcoming fixtures.</p>';$('matchesResultsList').innerHTML=$('matchHistoryList').innerHTML;document.querySelectorAll('#matchesResultsList [data-history-match]').forEach(b=>b.onclick=()=>openMatchReport(b.dataset.historyMatch))}
 let statsDisplayMode='cards',statsSection='overview';
 function buildMoments(filter='All'){
- const stats=getPlayerStats(filter),team=getTeamStats(filter),moments=[];
+ const matches=loadMatches().filter(m=>(m.status==='completed'||m.fullTime)&&(filter==='All'||(m.competition||'League')===filter)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+ const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p])),moments=[],seenGoal=new Set(),seenAssist=new Set(),seenApp=new Set();let firstWin=false;
+ for(const m of matches){
+  const participants=new Set(m.starterPlayerIds||[]);
+  (m.events||[]).forEach(e=>{if(e.type==='substitution'&&e.onId)participants.add(e.onId);if(e.type==='players_adjust_our'&&e.playerId&&e.direction==='on')participants.add(e.playerId)});
+  participants.forEach(id=>{if(!seenApp.has(id)&&players[id]){seenApp.add(id);moments.push({icon:'⭐',title:'First Appearance',who:players[id].name,detail:`Made their first recorded appearance vs ${m.opponent||'the opposition'}`,date:m.date})}});
+  if(!firstWin&&(m.ourScore||0)>(m.theirScore||0)){firstWin=true;moments.push({icon:'🏆',title:'First Win',who:teamDisplay().name,detail:`First recorded win: ${m.ourScore}-${m.theirScore} vs ${m.opponent||'the opposition'}`,date:m.date})}
+  const goalsByPlayer={};
+  for(const e of m.events||[]){
+   if(e.type==='our_goal'&&e.playerId&&e.goalType!=='own_goal'&&players[e.playerId]){
+    goalsByPlayer[e.playerId]=(goalsByPlayer[e.playerId]||0)+1;
+    if(!seenGoal.has(e.playerId)){seenGoal.add(e.playerId);moments.push({icon:'⚽',title:'First Goal',who:players[e.playerId].name,detail:`Scored their first recorded goal vs ${m.opponent||'the opposition'}`,date:m.date})}
+   }
+   if(e.type==='our_goal'&&e.assistPlayerId&&players[e.assistPlayerId]&&!seenAssist.has(e.assistPlayerId)){seenAssist.add(e.assistPlayerId);moments.push({icon:'🎯',title:'First Assist',who:players[e.assistPlayerId].name,detail:`Recorded their first assist vs ${m.opponent||'the opposition'}`,date:m.date})}
+  }
+  Object.entries(goalsByPlayer).forEach(([id,n])=>{if(n>=3)moments.push({icon:'🎩',title:n===3?'Hat-trick':`${n}-Goal Match`,who:players[id].name,detail:`Scored ${n} goals vs ${m.opponent||'the opposition'}`,date:m.date})});
+ }
+ const stats=getPlayerStats(filter),team=getTeamStats(filter);
  stats.rows.forEach(p=>{
-  [10,20,25,50,100].forEach(n=>{if(p.apps>=n)moments.push({icon:'👕',title:`${n} appearances`,who:p.name,detail:`Reached ${n} appearances this season`})});
-  [10,20,25,50].forEach(n=>{if(p.goals>=n)moments.push({icon:'⚽',title:`${n} season goals`,who:p.name,detail:`Reached ${n} goals this season`})});
-  [10,20,25].forEach(n=>{if(p.assists>=n)moments.push({icon:'🎯',title:`${n} assists`,who:p.name,detail:`Reached ${n} assists this season`})});
+  [10,20,25,50,100].forEach(n=>{if(p.apps>=n)moments.push({icon:'👕',title:`${n} Appearances`,who:p.name,detail:`Reached ${n} appearances`,date:''})});
+  [10,20,25,50].forEach(n=>{if(p.goals>=n)moments.push({icon:'⚽',title:`${n} Season Goals`,who:p.name,detail:`Reached ${n} goals`,date:''})});
+  [10,20,25].forEach(n=>{if(p.assists>=n)moments.push({icon:'🎯',title:`${n} Assists`,who:p.name,detail:`Reached ${n} assists`,date:''})});
  });
- [5,10,20,25,50].forEach(n=>{if(team.won>=n)moments.push({icon:'🏆',title:`${n} team wins`,who:teamDisplay().name,detail:`Reached ${n} wins`})});
- [25,50,100].forEach(n=>{if(team.gf>=n)moments.push({icon:'⚽',title:`${n} team goals`,who:teamDisplay().name,detail:`Reached ${n} goals`})});
+ [5,10,20,25,50].forEach(n=>{if(team.won>=n)moments.push({icon:'🏆',title:`${n} Team Wins`,who:teamDisplay().name,detail:`Reached ${n} wins`,date:''})});
+ [25,50,100].forEach(n=>{if(team.gf>=n)moments.push({icon:'⚽',title:`${n} Team Goals`,who:teamDisplay().name,detail:`Reached ${n} goals`,date:''})});
  return moments.reverse();
 }
 function renderStatsView(){
@@ -73,12 +90,12 @@ function renderStatsView(){
   body=`<div class="stat-cards"><div class="stat-card"><strong>${team.played}</strong><span>Played</span></div><div class="stat-card"><strong>${team.won}</strong><span>Won</span></div><div class="stat-card"><strong>${team.drawn}</strong><span>Drawn</span></div><div class="stat-card"><strong>${team.lost}</strong><span>Lost</span></div><div class="stat-card"><strong>${team.gf}</strong><span>Goals For</span></div><div class="stat-card"><strong>${team.ga}</strong><span>Against</span></div></div><div class="insight-panel"><strong>Season story</strong><span>${team.played?`${team.won} wins from ${team.played} matches · ${team.gf} goals scored.`:'Your season story will build as matches are completed.'}</span></div>`;
  }else if(statsSection==='players'){
   const toggle=`<div class="stats-display-toggle"><button type="button" data-statmode="cards" class="${statsDisplayMode==='cards'?'active':''}">Cards</button><button type="button" data-statmode="table" class="${statsDisplayMode==='table'?'active':''}">Table</button></div>`;
-  const cards=`<div class="player-card-carousel">${stats.rows.map(p=>`<article class="gs-player-card" style="--club1:${escapeHtml(st.primaryColor||'#25df72')};--club2:${escapeHtml(st.secondaryColor||'#0b2a38')}"><div class="gs-card-accent"></div><div class="gs-card-head"><span class="gs-card-number">#${escapeHtml(p.number||'–')}</span><span class="gs-card-position">${escapeHtml(p.position||'PLAYER')}</span></div><div class="gs-silhouette" aria-hidden="true"><span class="sil-head"></span><span class="sil-body"></span></div><div class="gs-card-identity"><strong>${escapeHtml(p.name)}</strong><span>${escapeHtml(teamDisplay().abbr)} · ${escapeHtml(st.season||'Season')}</span></div><div class="gs-card-stats"><div><b>${p.goals}</b><span>GOALS</span></div><div><b>${p.assists}</b><span>ASSISTS</span></div><div><b>${p.apps}</b><span>APPS</span></div><div><b>${p.minutes}</b><span>MINS</span></div></div></article>`).join('')}</div>`;
+  const cards=`<div class="player-card-carousel">${stats.rows.map(p=>`<article class="gs-player-card premium-card" style="--club1:${escapeHtml(st.primaryColor||'#25df72')};--club2:${escapeHtml(st.secondaryColor||'#0b2a38')}"><div class="card-flare"></div><div class="card-frame"></div><div class="premium-card-meta"><div><strong>${escapeHtml(p.number||'–')}</strong><span>${escapeHtml((p.position||'PLAYER').slice(0,3).toUpperCase())}</span></div><div class="mini-crest">${escapeHtml(teamDisplay().abbr)}</div></div><div class="footballer-avatar" aria-hidden="true"><div class="avatar-hair"></div><div class="avatar-face"></div><div class="avatar-neck"></div><div class="avatar-shirt"><span>${escapeHtml(p.number||'')}</span></div></div><div class="premium-player-name">${escapeHtml(p.name)}</div><div class="premium-team-name">${escapeHtml(teamDisplay().name)} · ${escapeHtml(st.season||'Season')}</div><div class="premium-card-stats"><div><b>${p.goals}</b><span>GLS</span></div><div><b>${p.assists}</b><span>AST</span></div><div><b>${p.apps}</b><span>APP</span></div><div><b>${p.minutes}</b><span>MIN</span></div></div></article>`).join('')}</div>`;
   const table=`<div class="stats-table-scroll"><table class="premium-stats-table"><thead><tr><th>Player</th><th>Apps</th><th>Starts</th><th>Goals</th><th>Assists</th><th>Minutes</th></tr></thead><tbody>${stats.rows.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${p.apps}</td><td>${p.starts}</td><td>${p.goals}</td><td>${p.assists}</td><td>${p.minutes}</td></tr>`).join('')}</tbody></table></div>`;
   body=toggle+(statsDisplayMode==='cards'?cards:table);
  }else{
   const moments=buildMoments(statsFilter);
-  body=`<div class="moments-intro"><strong>Your GrassStatory</strong><span>Milestones and memorable moments created from the season you've recorded.</span></div><div class="moments-list">${moments.length?moments.map((m,i)=>`<article class="moment-card"><div class="moment-icon">${m.icon}</div><div><p class="eyebrow">MEMORABLE MOMENT</p><h3>${escapeHtml(m.title)}</h3><strong>${escapeHtml(m.who)}</strong><p>${escapeHtml(m.detail)}</p></div><button type="button" class="secondary-btn moment-share" data-moment="${i}">Share</button></article>`).join(''):`<div class="empty-moments"><strong>Your memorable moments will appear here.</strong><span>Appearances, goals, assists and team milestones are tracked automatically as your season grows.</span></div>`}</div>`;
+  body=`<div class="moments-intro"><strong>Your GrassStatory</strong><span>Milestones and memorable moments created from the season you've recorded.</span></div><div class="moments-list">${moments.length?moments.map((m,i)=>`<article class="moment-card"><div class="moment-icon">${m.icon}</div><div><p class="eyebrow">MEMORABLE MOMENT</p><h3>${escapeHtml(m.title)}</h3><strong>${escapeHtml(m.who)}</strong><p>${escapeHtml(m.detail)}</p>${m.date?`<small>${formatDate(m.date)}</small>`:''}</div><button type="button" class="secondary-btn moment-share" data-moment="${i}">Share</button></article>`).join(''):`<div class="empty-moments"><strong>Your memorable moments will appear here.</strong><span>Appearances, goals, assists and team milestones are tracked automatically as your season grows.</span></div>`}</div>`;
  }
  $('statsViewBody').innerHTML=tabs+body;
  document.querySelectorAll('[data-statsection]').forEach(b=>b.onclick=()=>{statsSection=b.dataset.statsection;renderStatsView()});
