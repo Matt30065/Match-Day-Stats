@@ -655,7 +655,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .home-season-snapshot .secondary-btn{width:100%}
 }
 
-/* v21.1.8 header simplification */
+/* v21.1.9 header simplification */
 .app-brand-mini{margin:8px 0 16px;padding:0 4px}
 .app-brand-mini img{width:42px;height:42px;border-radius:11px}
 .app-brand-mini strong{font-size:1.15rem}
@@ -666,5 +666,26 @@ body:not(.splash-active) .site-title{display:none!important}
 .splash-brand-image{width:min(92vw,780px);max-height:48vh;object-fit:contain;margin-inline:auto}
 @media(max-width:600px){.splash-brand-image{width:100%;max-height:38vh}.app-brand-mini{margin-bottom:12px}}
 
-/* v21.1.8 developer plan preview */
+/* v21.1.9 developer plan preview */
 .plan-preview-status{margin-top:8px}.platinum-preview-pill{font-weight:800}
+
+/* v21.1.9 Platinum UX */
+.scorer-row,.report-scorer-row{display:grid!important;grid-template-columns:minmax(82px,auto) 1fr;gap:10px;align-items:start}
+.scorer-row>strong,.report-scorer-row>strong{white-space:nowrap;word-break:normal}
+.scorer-row .goal-times,.report-scorer-row .goal-times{display:flex;flex-wrap:wrap;gap:5px 10px;min-width:0}
+.stats-display-toggle{display:flex;gap:6px;margin:18px 0 14px;background:rgba(255,255,255,.04);padding:5px;border-radius:14px;width:max-content}
+.stats-display-toggle button{border:0;border-radius:10px;padding:9px 16px;background:transparent;color:var(--muted);font-weight:800}
+.stats-display-toggle button.active{background:var(--accent);color:#03120c}
+.player-card-carousel{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,72%);gap:14px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x mandatory}
+.gs-player-card{scroll-snap-align:center;min-height:310px;border-radius:28px;padding:18px;position:relative;overflow:hidden;background:linear-gradient(145deg,var(--club1),var(--club2) 62%,#06191b);border:1px solid rgba(255,255,255,.25);box-shadow:0 16px 34px rgba(0,0,0,.3);display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+.gs-player-card:before{content:"";position:absolute;inset:8px;border:1px solid rgba(255,255,255,.22);border-radius:22px;pointer-events:none}
+.gs-card-top{width:100%;display:flex;justify-content:space-between;position:relative;z-index:1;font-weight:900}
+.gs-shirt{font-size:1.4rem}.gs-position{font-size:.78rem;letter-spacing:.12em}
+.gs-avatar{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;font-size:3.6rem;background:rgba(2,15,17,.42);border:2px solid rgba(255,255,255,.28);position:relative;z-index:1}
+.gs-player-name{font-size:1.35rem;text-align:center;position:relative;z-index:1}
+.gs-card-stats{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;border-top:1px solid rgba(255,255,255,.25);padding-top:12px;position:relative;z-index:1}
+.gs-card-stats div{text-align:center}.gs-card-stats b{display:block;font-size:1.18rem}.gs-card-stats span{font-size:.65rem;font-weight:900;letter-spacing:.08em;opacity:.8}
+.stats-table-scroll{overflow:auto}.premium-stats-table{width:100%;border-collapse:collapse}.premium-stats-table th,.premium-stats-table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.09);text-align:right}.premium-stats-table th:first-child,.premium-stats-table td:first-child{text-align:left;white-space:nowrap}
+.team-switch-panel{margin:12px 0;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+
+#homeView section:has(#matchHistoryList){display:none!important}
