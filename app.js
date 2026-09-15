@@ -91,10 +91,11 @@ function renderStatsView(){
   body=`<div class="stat-cards"><div class="stat-card"><strong>${team.played}</strong><span>Played</span></div><div class="stat-card"><strong>${team.won}</strong><span>Won</span></div><div class="stat-card"><strong>${team.drawn}</strong><span>Drawn</span></div><div class="stat-card"><strong>${team.lost}</strong><span>Lost</span></div><div class="stat-card"><strong>${team.gf}</strong><span>Goals For</span></div><div class="stat-card"><strong>${team.ga}</strong><span>Against</span></div></div><div class="insight-panel"><strong>Season story</strong><span>${team.played?`${team.won} wins from ${team.played} matches · ${team.gf} goals scored.`:'Your season story will build as matches are completed.'}</span></div>`;
  }else if(statsSection==='players'){
   const toggle=`<div class="stats-display-toggle"><button type="button" data-statmode="cards" aria-pressed="${statsDisplayMode==='cards'}" class="${statsDisplayMode==='cards'?'active':''}">Cards</button><button type="button" data-statmode="table" aria-pressed="${statsDisplayMode==='table'}" class="${statsDisplayMode==='table'?'active':''}">Table</button></div>`;
-  const cards=`<div class="player-card-carousel">${stats.rows.map(p=>`<article class="gs-player-card premium-card" style="--club1:${escapeHtml(st.primaryColor||'#25df72')};--club2:${escapeHtml(st.secondaryColor||'#0b2a38')}">
-  <div class="premium-card-bg"></div><div class="premium-radiance"></div><div class="card-frame"></div>
+  const cards=`<div class="player-card-carousel">${stats.rows.map(p=>`<article class="gs-player-card premium-card true-premium-card" style="--club1:${escapeHtml(st.primaryColor||'#25df72')};--club2:${escapeHtml(st.secondaryColor||'#0b2a38')}">
+  <div class="premium-card-art-wrap"><img src="premium-player-art.jpg" alt="" class="premium-player-art-image"></div>
+  <div class="premium-card-vignette"></div><div class="premium-card-glow"></div><div class="card-frame"></div>
   <div class="premium-card-meta"><div class="card-rating"><strong>${escapeHtml(p.number||'–')}</strong><span>${positionAbbr(p.position)}</span></div><div class="mini-crest">${escapeHtml(teamDisplay().abbr)}</div></div>
-  <div class="avatar-stage"><div class="avatar-halo"></div><img src="player-avatar.svg" alt="" class="realistic-player-avatar"><span class="jersey-number">${escapeHtml(p.number||'')}</span></div>
+  <div class="dynamic-jersey-number">${escapeHtml(p.number||'')}</div>
   <div class="premium-player-name">${escapeHtml(p.name)}</div>
   <div class="premium-team-name">${escapeHtml(teamDisplay().name)}<span>·</span>${escapeHtml(st.season||'Season')}</div>
   <div class="premium-card-stats"><div><b>${p.goals}</b><span>GOALS</span></div><div><b>${p.assists}</b><span>ASSISTS</span></div><div><b>${p.apps}</b><span>APPS</span></div><div><b>${p.minutes}</b><span>MINS</span></div></div>
