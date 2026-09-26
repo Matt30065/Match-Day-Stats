@@ -587,6 +587,187 @@ openMatchReport=function(id){
   activeMatchId=null;stopInterval();showView($('matchReportView'));renderMatchHistory();
 };
 
+// =========================================================
+// Completed-match amendment flow
+// =========================================================
+let amendmentState = null;
+
+function amendmentPlayerOptions(selectedId = '', includeEmpty = false) {
+  const players = loadPlayers();
+  const first = includeEmpty ? '<option value="">No assist</option>' : '';
+  return first + players.map(p => `<option value="${p.id}" ${p.id===selectedId?'selected':''}>${escapeHtml(playerLabel(p))}</option>`).join('');
+}
+
+function amendmentEventTypeLabel(type) {
+  return ({our_goal:'Our goal',their_goal:'Opponent goal',substitution:'Substitution',power_play_on:'Power Play on',power_play_off:'Power Play off'})[type] || type;
+}
+
+function renderAmendmentPlayers() {
+  const players = loadPlayers();
+  const s = loadSettings();
+  $('amendStarterTarget').textContent = s.playersOnPitch;
+  $('amendStarters').innerHTML = players.map(p => `<label class="amend-player-choice"><input type="checkbox" class="amend-starter-check" data-id="${p.id}" ${amendmentState.starterIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');
+  $('amendSubstitutes').innerHTML = players.map(p => `<label class="amend-player-choice"><input type="checkbox" class="amend-sub-check" data-id="${p.id}" ${amendmentState.substituteIds.has(p.id)?'checked':''}><span>${escapeHtml(playerLabel(p))}</span></label>`).join('');
+  document.querySelectorAll('.amend-starter-check').forEach(c => c.onchange = () => {
+    if (c.checked) amendmentState.starterIds.add(c.dataset.id); else amendmentState.starterIds.delete(c.dataset.id);
+    if (amendmentState.starterIds.has(c.dataset.id)) amendmentState.substituteIds.delete(c.dataset.id);
+    renderAmendmentPlayers();
+  });
+  document.querySelectorAll('.amend-sub-check').forEach(c => c.onchange = () => {
+    if (c.checked) amendmentState.substituteIds.add(c.dataset.id); else amendmentState.substituteIds.delete(c.dataset.id);
+    if (amendmentState.substituteIds.has(c.dataset.id)) amendmentState.starterIds.delete(c.dataset.id);
+    renderAmendmentPlayers();
+  });
+}
+
+function amendmentEventRow(event, index) {
+  const type = event.type || 'our_goal';
+  const period = Number(event.period) === 2 ? 2 : 1;
+  const minute = Math.max(1, Number(event.minute) || 1);
+  const goalFields = type === 'our_goal' || type === 'their_goal';
+  const subFields = type === 'substitution';
+  const pponFields = type === 'power_play_on';
+  const ppOffFields = type === 'power_play_off';
+  const playerSelect = amendmentPlayerOptions(event.playerId || '');
+  const assistSelect = amendmentPlayerOptions(event.assistPlayerId || '', true);
+  const offSelect = amendmentPlayerOptions(event.offId || '');
+  const onSelect = amendmentPlayerOptions(event.onId || '');
+  const ppOffSelect = amendmentPlayerOptions(event.playerId || '');
+  return `<article class="amend-event-row" data-index="${index}">
+    <div class="amend-event-head"><strong>Event ${index+1}</strong><button type="button" class="danger-btn compact-btn amend-remove-event">Remove</button></div>
+    <div class="amend-event-grid">
+      <label>Type<select class="amend-event-type"><option value="our_goal" ${type==='our_goal'?'selected':''}>${amendmentEventTypeLabel('our_goal')}</option><option value="their_goal" ${type==='their_goal'?'selected':''}>${amendmentEventTypeLabel('their_goal')}</option><option value="substitution" ${type==='substitution'?'selected':''}>${amendmentEventTypeLabel('substitution')}</option><option value="power_play_on" ${type==='power_play_on'?'selected':''}>${amendmentEventTypeLabel('power_play_on')}</option><option value="power_play_off" ${type==='power_play_off'?'selected':''}>${amendmentEventTypeLabel('power_play_off')}</option></select></label>
+      <label>Half<select class="amend-event-period"><option value="1" ${period===1?'selected':''}>1H</option><option value="2" ${period===2?'selected':''}>2H</option></select></label>
+      <label>Minute<input class="amend-event-minute" type="number" min="1" max="200" value="${minute}" /></label>
+      <div class="amend-event-fields ${goalFields?'':'hidden'}">
+        <label class="amend-our-player ${type==='our_goal'?'':'hidden'}">Scorer<select class="amend-event-player">${playerSelect}</select></label>
+        <label class="amend-assist ${type==='our_goal'?'':'hidden'}">Assist<select class="amend-event-assist">${assistSelect}</select></label>
+        <label class="checkline amend-penalty ${goalFields?'':'hidden'}"><input type="checkbox" class="amend-event-penalty" ${event.penalty?'checked':''} /><span>Penalty</span></label>
+      </div>
+      <div class="amend-event-fields ${subFields?'':'hidden'}">
+        <label>Off<select class="amend-event-off">${offSelect}</select></label>
+        <label>On<select class="amend-event-on">${onSelect}</select></label>
+        <label class="checkline"><input type="checkbox" class="amend-event-pp-transfer" ${event.powerPlaySlotTransferred?'checked':''} /><span>Power Play slot transferred</span></label>
+      </div>
+      <div class="amend-event-fields ${pponFields?'':'hidden'}">
+        <label>Player<select class="amend-event-pp-player">${playerSelect}</select></label>
+      </div>
+      <div class="amend-event-fields ${ppOffFields?'':'hidden'}">
+        <label>Player<select class="amend-event-pp-off-player">${ppOffSelect}</select></label>
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderAmendmentEvents() {
+  $('amendEventList').innerHTML = amendmentState.events.length
+    ? amendmentState.events.map(amendmentEventRow).join('')
+    : '<p class="muted">No events recorded. Use Add event to correct the match.</p>';
+  document.querySelectorAll('.amend-event-row').forEach((row, index) => {
+    row.querySelector('.amend-remove-event').onclick = () => { amendmentState.events.splice(index,1); renderAmendmentEvents(); };
+    row.querySelector('.amend-event-type').onchange = () => {
+      const old = amendmentState.events[index];
+      amendmentState.events[index] = { id: old.id || makeId(), type: row.querySelector('.amend-event-type').value, period: Number(row.querySelector('.amend-event-period').value)||1, minute: Number(row.querySelector('.amend-event-minute').value)||1 };
+      renderAmendmentEvents();
+    };
+    row.querySelector('.amend-event-period').onchange = () => amendmentState.events[index].period = Number(row.querySelector('.amend-event-period').value)||1;
+    row.querySelector('.amend-event-minute').oninput = () => amendmentState.events[index].minute = Math.max(1, Number(row.querySelector('.amend-event-minute').value)||1);
+    row.querySelector('.amend-event-player')?.addEventListener('change', e => amendmentState.events[index].playerId=e.target.value);
+    row.querySelector('.amend-event-assist')?.addEventListener('change', e => amendmentState.events[index].assistPlayerId=e.target.value || null);
+    row.querySelector('.amend-event-penalty')?.addEventListener('change', e => amendmentState.events[index].penalty=e.target.checked);
+    row.querySelector('.amend-event-off')?.addEventListener('change', e => amendmentState.events[index].offId=e.target.value);
+    row.querySelector('.amend-event-on')?.addEventListener('change', e => amendmentState.events[index].onId=e.target.value);
+    row.querySelector('.amend-event-pp-transfer')?.addEventListener('change', e => amendmentState.events[index].powerPlaySlotTransferred=e.target.checked);
+    row.querySelector('.amend-event-pp-player')?.addEventListener('change', e => { amendmentState.events[index].playerId=e.target.value; amendmentState.events[index].onId=e.target.value; });
+    row.querySelector('.amend-event-pp-off-player')?.addEventListener('change', e => { amendmentState.events[index].playerId=e.target.value; amendmentState.events[index].removedPowerPlayPlayerId=e.target.value; });
+  });
+}
+
+function openMatchAmendment() {
+  if (!currentMatchReport) return;
+  const match = currentMatchReport;
+  amendmentState = {
+    matchId: match.id,
+    starterIds: new Set(match.starterPlayerIds || []),
+    substituteIds: new Set(match.substitutePlayerIds || []),
+    events: (match.events || []).map(e => ({...e}))
+  };
+  $('amendOpponent').value = match.opponent || '';
+  $('amendOpponentAbbr').value = cleanAbbr(match.opponentAbbr, derivedAbbr(match.opponent,'OPP'));
+  $('amendDate').value = match.date || '';
+  $('amendVenue').value = match.venue === 'away' ? 'away' : 'home';
+  $('amendHalfOur').value = Number(match.halfTimeScore?.our ?? 0);
+  $('amendHalfTheir').value = Number(match.halfTimeScore?.their ?? 0);
+  $('amendMatchError').textContent='';
+  renderAmendmentPlayers();
+  renderAmendmentEvents();
+  $('amendMatchDialog').showModal();
+}
+
+function readAmendmentEvents() {
+  return amendmentState.events.map(e => ({...e, period: Number(e.period)===2?2:1, minute: Math.max(1,Number(e.minute)||1)}));
+}
+
+function validateAmendment(match, events) {
+  const s=loadSettings();
+  if (!match.opponent.trim()) return 'Enter an opponent name.';
+  if (!match.date) return 'Enter the match date.';
+  if (amendmentState.starterIds.size !== Number(s.playersOnPitch)) return `Select exactly ${s.playersOnPitch} starters.`;
+  if (amendmentState.starterIds.size && [...amendmentState.starterIds].some(id=>amendmentState.substituteIds.has(id))) return 'A player cannot be both a starter and substitute.';
+  const players=new Set(loadPlayers().map(p=>p.id));
+  for (const e of events) {
+    if ((e.type==='our_goal'||e.type==='power_play_on') && !e.playerId) return `Event ${events.indexOf(e)+1}: select a player.`;
+    if (e.type==='our_goal' && e.assistPlayerId && e.assistPlayerId===e.playerId) return `Event ${events.indexOf(e)+1}: scorer and assist cannot be the same player.`;
+    if (e.type==='substitution' && (!e.offId || !e.onId || e.offId===e.onId)) return `Event ${events.indexOf(e)+1}: choose different players OFF and ON.`;
+    if (e.type==='power_play_off' && !e.playerId) return `Event ${events.indexOf(e)+1}: select a player.`;
+    for (const id of [e.playerId,e.assistPlayerId,e.offId,e.onId].filter(Boolean)) if(!players.has(id)) return `Event ${events.indexOf(e)+1}: selected player is no longer in the squad.`;
+  }
+  return '';
+}
+
+function saveMatchAmendment() {
+  if (!currentMatchReport || !amendmentState) return;
+  const events=readAmendmentEvents();
+  const edited={...currentMatchReport,
+    opponent:$('amendOpponent').value.trim(),
+    opponentAbbr:cleanAbbr($('amendOpponentAbbr').value,derivedAbbr($('amendOpponent').value.trim(),'OPP')),
+    date:$('amendDate').value,
+    venue:$('amendVenue').value==='away'?'away':'home',
+    starterPlayerIds:[...amendmentState.starterIds],
+    substitutePlayerIds:[...amendmentState.substituteIds],
+    events
+  };
+  const error=validateAmendment(edited,events);
+  $('amendMatchError').textContent=error;
+  if(error)return;
+  edited.availablePlayerIds=[...new Set([
+    ...(edited.availablePlayerIds||[]),
+    ...edited.starterPlayerIds,
+    ...edited.substitutePlayerIds,
+    ...events.flatMap(e=>[e.playerId,e.assistPlayerId,e.offId,e.onId]).filter(Boolean)
+  ])];
+  edited.ourScore=events.filter(e=>e.type==='our_goal').length;
+  edited.theirScore=events.filter(e=>e.type==='their_goal').length;
+  edited.halfTimeScore={our:Math.max(0,Number($('amendHalfOur').value)||0),their:Math.max(0,Number($('amendHalfTheir').value)||0)};
+  edited.finalScore={our:edited.ourScore,their:edited.theirScore};
+  edited.fullTime=true; edited.status='completed';
+  edited.powerPlayAllowance=replayPowerPlayAllowance(edited);
+  edited.powerPlayRuleVersion=3;
+  edited.powerPlayPlayers=[];
+  edited.currentOnPitch=[...edited.starterPlayerIds];
+  edited.currentSubs=[...edited.substitutePlayerIds];
+  edited.updatedAt=new Date().toISOString();
+  const matches=loadMatches(),i=matches.findIndex(m=>m.id===edited.id);
+  if(i<0){$('amendMatchError').textContent='The match could not be found. Refresh and try again.';return;}
+  matches[i]=edited; saveMatches(matches);
+  $('amendMatchDialog').close(); amendmentState=null; openMatchReport(edited.id); renderSeasonStatistics();
+}
+
+$('amendMatchBtn')?.addEventListener('click', openMatchAmendment);
+$('cancelAmendMatchBtn')?.addEventListener('click', () => { amendmentState=null; $('amendMatchDialog').close(); });
+$('addAmendEventBtn')?.addEventListener('click', () => { if(!amendmentState)return; amendmentState.events.push({id:makeId(),type:'our_goal',period:2,minute:1,playerId:loadPlayers()[0]?.id||'',assistPlayerId:null,penalty:false}); renderAmendmentEvents(); });
+$('amendMatchForm')?.addEventListener('submit', e => { e.preventDefault(); saveMatchAmendment(); });
+
 $('toggleMatchDetailsBtn').onclick=()=>{const p=$('reportDetailsPanel'),hidden=p.classList.toggle('hidden');$('toggleMatchDetailsBtn').textContent=hidden?'Match Details':'Hide Details';};
 function xmlEscape(value){return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 function shareGoalGroups(match,type){
