@@ -145,7 +145,7 @@ function resultText(match){
 }
 function renderMatchHistory(){
   const list=$('matchHistoryList'); if(!list)return;
-  const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>(b.completedAt||b.createdAt||'').localeCompare(a.completedAt||a.createdAt||''));
+  const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>{const ad=String(a.date||'');const bd=String(b.date||'');const byDate=bd.localeCompare(ad);if(byDate)return byDate;return String(b.completedAt||b.createdAt||'').localeCompare(String(a.completedAt||a.createdAt||''));});
   if(!matches.length){list.innerHTML='<p class="muted">No completed matches yet.</p>';return;}
   list.innerHTML=matches.map(m=>{const ta=cleanAbbr(m.teamAbbr,teamDisplaySettings().abbr),oa=cleanAbbr(m.opponentAbbr,derivedAbbr(m.opponent,'OPP'));const secondary=m.source==='previous-result'?`${resultText(m)} · ${escapeHtml(m.opponent)} · Previous result`:`${resultText(m)} · ${escapeHtml(m.opponent)} · HT ${m.halfTimeScore?`${m.halfTimeScore.our}-${m.halfTimeScore.their}`:'—'}`;return `<button class="history-card" type="button" data-match-id="${m.id}">
     <span class="history-date">${formatDateDisplay(m.date)}</span>
@@ -553,7 +553,7 @@ function resultText(match){
 }
 function renderMatchHistory(){
   const list=$('matchHistoryList'); if(!list)return;
-  const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>(b.completedAt||b.createdAt||'').localeCompare(a.completedAt||a.createdAt||''));
+  const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>{const ad=String(a.date||'');const bd=String(b.date||'');const byDate=bd.localeCompare(ad);if(byDate)return byDate;return String(b.completedAt||b.createdAt||'').localeCompare(String(a.completedAt||a.createdAt||''));});
   if(!matches.length){list.innerHTML='<p class="muted">No completed matches yet.</p>';return;}
   list.innerHTML=matches.map(m=>{const ta=cleanAbbr(m.teamAbbr,teamDisplaySettings().abbr),oa=cleanAbbr(m.opponentAbbr,derivedAbbr(m.opponent,'OPP'));return `<button class="history-card" type="button" data-match-id="${m.id}">
     <span class="history-date">${formatDateDisplay(m.date)}</span>
@@ -1118,7 +1118,7 @@ $('onboardingGoHomeBtn')?.addEventListener('click',()=>{closeFirstUseSetup();sho
 
 function lastStartingIds(){
   const players=new Set(loadPlayers().map(p=>p.id));
-  const previous=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>(b.completedAt||b.createdAt||'').localeCompare(a.completedAt||a.createdAt||''))[0];
+  const previous=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>{const ad=String(a.date||'');const bd=String(b.date||'');const byDate=bd.localeCompare(ad);if(byDate)return byDate;return String(b.completedAt||b.createdAt||'').localeCompare(String(a.completedAt||a.createdAt||''));})[0];
   const ids=(previous?.starterPlayerIds||[]).filter(id=>players.has(id));
   const n=loadSettings().playersOnPitch;
   return ids.length===n?ids:loadPlayers().slice(0,n).map(p=>p.id);

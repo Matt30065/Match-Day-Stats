@@ -11,3 +11,5 @@ The existing fluid first-use onboarding, match lobby, batch substitutions, score
 Adds a Previous Match result-only entry form for rebuilding historical team results after browser storage loss. Previous entries count toward matches played, wins/draws/losses, goals for and goals against without inventing player-level events.
 
 Version 20.9: Previous Match now supports known goal scorers and goal minutes; recorded goals feed player season goal totals.
+
+Version 21.1: Match History is sorted by match date, newest first and oldest last.
