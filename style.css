@@ -667,3 +667,16 @@ dialog{border-radius:22px!important}dialog h2{font-size:23px!important;margin-bo
 .amend-event-grid>label{margin:0}
 @media(max-width:760px){.amend-meta-grid,.amend-event-grid{grid-template-columns:1fr 1fr}.amend-event-fields{grid-template-columns:1fr}.amend-event-fields .checkline{grid-column:1/-1}.amend-player-grid{grid-template-columns:1fr}}
 @media(max-width:500px){.amend-meta-grid,.amend-event-grid{grid-template-columns:1fr}.amend-event-fields{grid-column:1}}
+
+
+/* Previous match history import */
+.history-heading{align-items:flex-start}
+.history-heading>button{flex:none}
+.previous-match-dialog{width:min(92vw,760px)!important}
+.previous-match-fields label{margin:0}
+.previous-goals-section{margin-top:18px;padding-top:18px;border-top:1px solid rgba(155,183,197,.14)}
+.previous-goal-list{display:grid;gap:10px}
+.previous-goal-row{display:grid;grid-template-columns:1.4fr .7fr .7fr;gap:10px;align-items:end;padding:12px;border:1px solid rgba(155,183,197,.14);border-radius:14px;background:rgba(255,255,255,.025)}
+.previous-goal-row label{margin:0!important}
+@media(max-width:700px){.history-heading{flex-direction:column}.history-heading>button{width:100%}}
+@media(max-width:500px){.previous-goal-row{grid-template-columns:1fr 1fr}.previous-goal-row label:first-child{grid-column:1/-1}}
