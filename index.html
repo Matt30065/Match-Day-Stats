@@ -67,7 +67,7 @@
       <section class="card">
         <div class="section-heading history-heading">
           <div><h2>Match History</h2><p class="muted compact">All completed matches are saved here on this device. Tap a match to open its report.</p></div>
-          <button id="addPreviousMatchBtn" class="secondary-btn compact-btn" type="button">+ Previous Match</button>
+          <button id="addPreviousMatchBtn" class="secondary-btn compact-btn" type="button" onclick="openPreviousMatchDialog()">+ Previous Match</button>
         </div>
         <div id="matchHistoryList" class="history-list"></div>
       </section>
@@ -471,6 +471,6 @@
       window.setTimeout(finish, DISPLAY_MS);
     })();
   </script>
-  <script src="app.js?v=20.9.0"></script>
+  <script src="app.js?v=21.0.0"></script>
 </body>
 </html>

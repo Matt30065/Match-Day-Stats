@@ -122,12 +122,12 @@ function openMatchReport(id){
   $('reportOpponentCrest').textContent=cleanAbbr(match.opponentAbbr,derivedAbbr(match.opponent,'OPP'));
   $('reportMeta').textContent=`${match.venue==='home'?'Home':'Away'} · ${formatDateDisplay(match.date)}`;
   $('reportFinalScore').textContent=`${match.ourScore} - ${match.theirScore}`;
-  const ht=match.halfTimeScore||{our:0,their:0}; $('reportHalfScore').textContent=`${ht.our} - ${ht.their}`;
+  const ht=match.halfTimeScore||{our:0,their:0}; $('reportHalfScore').textContent=match.source==='previous-result'?'Not recorded':`${ht.our} - ${ht.their}`;
   const events=match.events||[];
   const goals=events.filter(e=>e.type==='our_goal'||e.type==='their_goal');
   const subs=events.filter(e=>e.type==='substitution'||e.type==='power_play_on'||e.type==='power_play_off');
-  $('reportGoals').innerHTML=goals.length?[...goals].map(e=>`<div class="event-row"><span class="event-minute">${e.period===1?'1H':'2H'} ${e.minute}'</span><span>${escapeHtml(reportEventText(e))}</span></div>`).join(''):'<p class="muted">No goals recorded.</p>';
-  $('reportSubs').innerHTML=subs.length?[...subs].map(e=>`<div class="event-row"><span class="event-minute">${e.period===1?'1H':'2H'} ${e.minute}'</span><span>${escapeHtml(reportEventText(e))}</span></div>`).join(''):'<p class="muted">No substitutions recorded.</p>';
+  $('reportGoals').innerHTML=goals.length?[...goals].map(e=>`<div class="event-row"><span class="event-minute">${e.period===1?'1H':'2H'} ${e.minute}'</span><span>${escapeHtml(reportEventText(e))}</span></div>`).join(''):(match.source==='previous-result'?'<p class="muted">Previous result entered without goal scorers.</p>':'<p class="muted">No goals recorded.</p>');
+  $('reportSubs').innerHTML=subs.length?[...subs].map(e=>`<div class="event-row"><span class="event-minute">${e.period===1?'1H':'2H'} ${e.minute}'</span><span>${escapeHtml(reportEventText(e))}</span></div>`).join(''):(match.source==='previous-result'?'<p class="muted">Previous result entered without player events.</p>':'<p class="muted">No substitutions recorded.</p>');
   const players=Object.fromEntries(loadPlayers().map(p=>[p.id,p]));
   $('reportStarters').innerHTML=(match.starterPlayerIds||[]).map(id=>players[id]).filter(Boolean).map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join('')||'<p class="muted">No starters recorded.</p>';
   $('reportSubstitutes').innerHTML=(match.substitutePlayerIds||[]).map(id=>players[id]).filter(Boolean).map(p=>`<div class="summary-row">${escapeHtml(playerLabel(p))}</div>`).join('')||'<p class="muted">No substitutes recorded.</p>';
@@ -147,9 +147,9 @@ function renderMatchHistory(){
   const list=$('matchHistoryList'); if(!list)return;
   const matches=loadMatches().filter(m=>m.status==='completed'||m.fullTime).sort((a,b)=>(b.completedAt||b.createdAt||'').localeCompare(a.completedAt||a.createdAt||''));
   if(!matches.length){list.innerHTML='<p class="muted">No completed matches yet.</p>';return;}
-  list.innerHTML=matches.map(m=>{const ta=cleanAbbr(m.teamAbbr,teamDisplaySettings().abbr),oa=cleanAbbr(m.opponentAbbr,derivedAbbr(m.opponent,'OPP'));return `<button class="history-card" type="button" data-match-id="${m.id}">
+  list.innerHTML=matches.map(m=>{const ta=cleanAbbr(m.teamAbbr,teamDisplaySettings().abbr),oa=cleanAbbr(m.opponentAbbr,derivedAbbr(m.opponent,'OPP'));const secondary=m.source==='previous-result'?`${resultText(m)} · ${escapeHtml(m.opponent)} · Previous result`:`${resultText(m)} · ${escapeHtml(m.opponent)} · HT ${m.halfTimeScore?`${m.halfTimeScore.our}-${m.halfTimeScore.their}`:'—'}`;return `<button class="history-card" type="button" data-match-id="${m.id}">
     <span class="history-date">${formatDateDisplay(m.date)}</span>
-    <span class="history-main"><span class="history-opponent">${escapeHtml(ta)} ${m.ourScore} - ${m.theirScore} ${escapeHtml(oa)}</span><br><span class="history-result ${resultClass(m)}">${resultText(m)} · ${escapeHtml(m.opponent)} · HT ${m.halfTimeScore?`${m.halfTimeScore.our}-${m.halfTimeScore.their}`:'—'}</span></span>
+    <span class="history-main"><span class="history-opponent">${escapeHtml(ta)} ${m.ourScore} - ${m.theirScore} ${escapeHtml(oa)}</span><br><span class="history-result ${resultClass(m)}">${secondary}</span></span>
     <span>›</span></button>`}).join('');
   document.querySelectorAll('.history-card').forEach(b=>b.onclick=()=>openMatchReport(b.dataset.matchId));
 }
@@ -185,6 +185,113 @@ $('continueToMatchBtn')?.addEventListener('click',()=>{
   openMatchSetup();
 });
 $('newMatchBtn').onclick=()=>{if(!hasCompletedFirstUseSetup()){openFirstUseSetup();return;}openMatchSetup();};
+
+function renderPreviousGoalScorers(){
+  const list=$('previousGoalScorerList'); if(!list)return;
+  const count=Math.max(0,Number($('previousOurScore')?.value)||0);
+  const players=loadPlayers();
+  const old=[...list.querySelectorAll('.previous-goal-row')].map(row=>({
+    player:row.querySelector('.previous-goal-player')?.value||'',
+    period:row.querySelector('.previous-goal-period')?.value||'2',
+    minute:row.querySelector('.previous-goal-minute')?.value||'1'
+  }));
+  if(!count){list.innerHTML='<p class="muted compact">Enter our goals above to add scorers.</p>';return;}
+  const opts=players.length?players.map(p=>`<option value="${escapeHtml(p.id)}">${escapeHtml(playerLabel(p))}</option>`).join(''):'<option value="">No players set up</option>';
+  list.innerHTML=Array.from({length:count},(_,i)=>{
+    const prev=old[i]||{};
+    const selected=prev.player||players[0]?.id||'';
+    return `<div class="previous-goal-row" data-index="${i}">
+      <label>Goal ${i+1} — scorer<select class="previous-goal-player" ${players.length?'required':''}>${opts}</select></label>
+      <label>Half<select class="previous-goal-period"><option value="1">1st half</option><option value="2">2nd half</option></select></label>
+      <label>Minute<input class="previous-goal-minute" type="number" min="1" max="99" step="1" inputmode="numeric" value="${escapeHtml(prev.minute||'1')}" required></label>
+    </div>`;
+  }).join('');
+  [...list.querySelectorAll('.previous-goal-row')].forEach((row,i)=>{
+    const prev=old[i]||{};
+    const player=row.querySelector('.previous-goal-player');
+    const period=row.querySelector('.previous-goal-period');
+    if(prev.player)player.value=prev.player;
+    if(prev.period)period.value=prev.period;
+  });
+}
+function openPreviousMatchDialog(){
+  const dialog=$('previousMatchDialog'); if(!dialog)return;
+  $('previousMatchForm').reset();
+  $('previousDate').value=new Date().toISOString().slice(0,10);
+  $('previousOurScore').value='0';
+  $('previousTheirScore').value='0';
+  $('previousMatchError').textContent='';
+  refreshIdentityPreviews();
+  renderPreviousGoalScorers();
+  if (typeof dialog.showModal === 'function') dialog.showModal();
+  else dialog.setAttribute('open','');
+  $('previousOpponent')?.focus();
+}
+function savePreviousMatch(){
+  const opponent=$('previousOpponent').value.trim();
+  const date=$('previousDate').value;
+  const ourScore=Math.max(0,Number($('previousOurScore').value));
+  const theirScore=Math.max(0,Number($('previousTheirScore').value));
+  const error=$('previousMatchError');
+  if(!opponent){error.textContent='Enter the opponent name.';return;}
+  if(!date){error.textContent='Choose the match date.';return;}
+  if(!Number.isInteger(ourScore)||!Number.isInteger(theirScore)){error.textContent='Goals must be whole numbers.';return;}
+  const rows=[...document.querySelectorAll('#previousGoalScorerList .previous-goal-row')];
+  if(rows.length!==ourScore){error.textContent='Add a scorer and time for each of your goals.';return;}
+  const goalEvents=[];
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i];
+    const playerId=row.querySelector('.previous-goal-player')?.value||'';
+    const period=Number(row.querySelector('.previous-goal-period')?.value)||2;
+    const minute=Number(row.querySelector('.previous-goal-minute')?.value);
+    if(!playerId){error.textContent=`Select the scorer for goal ${i+1}.`;return;}
+    if(!Number.isInteger(minute)||minute<1||minute>99){error.textContent=`Enter a valid minute for goal ${i+1}.`;return;}
+    goalEvents.push({id:makeId(),type:'our_goal',period,minute,playerId,assistPlayerId:null,penalty:false});
+  }
+  const team=teamDisplaySettings();
+  const match={
+    id:makeId(),
+    teamName:team.name,
+    teamAbbr:team.abbr,
+    opponent,
+    opponentAbbr:cleanAbbr($('previousOpponentAbbr').value,derivedAbbr(opponent,'OPP')),
+    date,
+    venue:$('previousVenue').value==='away'?'away':'home',
+    availablePlayerIds:[],
+    starterPlayerIds:[],
+    substitutePlayerIds:[],
+    currentOnPitch:[],
+    currentSubs:[],
+    status:'completed',
+    period:2,
+    halfTime:true,
+    fullTime:true,
+    ourScore:ourScore,
+    theirScore:theirScore,
+    finalScore:{our:ourScore,their:theirScore},
+    halfTimeScore:{our:0,their:0},
+    events:goalEvents,
+    powerPlayPlayers:[],
+    powerPlayAllowance:0,
+    powerPlayRuleVersion:3,
+    periodElapsedSeconds:0,
+    periodStartedAt:null,
+    createdAt:new Date().toISOString(),
+    completedAt:new Date().toISOString(),
+    source:'previous-result'
+  };
+  const matches=loadMatches();
+  matches.push(match);
+  saveMatches(matches);
+  $('previousMatchDialog').close();
+  renderMatchHistory();
+  renderSeasonStatistics();
+}
+$('addPreviousMatchBtn')?.addEventListener('click',openPreviousMatchDialog);
+window.openPreviousMatchDialog = openPreviousMatchDialog;
+$('previousOurScore')?.addEventListener('input',renderPreviousGoalScorers);
+$('cancelPreviousMatchBtn')?.addEventListener('click',()=>$('previousMatchDialog').close());
+$('previousMatchForm')?.addEventListener('submit',e=>{e.preventDefault();savePreviousMatch();});
 $('settingsBtn').onclick=()=>{closeFirstUseSetup();showView(settingsView);};
 $('settingsBackBtn').onclick=()=>{closeFirstUseSetup();showView(homeView);};
 
